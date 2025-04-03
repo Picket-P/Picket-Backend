@@ -3,18 +3,11 @@ package com.example.picket.domain.show.entity;
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
 import com.example.picket.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,6 +51,13 @@ public class Show extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "director_id", nullable = false)
     private User user;
+
+    @PrePersist
+    private void prePersist() {
+        if (reservationEnd == null) { // reservationEnd가 null 이면 예매종료날짜가 공연시작날짜 전날 자정으로 set
+            reservationEnd = reservationStart.toLocalDate().minusDays(1).atTime(LocalTime.MIDNIGHT);
+        }
+    }
 
     @Builder
     private Show(String title, String posterUrl, Category category, String description, String location,
