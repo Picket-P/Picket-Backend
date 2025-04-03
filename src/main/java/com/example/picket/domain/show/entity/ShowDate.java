@@ -2,6 +2,8 @@ package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
+import com.example.picket.common.exception.CustomException;
+import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,6 +51,14 @@ public class ShowDate extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_id", nullable = false)
     private Show show;
+
+    public void discountRemainCount() {
+        if(this.remainCount <= 0) {
+            throw new CustomException(ErrorCode.NO_AVAILABLE_SEAT);
+        } else {
+            this.remainCount -= 1;
+        }
+    }
 
     @Builder
     private ShowDate(LocalDate date, LocalDateTime startTime, LocalDateTime endTime, Integer seatCount,

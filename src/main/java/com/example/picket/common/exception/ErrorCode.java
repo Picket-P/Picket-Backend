@@ -7,9 +7,17 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import static org.springframework.http.HttpStatus.*;
+
 @Getter
 public enum ErrorCode {
 
+    // A
+    AFTER_SHOW_RESERVATION_TIME(BAD_REQUEST, "예매 종료 시간 이후 입니다."),
+    ALREADY_RESERVED_SEAT(CONFLICT, "이미 선점된 좌석입니다."),
+
+    // B
+    BEFORE_SHOW_RESERVATION_TIME(BAD_REQUEST, "예매 시작 시간 전입니다."),
 
     // AUTH
     AUTH_UNAUTHORIZED_LOGIN(UNAUTHORIZED, "로그인 이후 이용 가능합니다."),
@@ -36,6 +44,9 @@ public enum ErrorCode {
 
 
     // SHOW
+    // N
+    NO_AVAILABLE_SEAT(CONFLICT, "남아있는 좌석이 없습니다."),
+
     SHOW_NOT_FOUND(NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
 
     // SHOW_DATE
@@ -44,6 +55,10 @@ public enum ErrorCode {
     // TICKET
     TICKET_TYPE_INVALID(BAD_REQUEST, "유효하지 않은 티켓 유형입니다."),
 
+    // S
+    SHOW_NOT_FOUND(NOT_FOUND, "존재하지 않는 Show입니다."),
+    SHOW_DATE_NOT_FOUND(NOT_FOUND, "존재하지 않는 ShowDate입니다."),
+    SEAT_NOT_FOUND(NOT_FOUND, "존재하지 않는 Seat입니다."),
 
     // USER
     USER_DUPLICATE_EMAIL(BAD_REQUEST, "이미 가입되어있는 이메일 입니다."),
