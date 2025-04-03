@@ -19,19 +19,4 @@ public class UserController {
     public ResponseEntity<UserResponse> getUser() {
         return ResponseEntity.ok(userService.getUser());
     }
-
-    @PatchMapping("/api/v1/users")
-    public ResponseEntity<UserResponse> updateUser(@RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(userService.updateUser(request));
-    }
-
-    @PatchMapping("/api/v1/users/password")
-    public void updatePassword(@RequestBody UpdatePasswordRequest request) {
-        userService.updatePassword(request);
-    }
-
-    @DeleteMapping("/api/v1/users/withdraw")
-    public void withdrawUser(@RequestBody WithdrawUserRequest request) {
-        userService.withdrawUserRequest(request);
-    }
 }
