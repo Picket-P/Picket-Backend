@@ -4,13 +4,13 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import java.util.Arrays;
 
-public enum UserRole {
-    USER, ADMIN, DIRECTOR;
+public enum Gender {
+    MALE, FEMALE;
 
-    public static UserRole of(String type) {
-        return Arrays.stream(UserRole.values())
+    public static Gender of(String type) {
+        return Arrays.stream(Gender.values())
                 .filter(t -> t.name().equalsIgnoreCase(type))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_TYPE));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_GENDER_TYPE));
     }
 }

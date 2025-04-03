@@ -1,7 +1,7 @@
 package com.example.picket.domain.show.repository;
 
-import com.example.picket.domain.show.entity.Show;
+import com.example.picket.domain.show.entity.ShowDate;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ShowRepository extends JpaRepository<Show, Long> {
+public interface ShowDateRepository extends JpaRepository<ShowDate, Long> {
 }

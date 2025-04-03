@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,51 +22,42 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "shows")
+@Table(name = "show_dates")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Show extends BaseEntity {
+public class ShowDate extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private LocalDate date;
 
     @Column(nullable = false)
-    private String posterUrl;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Category category;
+    private LocalDateTime startTime;
 
     @Column(nullable = false)
-    private String description;
+    private LocalDateTime endTime;
 
     @Column(nullable = false)
-    private String location;
+    private Integer seatCount;
 
     @Column(nullable = false)
-    private LocalDateTime reservationStart;
-
-    @Column(nullable = false)
-    private LocalDateTime reservationEnd;
+    private Integer remainCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "director_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "show_id", nullable = false)
+    private Show show;
 
     @Builder
-    private Show(String title, String posterUrl, Category category, String description, String location,
-                LocalDateTime reservationStart, LocalDateTime reservationEnd, User user) {
-        this.title = title;
-        this.posterUrl = posterUrl;
-        this.category = category;
-        this.description = description;
-        this.location = location;
-        this.reservationStart = reservationStart;
-        this.reservationEnd = reservationEnd;
-        this.user = user;
+    private ShowDate(LocalDate date, LocalDateTime startTime, LocalDateTime endTime, Integer seatCount,
+                     Integer remainCount, Show show) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.seatCount = seatCount;
+        this.remainCount = remainCount;
+        this.show = show;
     }
 }

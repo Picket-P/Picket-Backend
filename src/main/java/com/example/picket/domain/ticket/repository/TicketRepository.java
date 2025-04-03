@@ -1,4 +1,8 @@
 package com.example.picket.domain.ticket.repository;
 
-public interface TicketRepository {
+import com.example.picket.domain.ticket.entity.Ticket;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TicketRepository extends JpaRepository<Ticket, Long> {
+
 }
