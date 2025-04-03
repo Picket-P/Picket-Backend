@@ -6,12 +6,10 @@ import lombok.Getter;
 @Getter
 public class SigninResponse {
 
-    private final String sessionId;
     private final String nickname;
 
     @Builder
-    private SigninResponse(String sessionId, String nickname) {
-        this.sessionId = sessionId;
+    private SigninResponse(String nickname) {
         this.nickname = nickname;
     }
 }

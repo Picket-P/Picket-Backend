@@ -56,7 +56,6 @@ public class AuthService {
         session.setAttribute("authUser", authUser);
 
         return SigninResponse.builder()
-                .sessionId(session.getId())
                 .nickname(user.getNickname())
                 .build();
     }
