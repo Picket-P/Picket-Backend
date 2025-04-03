@@ -19,4 +19,9 @@ public class UserController {
     public ResponseEntity<UserResponse> getUser() {
         return ResponseEntity.ok(userService.getUser());
     }
+
+    @PatchMapping("/api/v1/users")
+    public ResponseEntity<UserResponse> updateUser(@RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(request));
+    }
 }
