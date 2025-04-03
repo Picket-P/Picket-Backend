@@ -4,14 +4,12 @@ import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
 import com.example.picket.domain.user.entity.User;
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "shows")
