@@ -29,4 +29,9 @@ public class UserController {
     public void updatePassword(@RequestBody UpdatePasswordRequest request) {
         userService.updatePassword(request);
     }
+
+    @DeleteMapping("/api/v1/users/withdraw")
+    public void withdrawUser(@RequestBody WithdrawUserRequest request) {
+        userService.withdrawUserRequest(request);
+    }
 }

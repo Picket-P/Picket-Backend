@@ -59,4 +59,17 @@ public class UserService {
 
         user.passwordUpdate(encodePassword);
     }
+
+    @Transactional
+    public void withdrawUserRequest(WithdrawUserRequest request) {
+        User user = userRepository.findById().orElseThrow(
+                () -> new CustomException(ErrorCode.CANNOT_FIND_USER)
+        );
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_DOES_NOT_MATCH);
+        }
+
+        userRepository.delete(user);
+    }
 }
