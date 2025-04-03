@@ -12,39 +12,41 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/api/v1/auth/signup/user")
+    @PostMapping("/auth/signup/user")
     public ResponseEntity<Void> signupUser(@Valid @RequestBody SignupRequest request) {
         authService.signup(request, UserRole.USER);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/api/v1/auth/signup/director")
+    @PostMapping("/auth/signup/director")
     public ResponseEntity<Void> signupDirector(@Valid @RequestBody SignupRequest request) {
         authService.signup(request, UserRole.DIRECTOR);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/api/v1/auth/signup/admin")
+    @PostMapping("/auth/signup/admin")
     public ResponseEntity<Void> signupAdmin(@Valid @RequestBody SignupRequest request) {
         authService.signup(request, UserRole.ADMIN);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/api/v1/auth/signin")
+    @PostMapping("/auth/signin")
     public ResponseEntity<SigninResponse> signin(HttpSession session, @Valid @RequestBody SigninRequest request) {
         SigninResponse response = authService.signin(session, request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/api/v1/auth/signout")
+    @PostMapping("/auth/signout")
     public ResponseEntity<Void> signout(HttpSession session) {
         authService.signout(session);
         return new ResponseEntity<>(HttpStatus.OK);

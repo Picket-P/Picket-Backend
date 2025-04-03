@@ -27,7 +27,6 @@ public class GlobalExceptionHandler {
             .findFirst()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .orElseThrow(() -> new IllegalStateException("검증 에러가 반드시 존재해야 합니다."));
-        System.out.println("Hello!!! MethodArgumentNotValidException");
         return getErrorResponse(HttpStatus.BAD_REQUEST, firstErrorMessage);
     }
 
