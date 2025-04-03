@@ -13,11 +13,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "show_dates")
@@ -33,10 +33,10 @@ public class ShowDate extends BaseEntity {
     private LocalDate date;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column(nullable = false)
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Column(nullable = false)
     private Integer seatCount;
@@ -57,7 +57,7 @@ public class ShowDate extends BaseEntity {
     }
 
     @Builder
-    private ShowDate(LocalDate date, LocalDateTime startTime, LocalDateTime endTime, Integer seatCount,
+    private ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer seatCount,
                      Integer remainCount, Show show) {
         this.date = date;
         this.startTime = startTime;
