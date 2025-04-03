@@ -1,6 +1,7 @@
 package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
+import jakarta.persistence.*;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import jakarta.persistence.Column;
@@ -52,10 +53,10 @@ public class ShowDate extends BaseEntity {
     private Show show;
 
     public void discountRemainCount() {
-        if(this.remainCount <= 0) {
+        if(this.availableSeatCount <= 0) {
             throw new CustomException(ErrorCode.SEAT_NO_AVAILABLE);
         } else {
-            this.remainCount -= 1;
+            this.availableSeatCount -= 1;
         }
     }
 
