@@ -10,7 +10,6 @@ import com.example.picket.domain.user.dto.response.UserResponse;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getUser() {
         User user = userRepository.findById().orElseThrow(
-                () -> new CustomException(ErrorCode.CANNOT_FIND_USER)
+                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
         return new UserResponse(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
@@ -33,11 +32,11 @@ public class UserService {
     @Transactional
     public UserResponse updateUser(UpdateUserRequest request) {
         User user = userRepository.findById().orElseThrow(
-                () -> new CustomException(ErrorCode.CANNOT_FIND_USER)
+                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.PASSWORD_DOES_NOT_MATCH);
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         user.update(request.getNickname(), request.getProfileUrl());
@@ -48,11 +47,11 @@ public class UserService {
     @Transactional
     public void updatePassword(UpdatePasswordRequest request) {
         User user = userRepository.findById().orElseThrow(
-                () -> new CustomException(ErrorCode.CANNOT_FIND_USER)
+                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.PASSWORD_DOES_NOT_MATCH);
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         String encodePassword = passwordEncoder.encode(request.getNewPassword());
@@ -63,11 +62,11 @@ public class UserService {
     @Transactional
     public void withdrawUserRequest(WithdrawUserRequest request) {
         User user = userRepository.findById().orElseThrow(
-                () -> new CustomException(ErrorCode.CANNOT_FIND_USER)
+                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.PASSWORD_DOES_NOT_MATCH);
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         userRepository.delete(user);
