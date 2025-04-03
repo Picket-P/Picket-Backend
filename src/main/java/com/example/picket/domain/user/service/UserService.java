@@ -29,4 +29,19 @@ public class UserService {
 
         return new UserResponse(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
     }
+
+    @Transactional
+    public UserResponse updateUser(UpdateUserRequest request) {
+        User user = userRepository.findById().orElseThrow(
+                () -> new CustomException(ErrorCode.CANNOT_FIND_USER)
+        );
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_DOES_NOT_MATCH);
+        }
+
+        user.update(request.getNickname(), request.getProfileUrl());
+
+        return new UserResponse(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
+    }
 }
