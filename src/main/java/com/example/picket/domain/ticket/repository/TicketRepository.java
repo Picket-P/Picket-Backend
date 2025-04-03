@@ -1,5 +1,6 @@
 package com.example.picket.domain.ticket.repository;
 
+import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.ticket.entity.Ticket;
 import org.springframework.data.domain.Page;
@@ -22,4 +23,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @EntityGraph(attributePaths = {"user", "show", "seat"})
     @Query("select t from Ticket t where t.id = :ticketId")
     Optional<Ticket> findByTicketId(@Param("ticketId") Long ticketId);
+
+    Boolean existsByUserIdAndShowIdAndStatusNot(@Param("userId") Long userId, @Param("showId") Long showId, @Param("status") TicketStatus status);
 }
