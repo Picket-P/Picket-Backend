@@ -2,14 +2,11 @@ package com.example.picket.common.auth;
 
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
-import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
-import com.example.picket.domain.auth.service.AuthService;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;

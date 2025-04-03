@@ -1,7 +1,5 @@
 package com.example.picket.domain.auth.controller;
 
-import com.example.picket.common.annotation.Auth;
-import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.auth.dto.request.SigninRequest;
 import com.example.picket.domain.auth.dto.request.SignupRequest;

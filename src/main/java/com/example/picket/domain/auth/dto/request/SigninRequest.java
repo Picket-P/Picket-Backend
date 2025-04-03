@@ -1,13 +1,6 @@
 package com.example.picket.domain.auth.dto.request;
 
-import com.example.picket.common.consts.Const;
-import com.example.picket.common.enums.Gender;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

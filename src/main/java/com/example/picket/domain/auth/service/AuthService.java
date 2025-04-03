@@ -40,7 +40,6 @@ public class AuthService {
         userRepository.save(newUser);
     }
 
-
     public SigninResponse signin(HttpSession session, SigninRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
