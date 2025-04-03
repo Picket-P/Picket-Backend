@@ -3,6 +3,7 @@ package com.example.picket.domain.user.controller;
 import com.example.picket.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.picket.domain.user.dto.request.UpdateUserRequest;
 import com.example.picket.domain.user.dto.request.WithdrawUserRequest;
+import com.example.picket.domain.user.dto.response.UserResponse;
 import com.example.picket.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,17 +21,17 @@ public class UserController {
     }
 
     @PatchMapping("/api/v1/users")
-    public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(request));
     }
 
     @PatchMapping("/api/v1/users/password")
-    public ResponseEntity<UpdatePasswordResponse> updatePassword(@RequestBody UpdatePasswordRequest request) {
-        return ResponseEntity.ok(userService.updatePassword(request));
+    public void updatePassword(@RequestBody UpdatePasswordRequest request) {
+        userService.updatePassword(request);
     }
 
     @DeleteMapping("/api/v1/users/withdraw")
     public void withdrawUser(@RequestBody WithdrawUserRequest request) {
-        return ResponseEntity.ok(userService.withdrawUserRequest(request));
+        userService.withdrawUserRequest(request);
     }
 }

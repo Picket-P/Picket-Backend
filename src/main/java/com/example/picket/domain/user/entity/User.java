@@ -64,4 +64,13 @@ public class User extends BaseEntity {
                                 LocalDate birth, Gender gender) {
         return new User(email, password, userRole, profileUrl, nickname, birth, gender);
     }
+
+    public void update(String nickname, String profileUrl) {
+        this.nickname = nickname;
+        this.profileUrl = profileUrl;
+    }
+
+    public void passwordUpdate(String newPassword) {
+        this.password = newPassword;
+    }
 }
