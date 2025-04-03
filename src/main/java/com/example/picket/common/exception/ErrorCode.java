@@ -1,6 +1,11 @@
 package com.example.picket.common.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -41,6 +46,9 @@ public enum ErrorCode {
     LIKE_ALREADY_EXIST(BAD_REQUEST, "이미 해당 좋아요를 눌렀습니다."),
 
     // SEAT
+    INVALID_AUTH_ANNOTATION_USAGE(BAD_REQUEST, "@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
+    INVALID_PASSWORD(UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
+    // M
 
 
     // SHOW
