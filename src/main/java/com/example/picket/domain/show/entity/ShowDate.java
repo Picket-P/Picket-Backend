@@ -39,10 +39,13 @@ public class ShowDate extends BaseEntity {
     private LocalTime endTime;
 
     @Column(nullable = false)
-    private Integer seatCount;
+    private Integer totalSeatCount;
 
     @Column(nullable = false)
-    private Integer remainCount;
+    private Integer reservedSeatCount = 0; // 예약된 좌석 수 (초기값 0)
+
+    @Column(nullable = false)
+    private Integer availableSeatCount; // 예매 가능한 좌석 수 (totalSeatCount - reservedSeatCount)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_id", nullable = false)
@@ -57,13 +60,20 @@ public class ShowDate extends BaseEntity {
     }
 
     @Builder
-    private ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer seatCount,
-                     Integer remainCount, Show show) {
+    private ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
+                     Integer reservedSeatCount, Show show) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.seatCount = seatCount;
-        this.remainCount = remainCount;
+        this.totalSeatCount = totalSeatCount;
+        this.reservedSeatCount = reservedSeatCount != null ? reservedSeatCount : 0;
+        this.availableSeatCount = totalSeatCount - this.reservedSeatCount;
         this.show = show;
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void updateAvailableSeats() {
+        this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
     }
 }
