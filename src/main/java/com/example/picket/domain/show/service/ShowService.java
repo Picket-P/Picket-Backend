@@ -1,5 +1,7 @@
 package com.example.picket.domain.show.service;
 
+import com.example.picket.common.exception.CustomException;
+import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.show.dto.ShowCreateRequest;
 import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
@@ -22,6 +24,8 @@ public class ShowService {
 
     @Transactional
     public ShowResponse createShow(ShowCreateRequest request) {
+
+        validateShowTimes(request); // 공연 시간 검증
 
         User director = new User();  // 빈 User 객체 생성
         director.setId(request.getDirectorId());
@@ -54,5 +58,14 @@ public class ShowService {
         showDateRepository.saveAll(showDates);
 
         return ShowResponse.from(show, showDates);
+    }
+
+    // 공연 시간 검증
+    private void validateShowTimes(ShowCreateRequest request) {
+        request.getDates().forEach(dateRequest -> {
+            if (dateRequest.getStartTime().isAfter(dateRequest.getEndTime())) {
+                throw new CustomException(ErrorCode.INVALID_SHOW_TIME);
+            }
+        });
     }
 }
