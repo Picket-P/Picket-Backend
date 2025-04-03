@@ -44,4 +44,19 @@ public class UserService {
 
         return new UserResponse(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
     }
+
+    @Transactional
+    public void updatePassword(UpdatePasswordRequest request) {
+        User user = userRepository.findById().orElseThrow(
+                () -> new CustomException(ErrorCode.CANNOT_FIND_USER)
+        );
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_DOES_NOT_MATCH);
+        }
+
+        String encodePassword = passwordEncoder.encode(request.getNewPassword());
+
+        user.passwordUpdate(encodePassword);
+    }
 }

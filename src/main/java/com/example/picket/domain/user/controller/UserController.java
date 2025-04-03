@@ -24,4 +24,9 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(request));
     }
+
+    @PatchMapping("/api/v1/users/password")
+    public void updatePassword(@RequestBody UpdatePasswordRequest request) {
+        userService.updatePassword(request);
+    }
 }
