@@ -87,7 +87,7 @@ public enum ErrorCode {
     USER_RESERVATION_ONLY(FORBIDDEN, "오직 USER만 예매 가능합니다."),
 
 
-   ;
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
