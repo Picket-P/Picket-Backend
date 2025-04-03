@@ -52,13 +52,15 @@ public class Show extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime reservationEnd;
 
+    private Integer ticketLimitPerUser;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "director_id", nullable = false)
     private User user;
 
     @Builder
     private Show(String title, String posterUrl, Category category, String description, String location,
-                 LocalDateTime reservationStart, LocalDateTime reservationEnd, User user) {
+                 LocalDateTime reservationStart, LocalDateTime reservationEnd, Integer ticketLimitPerUser, User user) {
         this.title = title;
         this.posterUrl = posterUrl;
         this.category = category;
@@ -66,6 +68,7 @@ public class Show extends BaseEntity {
         this.location = location;
         this.reservationStart = reservationStart;
         this.reservationEnd = reservationEnd;
+        this.ticketLimitPerUser = ticketLimitPerUser;
         this.user = user;
     }
 }
