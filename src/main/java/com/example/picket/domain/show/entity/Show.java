@@ -50,13 +50,6 @@ public class Show extends BaseEntity {
     @JoinColumn(name = "director_id", nullable = false)
     private User user;
 
-    @PrePersist
-    private void prePersist() {
-        if (reservationEnd == null) { // reservationEnd가 null 이면 예매종료날짜가 공연시작날짜 전날 자정으로 set
-            reservationEnd = reservationStart.toLocalDate().minusDays(1).atTime(LocalTime.MIDNIGHT);
-        }
-    }
-
     @Builder
     private Show(String title, String posterUrl, Category category, String description, String location,
                  LocalDateTime reservationStart, LocalDateTime reservationEnd, Integer ticketsLimitPerUser, User user) {
@@ -69,5 +62,12 @@ public class Show extends BaseEntity {
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
         this.user = user;
+    }
+
+    @PrePersist
+    private void prePersist() {
+        if (reservationEnd == null) { // reservationEnd가 null 이면 예매종료날짜가 공연시작날짜 전날 자정으로 set
+            reservationEnd = reservationStart.toLocalDate().minusDays(1).atTime(LocalTime.MIDNIGHT);
+        }
     }
 }
