@@ -10,12 +10,14 @@ import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
+import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
 import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -84,6 +87,28 @@ public class TicketService {
 
     }
 
+    @Transactional
+    public DeleteTicketResponse deleteTicket(Long ticketId, Long userId) {
+
+        Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
+                () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
+        );
+
+        validateUserInfo(userId, ticket);
+
+        ShowDate showDate = getShowDate(ticket.getShow());
+        if (LocalDate.now().isBefore(showDate.getDate())) {
+            ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
+            // TODO : 환불 처리 로직 구현 ?
+            // 환불이 성공적으로 끝났다면, TicketStatus와 deletedAt 업데이트
+            ticket.updateTicketStatus(TicketStatus.TICKET_EXPIRED);
+            ticket.updateDeletedAt(LocalDateTime.now());
+
+        }
+
+        return DeleteTicketResponse.from(ticket);
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -119,6 +144,12 @@ public class TicketService {
 
     private void discountShowDateRemainCount(ShowDate showDate) {
         showDate.discountRemainCount();
+    }
+
+    private void validateUserInfo(Long userId, Ticket ticket) {
+        if (ticket.getUser().getId() != userId) {
+            throw new CustomException(ErrorCode.TICKET_CANCEL_FORBIDDEN);
+        }
     }
 
 }

@@ -17,6 +17,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,6 +52,10 @@ public class Ticket extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_id", nullable = false)
     private Seat seat;
+
+    public void updateTicketStatus(TicketStatus ticketStatus) {
+        this.status = ticketStatus;
+    }
 
     @Builder
     private Ticket(BigDecimal price, TicketStatus status, User user, Show show, Seat seat) {
