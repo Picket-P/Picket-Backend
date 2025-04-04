@@ -16,9 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ShowCreateRequest {
 
-    @NotNull
-    private Long directorId;
-
     @NotBlank(message = "공연 제목은 필수 입력 값입니다.")
     private String title;
 
