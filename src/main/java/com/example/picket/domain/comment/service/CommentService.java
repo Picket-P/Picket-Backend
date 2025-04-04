@@ -27,18 +27,17 @@ public class CommentService {
     @Transactional
     public CommentResponse createComment(Long userId, Long showId, CommentRequest commentRequest) {
 
-        //todo : userId 추후 수정 필요
         Comment comment = Comment
                 .builder()
                 .content(commentRequest.getContent())
                 .show(showRepository.findById(showId).orElseThrow(()-> new CustomException(SHOW_NOT_FOUND)))
-                .user(userRepository.getReferenceById(1L))
+                .user(userRepository.getReferenceById(userId))
                 .build();
 
         commentRepository.save(comment);
 
 
-        return CommentResponse.from(comment, hasValidTicket(1L, showId));
+        return CommentResponse.from(comment, hasValidTicket(userId, showId));
     }
 
     private Boolean hasValidTicket(Long userId, Long showId) {
