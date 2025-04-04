@@ -13,28 +13,29 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/api/v1/users")
+    @GetMapping("/users")
     public ResponseEntity<UserResponse> getUser(@Auth AuthUser authUser) {
         return ResponseEntity.ok(userService.getUser(authUser));
     }
 
-    @PatchMapping("/api/v1/users")
+    @PatchMapping("/users")
     public ResponseEntity<UserResponse> updateUser(@Auth AuthUser authUser,
                                                    @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(authUser, request));
     }
 
-    @PatchMapping("/api/v1/users/password")
+    @PatchMapping("/users/password")
     public void updatePassword(@Auth AuthUser authUser,
                                @RequestBody UpdatePasswordRequest request) {
         userService.updatePassword(authUser, request);
     }
 
-    @DeleteMapping("/api/v1/users/withdraw")
+    @DeleteMapping("/users/withdraw")
     public void withdrawUser(@Auth AuthUser authUser,
                              @RequestBody WithdrawUserRequest request) {
         userService.withdrawUserRequest(authUser, request);
