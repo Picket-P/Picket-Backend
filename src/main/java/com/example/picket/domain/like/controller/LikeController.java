@@ -29,20 +29,21 @@ public class LikeController {
     public ResponseEntity<Page<LikeResponse>> getLikes(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size,
                                                        @Auth AuthUser authUser) {
-        Page<LikeResponse> responses = likeQueryService.getLikes(authUser, page, size);
+        Page<LikeResponse> responses = likeQueryService.getLikes(authUser.getId(), page, size);
+
         return ResponseEntity.ok(responses);
     }
 
     @PostMapping("/shows/{showId}/likes")
     public ResponseEntity<Void> createLike(@Auth AuthUser authUser, @PathVariable Long showId) {
-        likeCommandService.createLike(authUser, showId);
+        likeCommandService.createLike(authUser.getId(), showId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/shows/{showId}/likes/{likeId}")
     public ResponseEntity<Void> createLike(@Auth AuthUser authUser, @PathVariable Long showId,
                                            @PathVariable Long likeId) {
-        likeCommandService.deleteLike(authUser, showId, likeId);
+        likeCommandService.deleteLike(authUser.getId(), showId, likeId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

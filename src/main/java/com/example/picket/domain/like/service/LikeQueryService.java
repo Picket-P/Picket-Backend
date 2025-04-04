@@ -1,6 +1,5 @@
 package com.example.picket.domain.like.service;
 
-import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.like.dto.response.LikeResponse;
 import com.example.picket.domain.like.repository.LikeRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +16,8 @@ public class LikeQueryService {
 
     private final LikeRepository likeRepository;
 
-    public Page<LikeResponse> getLikes(AuthUser authUser, int page, int size) {
+    public Page<LikeResponse> getLikes(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return likeRepository.findLikesWithShowByUserId(authUser.getId(), pageable);
+        return likeRepository.findLikesWithShowByUserId(userId, pageable);
     }
 }

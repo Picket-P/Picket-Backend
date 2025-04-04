@@ -1,6 +1,5 @@
 package com.example.picket.domain.like.service;
 
-import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.like.entity.Like;
@@ -24,11 +23,15 @@ public class LikeCommandService {
     private final ShowRepository showRepository;
 
 
-    public void createLike(AuthUser authUser, Long showId) {
-        User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new CustomException(
+    public void createLike(Long userId, Long showId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(
                 ErrorCode.USER_NOT_FOUND));
 
         Show show = showRepository.findById(showId).orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
+
+        if (likeRepository.existsByUserIdAndShowId(user.getId(), show.getId())) {
+            throw new CustomException(ErrorCode.LIKE_ALREADY_EXIST);
+        }
 
         Like like = Like.builder()
                 .user(user)
@@ -38,10 +41,10 @@ public class LikeCommandService {
         likeRepository.save(like);
     }
 
-    public void deleteLike(AuthUser authUser, Long showId, Long likeId) {
+    public void deleteLike(Long userId, Long showId, Long likeId) {
         Like like = likeRepository.findWithUserAndShowById(likeId).orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
 
-        if (!Objects.equals(like.getUser().getId(), authUser.getId())) {
+        if (!Objects.equals(like.getUser().getId(), userId)) {
             throw new CustomException(ErrorCode.LIKE_REQUEST_USER_MISMATCH);
         }
 
