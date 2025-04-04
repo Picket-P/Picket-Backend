@@ -37,7 +37,7 @@ public class TicketServiceAspect {
         }
 
         if (userRole != UserRole.USER) {
-            throw new CustomException(ErrorCode.ONLY_USER_CAN_RESERVATION);
+            throw new CustomException(ErrorCode.USER_RESERVATION_ONLY);
         }
     }
 }
