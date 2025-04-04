@@ -1,5 +1,6 @@
 package com.example.picket.domain.user.service;
 
+import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.config.PasswordEncoder;
@@ -21,8 +22,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public UserResponse getUser() {
-        User user = userRepository.findById().orElseThrow(
+    public UserResponse getUser(AuthUser authUser) {
+        User user = userRepository.findById(authUser.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
@@ -30,8 +31,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUser(UpdateUserRequest request) {
-        User user = userRepository.findById().orElseThrow(
+    public UserResponse updateUser(AuthUser authUser, UpdateUserRequest request) {
+        User user = userRepository.findById(authUser.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
@@ -45,8 +46,8 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword(UpdatePasswordRequest request) {
-        User user = userRepository.findById().orElseThrow(
+    public void updatePassword(AuthUser authUser, UpdatePasswordRequest request) {
+        User user = userRepository.findById(authUser.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
@@ -60,8 +61,8 @@ public class UserService {
     }
 
     @Transactional
-    public void withdrawUserRequest(WithdrawUserRequest request) {
-        User user = userRepository.findById().orElseThrow(
+    public void withdrawUserRequest(AuthUser authUser, WithdrawUserRequest request) {
+        User user = userRepository.findById(authUser.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
 
