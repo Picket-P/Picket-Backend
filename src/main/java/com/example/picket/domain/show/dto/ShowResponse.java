@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class ShowResponse {
 
     private Long id;
+    private Long directorId;
     private String title;
     private String posterUrl;
     private String category;
@@ -36,6 +37,7 @@ public class ShowResponse {
 
     public ShowResponse(Show show, List<ShowDate> showDates) {
         this.id = show.getId();
+        this.directorId = show.getDirectorId();
         this.title = show.getTitle();
         this.posterUrl = show.getPosterUrl();
         this.category = show.getCategory().name();
