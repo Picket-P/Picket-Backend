@@ -1,7 +1,6 @@
 package com.example.picket.domain.comment.dto.response;
 
 import com.example.picket.domain.comment.entity.Comment;
-import com.example.picket.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,13 +9,13 @@ import java.time.LocalDateTime;
 @Getter
 public class CommentResponse {
 
-    private Long userId;
-    private String nickname;
-    private Long id;
-    private String content;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
-    private Boolean isTicketBuyer;
+    private final Long userId;
+    private final String nickname;
+    private final Long id;
+    private final String content;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
+    private final Boolean isTicketBuyer;
 
     @Builder
     public CommentResponse(Long userId,
