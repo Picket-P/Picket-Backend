@@ -54,6 +54,10 @@ public enum ErrorCode {
     SHOW_NOT_FOUND(NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
 
     // SHOW_DATE
+    // O
+    ONLY_USER_CAN_RESERVATION(FORBIDDEN, "오직 USER만 예매 가능합니다."),
+
+    // R
 
 
     // TICKET
@@ -63,6 +67,14 @@ public enum ErrorCode {
     SHOW_NOT_FOUND(NOT_FOUND, "존재하지 않는 Show입니다."),
     SHOW_DATE_NOT_FOUND(NOT_FOUND, "존재하지 않는 ShowDate입니다."),
     SEAT_NOT_FOUND(NOT_FOUND, "존재하지 않는 Seat입니다."),
+    SHOW_RESERVATION_TIME_INVALID_AFTER_SHOW(BAD_REQUEST, "예매 종료 시간 이후 입니다."),
+    SEAT_ALREADY_RESERVED(CONFLICT, "이미 예매된 좌석입니다."),
+    SHOW_RESERVATION_TIME_INVALID_BEFORE_SHOW(BAD_REQUEST, "예매 시작 시간 전입니다."),
+    SEAT_NO_AVAILABLE(CONFLICT, "남아있는 좌석이 없습니다."),
+
+
+    // T
+    TICKET_NOT_FOUND(NOT_FOUND, "존재하지 않는 Ticket입니다."),
 
     // USER
     USER_DUPLICATE_EMAIL(BAD_REQUEST, "이미 가입되어있는 이메일 입니다."),
