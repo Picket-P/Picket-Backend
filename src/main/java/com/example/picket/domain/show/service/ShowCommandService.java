@@ -64,7 +64,7 @@ public class ShowCommandService {
     private void validateShowTimes(ShowCreateRequest request) {
         request.getDates().forEach(dateRequest -> {
             if (dateRequest.getStartTime().isAfter(dateRequest.getEndTime())) {
-                throw new CustomException(ErrorCode.INVALID_SHOW_TIME);
+                throw new CustomException(ErrorCode.SHOW_TIME_INVALID);
             }
         });
     }
