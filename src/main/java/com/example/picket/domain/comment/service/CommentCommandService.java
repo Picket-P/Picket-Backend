@@ -44,9 +44,17 @@ public class CommentCommandService {
     @Transactional
     public CommentResponse updateComment(Long userId, Long showId, Long commentId, CommentRequest commentRequest) {
 
-        Comment comment = commentRepository.findByIdAndShowIdAndUserId(commentId, showId, userId).orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
+        Comment comment = commentRepository.findByIdAndShowIdAndUserId(commentId, showId, userId)
+                .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
         comment.updateContent(commentRequest.getContent());
         return CommentResponse.from(comment, hasValidTicket(userId, showId));
+    }
+
+    @Transactional
+    public void deleteComment(Long userId, Long showId, Long commentId) {
+        Comment comment = commentRepository.findByIdAndShowIdAndUserId(commentId, showId, userId)
+                .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
+        comment.deleteComment();
     }
 
 
