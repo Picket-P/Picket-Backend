@@ -27,7 +27,7 @@ public enum ErrorCode {
     AUTH_ANNOTATION_INVALID_USAGE(BAD_REQUEST, "@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
 
     // COMMENT
-
+    COMMENT_NOT_FOUND_IN_SHOW(NOT_FOUND, "해당 공연에 해당 사용자의 댓글이 없습니다."),
 
     // ENUM
     USER_TYPE_INVALID(BAD_REQUEST, "유효하지 않은 사용자 유형입니다."),

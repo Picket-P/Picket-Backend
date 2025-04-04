@@ -13,11 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.example.picket.common.exception.ErrorCode.COMMENT_NOT_FOUND_IN_SHOW;
 import static com.example.picket.common.exception.ErrorCode.SHOW_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-public class CommentService {
+public class CommentCommandService {
 
     private final CommentRepository commentRepository;
     private final ShowRepository showRepository;
@@ -39,6 +40,15 @@ public class CommentService {
 
         return CommentResponse.from(comment, hasValidTicket(userId, showId));
     }
+
+    @Transactional
+    public CommentResponse updateComment(Long userId, Long showId, Long commentId, CommentRequest commentRequest) {
+
+        Comment comment = commentRepository.findByIdAndShowIdAndUserId(commentId, showId, userId).orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
+        comment.updateContent(commentRequest.getContent());
+        return CommentResponse.from(comment, hasValidTicket(userId, showId));
+    }
+
 
     private Boolean hasValidTicket(Long userId, Long showId) {
         return ticketRepository.existsByUserIdAndShowIdAndStatusNot(userId, showId, TicketStatus.TICKET_CANCELED);
