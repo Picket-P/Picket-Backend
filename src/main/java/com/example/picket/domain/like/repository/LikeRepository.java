@@ -22,4 +22,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
             }
     )
     Optional<Like> findWithUserAndShowById(Long likeId);
+
+    boolean existsByUserIdAndShowId(Long userId, Long showId);
 }

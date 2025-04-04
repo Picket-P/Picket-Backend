@@ -30,6 +30,8 @@ public enum ErrorCode {
     LIKE_NOT_FOUND(NOT_FOUND, "해당 좋아요를 찾을 수 없습니다."),
     LIKE_REQUEST_USER_MISMATCH(BAD_REQUEST, "해당 좋아요를 누른 사용자와 요청한 사용자가 다릅니다."),
     LIKE_REQUEST_SHOW_MISMATCH(BAD_REQUEST, "해당 좋아요가 눌린 공연과 요청된 공연이 다릅니다."),
+    LIKE_ALREADY_EXIST(BAD_REQUEST, "이미 해당 좋아요를 눌렀습니다."),
+
     // SEAT
 
 
@@ -48,7 +50,7 @@ public enum ErrorCode {
     USER_PASSWORD_INVALID(UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(NOT_FOUND, "해당 유저를 찾을 수 없습니다."),
 
-    ;
+   ;
 
     private final HttpStatus httpStatus;
     private final String message;
