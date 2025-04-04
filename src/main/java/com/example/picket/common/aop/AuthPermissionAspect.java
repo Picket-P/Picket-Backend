@@ -26,12 +26,12 @@ public class AuthPermissionAspect {
     public void checkPermission(org.aspectj.lang.JoinPoint joinPoint) {
         HttpSession session = request.getSession(false);
         if (session == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_LOGIN);
+            throw new CustomException(ErrorCode.USER_ROLE_FORBIDDEN_PERMISSION);
         }
 
         AuthUser authUser = (AuthUser) session.getAttribute("authUser");
         if (authUser == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_LOGIN);
+            throw new CustomException(ErrorCode.USER_ROLE_FORBIDDEN_PERMISSION);
         }
 
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
