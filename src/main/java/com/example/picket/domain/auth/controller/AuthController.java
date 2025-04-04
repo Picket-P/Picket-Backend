@@ -5,7 +5,6 @@ import com.example.picket.domain.auth.dto.request.SigninRequest;
 import com.example.picket.domain.auth.dto.request.SignupRequest;
 import com.example.picket.domain.auth.dto.response.SigninResponse;
 import com.example.picket.domain.auth.service.AuthService;
-import com.example.picket.domain.user.entity.User;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,29 +24,25 @@ public class AuthController {
 
     @PostMapping("/auth/signup/user")
     public ResponseEntity<Void> signupUser(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request.getEmail(), request.getPassword(), request.getNickname(), request.getBirth(),
-                request.getGender(), UserRole.USER);
+        authService.signup(request, UserRole.USER);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/auth/signup/director")
     public ResponseEntity<Void> signupDirector(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request.getEmail(), request.getPassword(), request.getNickname(), request.getBirth(),
-                request.getGender(), UserRole.DIRECTOR);
+        authService.signup(request, UserRole.DIRECTOR);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/auth/signup/admin")
     public ResponseEntity<Void> signupAdmin(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request.getEmail(), request.getPassword(), request.getNickname(), request.getBirth(),
-                request.getGender(), UserRole.ADMIN);
+        authService.signup(request, UserRole.ADMIN);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/auth/signin")
     public ResponseEntity<SigninResponse> signin(HttpSession session, @Valid @RequestBody SigninRequest request) {
-        User user = authService.signin(session, request.getEmail(), request.getPassword());
-        SigninResponse response = SigninResponse.toDto(user.getNickname());
+        SigninResponse response = authService.signin(session, request);
         return ResponseEntity.ok(response);
     }
 

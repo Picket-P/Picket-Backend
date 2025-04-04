@@ -31,10 +31,10 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(
-        @Nullable MethodParameter parameter,
-        ModelAndViewContainer mavContainer,
-        @Nullable NativeWebRequest webRequest,
-        WebDataBinderFactory binderFactory
+            @Nullable MethodParameter parameter,
+            ModelAndViewContainer mavContainer,
+            @Nullable NativeWebRequest webRequest,
+            WebDataBinderFactory binderFactory
     ) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         HttpSession session = request.getSession();
