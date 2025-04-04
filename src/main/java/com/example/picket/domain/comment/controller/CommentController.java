@@ -17,14 +17,24 @@ public class CommentController {
     private final CommentCommandService commentCommandService;
 
     @PostMapping("/shows/{showId}/comments")
-    public ResponseEntity<CommentResponse> createComment(@Auth AuthUser auth, @PathVariable Long showId, @RequestBody CommentRequest commentRequest) {
+    public ResponseEntity<CommentResponse> createComment(@Auth AuthUser auth,
+                                                         @PathVariable Long showId,
+                                                         @RequestBody CommentRequest commentRequest) {
         return ResponseEntity.ok(commentCommandService.createComment(auth.getId(), showId, commentRequest));
     }
 
     @PatchMapping("/shows/{showId}/comments/{commentId}")
-    public ResponseEntity<CommentResponse> updateComment(@Auth AuthUser auth, @PathVariable Long showId, @PathVariable Long commentId, @RequestBody CommentRequest commentRequest) {
+    public ResponseEntity<CommentResponse> updateComment(@Auth AuthUser auth,
+                                                         @PathVariable Long showId,
+                                                         @PathVariable Long commentId,
+                                                         @RequestBody CommentRequest commentRequest) {
         return ResponseEntity.ok(commentCommandService.updateComment(auth.getId(), showId, commentId, commentRequest));
     }
 
+    @DeleteMapping("/shows/{showId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@Auth AuthUser auth, @PathVariable Long showId, @PathVariable Long commentId) {
+        commentCommandService.deleteComment(auth.getId(), showId, commentId);
+        return ResponseEntity.ok().build();
+    }
 
 }
