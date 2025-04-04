@@ -20,6 +20,6 @@ public enum TicketStatus {
         return Arrays.stream(TicketStatus.values())
                 .filter(t -> t.name().equalsIgnoreCase(type))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_TYPE));
+                .orElseThrow(() -> new CustomException(ErrorCode.TICKET_TYPE_INVALID));
     }
 }

@@ -25,7 +25,7 @@ public class AuthService {
 
     public void signup(SignupRequest request, UserRole userRole) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+            throw new CustomException(ErrorCode.USER_DUPLICATE_EMAIL);
         }
 
         User newUser = User.builder()
@@ -42,10 +42,10 @@ public class AuthService {
 
     public SigninResponse signin(HttpSession session, SigninRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
         }
 
         AuthUser authUser = AuthUser.builder()

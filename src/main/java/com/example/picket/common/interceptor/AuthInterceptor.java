@@ -16,7 +16,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         if (session == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_LOGIN);
+            throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED_LOGIN);
         }
 
         return true;

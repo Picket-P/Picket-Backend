@@ -23,7 +23,7 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
         boolean isAuthUserType = parameter.getParameterType().equals(AuthUser.class);
 
         if (hasAuthAnnotation != isAuthUserType) {
-            throw new CustomException(ErrorCode.INVALID_AUTH_ANNOTATION_USAGE);
+            throw new CustomException(ErrorCode.AUTH_ANNOTATION_INVALID_USAGE);
         }
 
         return true;

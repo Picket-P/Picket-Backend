@@ -11,6 +11,6 @@ public enum Grade {
         return Arrays.stream(Grade.values())
                 .filter(t -> t.name().equalsIgnoreCase(type))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_GRADE_TYPE));
+                .orElseThrow(() -> new CustomException(ErrorCode.GRADE_TYPE_INVALID));
     }
 }
