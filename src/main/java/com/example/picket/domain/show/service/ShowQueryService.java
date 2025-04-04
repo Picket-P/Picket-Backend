@@ -1,6 +1,8 @@
 package com.example.picket.domain.show.service;
 
 import com.example.picket.common.enums.Category;
+import com.example.picket.common.exception.CustomException;
+import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -70,6 +72,15 @@ public class ShowQueryService {
 
         responses.sort(comparator);
         return responses;
+    }
+
+    public ShowResponse getShowDetails(Long showId) {
+        Show show = showRepository.findById(showId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
+
+        List<ShowDate> showDates = showDateRepository.findAllByShowId(showId);
+
+        return ShowResponse.from(show, showDates);
     }
 }
 

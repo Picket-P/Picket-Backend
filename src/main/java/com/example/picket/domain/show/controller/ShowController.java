@@ -33,6 +33,11 @@ public class ShowController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/shows/{showId}")
+    public ResponseEntity<ShowResponse> getShowDetails(@PathVariable Long showId) {
+        return ResponseEntity.ok(showQueryService.getShowDetails(showId));
+    }
+
     @GetMapping("/shows")
     public List<ShowResponse> getShows(
             @RequestParam(required = false) String category,
