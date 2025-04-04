@@ -57,7 +57,7 @@ public class CommentCommandService {
         comment.deleteComment();
     }
 
-
+    // todo : 추후 ticketService로 이동
     private Boolean hasValidTicket(Long userId, Long showId) {
         return ticketRepository.existsByUserIdAndShowIdAndStatusNot(userId, showId, TicketStatus.TICKET_CANCELED);
     }
