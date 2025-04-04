@@ -3,6 +3,7 @@ package com.example.picket.domain.ticket.controller;
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
+import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
 import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,15 @@ public class TicketController {
     @GetMapping("tickets/{ticketId}")
     public ResponseEntity<GetTicketResponse> getTicket(
             @PathVariable Long ticketId) {
-        GetTicketResponse ticket = ticketService.getTicket(ticketId);
-        return ResponseEntity.ok(ticket);
+        GetTicketResponse getTicketResponse = ticketService.getTicket(ticketId);
+        return ResponseEntity.ok(getTicketResponse);
+    }
+
+    @PatchMapping("tickets/{ticketId}")
+    public ResponseEntity<DeleteTicketResponse> deleteTicket(
+            @PathVariable Long ticketId,
+            @Auth AuthUser authUser) {
+        DeleteTicketResponse deleteTicketResponse = ticketService.deleteTicket(ticketId, authUser.getId());
+        return ResponseEntity.ok(deleteTicketResponse);
     }
 }
