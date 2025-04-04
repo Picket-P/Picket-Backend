@@ -11,17 +11,11 @@ import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
 import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
-import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +25,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class TicketService {
+public class TicketCommandService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
@@ -64,26 +58,6 @@ public class TicketService {
         ticketRepository.save(ticket);
 
         return CreateTicketResponse.from(ticket);
-
-    }
-
-    @Transactional(readOnly = true)
-    public Page<GetTicketResponse> getTickets(Long userId, int size, int page) {
-
-        Sort sortStandard = Sort.by("createdAt").descending();
-        Pageable pageable = PageRequest.of(page - 1, size, sortStandard);
-
-        return ticketRepository.findByUser(userId, pageable).map(GetTicketResponse::from);
-
-    }
-
-    @Transactional(readOnly = true)
-    public GetTicketResponse getTicket(Long ticketId) {
-
-        Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
-                () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
-        );
-        return GetTicketResponse.from(ticket);
 
     }
 
@@ -151,5 +125,6 @@ public class TicketService {
             throw new CustomException(ErrorCode.TICKET_CANCEL_FORBIDDEN);
         }
     }
+
 
 }
