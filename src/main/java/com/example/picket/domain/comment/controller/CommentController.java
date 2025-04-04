@@ -4,8 +4,12 @@ import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.comment.dto.request.CommentRequest;
 import com.example.picket.domain.comment.dto.response.CommentResponse;
+import com.example.picket.domain.comment.dto.response.PageCommentResponse;
 import com.example.picket.domain.comment.service.CommentCommandService;
+import com.example.picket.domain.comment.service.CommentQueryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final CommentCommandService commentCommandService;
+    private final CommentQueryService  commentQueryService;
 
     @PostMapping("/shows/{showId}/comments")
     public ResponseEntity<CommentResponse> createComment(@Auth AuthUser auth,
@@ -35,6 +40,11 @@ public class CommentController {
     public ResponseEntity<Void> deleteComment(@Auth AuthUser auth, @PathVariable Long showId, @PathVariable Long commentId) {
         commentCommandService.deleteComment(auth.getId(), showId, commentId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/shows/{showId}/comments")
+    public ResponseEntity<PageCommentResponse> getComments(@PathVariable Long showId, @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        return ResponseEntity.ok(commentQueryService.getComments(showId, pageable));
     }
 
 }
