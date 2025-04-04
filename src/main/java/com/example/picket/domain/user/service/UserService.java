@@ -21,15 +21,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
-    public UserResponse getUser(AuthUser authUser) {
-        User user = userRepository.findById(authUser.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
-        );
-
-        return new UserResponse(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
-    }
-
     @Transactional
     public UserResponse updateUser(AuthUser authUser, UpdateUserRequest request) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(
