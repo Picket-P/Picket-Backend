@@ -27,13 +27,14 @@ public enum ErrorCode {
     GRADE_TYPE_INVALID(BAD_REQUEST, "유효하지 않은 등급 유형입니다."),
 
     // LIKE
-
-
+    LIKE_NOT_FOUND(NOT_FOUND, "해당 좋아요를 찾을 수 없습니다."),
+    LIKE_REQUEST_USER_MISMATCH(BAD_REQUEST, "해당 좋아요를 누른 사용자와 요청한 사용자가 다릅니다."),
+    LIKE_REQUEST_SHOW_MISMATCH(BAD_REQUEST, "해당 좋아요가 눌린 공연과 요청된 공연이 다릅니다."),
     // SEAT
 
 
     // SHOW
-
+    SHOW_NOT_FOUND(NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
 
     // SHOW_DATE
 
