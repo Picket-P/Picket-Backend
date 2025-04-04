@@ -18,6 +18,6 @@ public enum Category {
         return Arrays.stream(Category.values())
                 .filter(t -> t.name().equalsIgnoreCase(type))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CATEGORY_TYPE));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_TYPE_INVALID));
     }
 }

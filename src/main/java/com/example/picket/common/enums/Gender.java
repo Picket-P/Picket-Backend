@@ -11,6 +11,6 @@ public enum Gender {
         return Arrays.stream(Gender.values())
                 .filter(t -> t.name().equalsIgnoreCase(type))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_GENDER_TYPE));
+                .orElseThrow(() -> new CustomException(ErrorCode.GENDER_TYPE_INVALID));
     }
 }
