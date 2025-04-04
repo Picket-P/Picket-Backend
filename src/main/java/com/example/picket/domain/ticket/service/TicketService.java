@@ -110,4 +110,7 @@ public class TicketService {
     private void discountShowDateRemainCount(ShowDate showDate) {
         showDate.discountRemainCount();
     }
+
+    public  getTicket(Long ticketId) {
+    }
 }

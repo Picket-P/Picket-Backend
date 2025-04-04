@@ -35,4 +35,9 @@ public class TicketController {
         Page<GetTicketResponse> getTicketResponsePage = ticketService.getTickets(authUser.getId(), size, page);
         return ResponseEntity.ok(getTicketResponsePage);
     }
+
+    @GetMapping("tickets/{ticketId}")
+    public ResponseEntity<GetTicketResponse> getTicket(
+            @PathVariable Long ticketId) {
+    }
 }
