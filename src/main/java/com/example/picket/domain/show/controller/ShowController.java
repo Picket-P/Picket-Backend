@@ -7,13 +7,13 @@ import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.show.dto.ShowCreateRequest;
 import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.service.ShowCommandService;
+import com.example.picket.domain.show.service.ShowQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShowController {
 
     private final ShowCommandService showCommandService;
+    private final ShowQueryService showQueryService;
 
     @PostMapping("/admin/shows")
     @AuthPermission(role = UserRole.ADMIN)
@@ -30,5 +31,14 @@ public class ShowController {
     ) {
         ShowResponse response = showCommandService.createShow(authUser, request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/shows")
+    public List<ShowResponse> getShows(
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String order
+    ) {
+        return showQueryService.getShows(category, sortBy, order);
     }
 }
