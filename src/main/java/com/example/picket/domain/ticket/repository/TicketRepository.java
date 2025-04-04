@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Optional;
+
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     boolean existsBySeat(Seat seat);
@@ -18,4 +20,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @EntityGraph(attributePaths = {"user", "show", "seat"})
     @Query("select t from Ticket t where t.user.id = :userId")
     Page<Ticket> findByUser(@Param("userId")Long userId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "show", "seat"})
+    @Query("select t from Ticket t where t.id = :ticketId")
+    Optional<Ticket> findByTicketId(@Param("ticketId") Long ticketId);
 }

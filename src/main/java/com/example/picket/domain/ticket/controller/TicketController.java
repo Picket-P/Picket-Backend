@@ -39,5 +39,7 @@ public class TicketController {
     @GetMapping("tickets/{ticketId}")
     public ResponseEntity<GetTicketResponse> getTicket(
             @PathVariable Long ticketId) {
+        GetTicketResponse ticket = ticketService.getTicket(ticketId);
+        return ResponseEntity.ok(ticket);
     }
 }

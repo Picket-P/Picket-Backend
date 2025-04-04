@@ -74,6 +74,16 @@ public class TicketService {
 
     }
 
+    @Transactional(readOnly = true)
+    public GetTicketResponse getTicket(Long ticketId) {
+
+        Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
+                () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
+        );
+        return GetTicketResponse.from(ticket);
+
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -111,6 +121,4 @@ public class TicketService {
         showDate.discountRemainCount();
     }
 
-    public  getTicket(Long ticketId) {
-    }
 }
