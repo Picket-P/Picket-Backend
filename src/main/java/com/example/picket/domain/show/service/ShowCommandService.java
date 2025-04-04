@@ -1,5 +1,7 @@
 package com.example.picket.domain.show.service;
 
+import com.example.picket.common.annotation.Auth;
+import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.show.dto.ShowCreateRequest;
@@ -9,6 +11,7 @@ import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.repository.ShowRepository;
 import com.example.picket.domain.user.entity.User;
+import com.example.picket.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,21 +20,19 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ShowService {
+public class ShowCommandService {
 
     private final ShowRepository showRepository;
     private final ShowDateRepository showDateRepository;
 
     @Transactional
-    public ShowResponse createShow(ShowCreateRequest request) {
+    public ShowResponse createShow(@Auth AuthUser authUser, ShowCreateRequest request) {
 
         validateShowTimes(request); // 공연 시간 검증
 
-        User director = new User();  // 빈 User 객체 생성
-        director.setId(request.getDirectorId());
-
         Show show = showRepository.save(
                 Show.builder()
+                        .directorId(authUser.getId())
                         .title(request.getTitle())
                         .posterUrl(request.getPosterUrl())
                         .category(request.getCategory())
@@ -40,7 +41,6 @@ public class ShowService {
                         .reservationStart(request.getReservationStart())
                         .reservationEnd(request.getReservationEnd())
                         .ticketsLimitPerUser(request.getTicketsLimitPerUser())
-                        .user(director)
                         .build()
         );
 
