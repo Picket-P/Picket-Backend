@@ -16,7 +16,7 @@ import java.lang.reflect.Parameter;
 @Component
 public class TicketServiceAspect {
 
-    @Before("execution(* com.example.picket.domain.ticket.service.TicketService.createTicket(..))")
+    @Before("execution(* com.example.picket.domain.ticket.service.TicketCommandService.createTicket(..))")
     public void checkUserRoleBeforeCreateTicket(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();

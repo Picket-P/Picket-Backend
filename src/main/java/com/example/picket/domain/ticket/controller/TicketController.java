@@ -5,7 +5,8 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
 import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
 import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
-import com.example.picket.domain.ticket.service.TicketService;
+import com.example.picket.domain.ticket.service.TicketCommandService;
+import com.example.picket.domain.ticket.service.TicketQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/")
 public class TicketController {
 
-    private final TicketService ticketService;
+    private final TicketCommandService ticketCommandService;
+    private final TicketQueryService ticketQueryService;
 
     @PostMapping("seats/{seatId}/tickets")
     public ResponseEntity<CreateTicketResponse> createTicket(
             @PathVariable Long seatId,
             @Auth AuthUser authUser) {
-        CreateTicketResponse createTicketResponse = ticketService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
+        CreateTicketResponse createTicketResponse = ticketCommandService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
         return ResponseEntity.ok(createTicketResponse);
     }
 
@@ -33,14 +35,14 @@ public class TicketController {
             @RequestParam(defaultValue = "1") int page,
             @Auth AuthUser authUser
     ) {
-        Page<GetTicketResponse> getTicketResponsePage = ticketService.getTickets(authUser.getId(), size, page);
+        Page<GetTicketResponse> getTicketResponsePage = ticketQueryService.getTickets(authUser.getId(), size, page);
         return ResponseEntity.ok(getTicketResponsePage);
     }
 
     @GetMapping("tickets/{ticketId}")
     public ResponseEntity<GetTicketResponse> getTicket(
             @PathVariable Long ticketId) {
-        GetTicketResponse getTicketResponse = ticketService.getTicket(ticketId);
+        GetTicketResponse getTicketResponse = ticketQueryService.getTicket(ticketId);
         return ResponseEntity.ok(getTicketResponse);
     }
 
@@ -48,7 +50,7 @@ public class TicketController {
     public ResponseEntity<DeleteTicketResponse> deleteTicket(
             @PathVariable Long ticketId,
             @Auth AuthUser authUser) {
-        DeleteTicketResponse deleteTicketResponse = ticketService.deleteTicket(ticketId, authUser.getId());
+        DeleteTicketResponse deleteTicketResponse = ticketCommandService.deleteTicket(ticketId, authUser.getId());
         return ResponseEntity.ok(deleteTicketResponse);
     }
 }

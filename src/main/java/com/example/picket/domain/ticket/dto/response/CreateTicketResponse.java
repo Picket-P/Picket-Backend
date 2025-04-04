@@ -2,10 +2,7 @@ package com.example.picket.domain.ticket.dto.response;
 
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.domain.ticket.entity.Ticket;
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
