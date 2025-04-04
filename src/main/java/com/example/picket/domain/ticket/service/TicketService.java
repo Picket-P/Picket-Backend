@@ -1,6 +1,7 @@
 package com.example.picket.domain.ticket.service;
 
 import com.example.picket.common.enums.TicketStatus;
+import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.seat.entity.Seat;
@@ -8,18 +9,21 @@ import com.example.picket.domain.seat.repository.SeatRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
-import com.example.picket.domain.show.repository.ShowRepository;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
+import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -32,9 +36,7 @@ public class TicketService {
     private final ShowDateRepository showDateRepository;
 
     @Transactional
-    public CreateTicketResponse createTicket(Long userId, Long seatId) {
-
-        // TODO : 예매 가능한 UserRole -> USER만
+    public CreateTicketResponse createTicket(Long userId, UserRole userRole, Long seatId) {
 
         Seat foundSeat = getSeat(seatId);
         Show foundShow = foundSeat.getShow();
@@ -62,6 +64,16 @@ public class TicketService {
 
     }
 
+    @Transactional(readOnly = true)
+    public Page<GetTicketResponse> getTickets(Long userId, int size, int page) {
+
+        Sort sortStandard = Sort.by("createdAt").descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sortStandard);
+
+        return ticketRepository.findByUser(userId, pageable).map(GetTicketResponse::from);
+
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -79,7 +91,7 @@ public class TicketService {
 
     private void validateSeat(Seat seat) {
         if(ticketRepository.existsBySeat(seat)){
-            throw new CustomException(ErrorCode.ALREADY_RESERVED_SEAT);
+            throw new CustomException(ErrorCode.SEAT_ALREADY_RESERVED);
         }
     }
 
@@ -87,11 +99,11 @@ public class TicketService {
         LocalDateTime now = LocalDateTime.now();
 
         if (now.isBefore(show.getReservationStart())) {
-            throw new CustomException(ErrorCode.BEFORE_SHOW_RESERVATION_TIME);
+            throw new CustomException(ErrorCode.SHOW_RESERVATION_TIME_INVALID_BEFORE_SHOW);
         }
 
         if (now.isAfter(show.getReservationEnd())) {
-            throw new CustomException(ErrorCode.AFTER_SHOW_RESERVATION_TIME);
+            throw new CustomException(ErrorCode.SHOW_RESERVATION_TIME_INVALID_AFTER_SHOW);
         }
     }
 

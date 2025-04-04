@@ -1,14 +1,10 @@
 package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
-import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
-import com.example.picket.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -54,7 +50,7 @@ public class ShowDate extends BaseEntity {
 
     public void discountRemainCount() {
         if(this.remainCount <= 0) {
-            throw new CustomException(ErrorCode.NO_AVAILABLE_SEAT);
+            throw new CustomException(ErrorCode.SEAT_NO_AVAILABLE);
         } else {
             this.remainCount -= 1;
         }

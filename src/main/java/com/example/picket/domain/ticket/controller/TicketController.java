@@ -1,14 +1,15 @@
 package com.example.picket.domain.ticket.controller;
 
+import com.example.picket.common.annotation.Auth;
+import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
+import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,9 +21,18 @@ public class TicketController {
     @PostMapping("seats/{seatId}/tickets")
     public ResponseEntity<CreateTicketResponse> createTicket(
             @PathVariable Long seatId,
-            @RequestParam Long userId // TODO : 인증/인가 작업 완료 후 수정 필요
-    ) {
-        CreateTicketResponse createTicketResponse = ticketService.createTicket(userId, seatId);
+            @Auth AuthUser authUser) {
+        CreateTicketResponse createTicketResponse = ticketService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
         return ResponseEntity.ok(createTicketResponse);
+    }
+
+    @GetMapping("tickets")
+    public ResponseEntity<Page<GetTicketResponse>> getTickets(
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1") int page,
+            @Auth AuthUser authUser
+    ) {
+        Page<GetTicketResponse> getTicketResponsePage = ticketService.getTickets(authUser.getId(), size, page);
+        return ResponseEntity.ok(getTicketResponsePage);
     }
 }
