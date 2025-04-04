@@ -1,16 +1,15 @@
 package com.example.picket.domain.auth.service;
 
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.config.PasswordEncoder;
-import com.example.picket.domain.auth.dto.request.SigninRequest;
-import com.example.picket.domain.auth.dto.request.SignupRequest;
-import com.example.picket.domain.auth.dto.response.SigninResponse;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,28 +22,30 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signup(SignupRequest request, UserRole userRole) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+    public void signup(String email, String password, String nickname, LocalDate birth, Gender gender,
+                       UserRole userRole) {
+
+        if (userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.USER_DUPLICATE_EMAIL);
         }
 
         User newUser = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .email(email)
+                .password(passwordEncoder.encode(password))
                 .userRole(userRole)
-                .nickname(request.getNickname())
-                .birth(request.getBirth())
-                .gender(request.getGender())
+                .nickname(nickname)
+                .birth(birth)
+                .gender(gender)
                 .build();
 
         userRepository.save(newUser);
     }
 
-    public SigninResponse signin(HttpSession session, SigninRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+    public User signin(HttpSession session, String email, String password) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
         }
 
@@ -55,9 +56,7 @@ public class AuthService {
 
         session.setAttribute("authUser", authUser);
 
-        return SigninResponse.builder()
-                .nickname(user.getNickname())
-                .build();
+        return user;
     }
 
     public void signout(HttpSession session) {
