@@ -22,11 +22,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         String firstErrorMessage = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .findFirst()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .orElseThrow(() -> new IllegalStateException("검증 에러가 반드시 존재해야 합니다."));
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .orElseThrow(() -> new IllegalStateException("검증 에러가 반드시 존재해야 합니다."));
         return getErrorResponse(HttpStatus.BAD_REQUEST, firstErrorMessage);
     }
 
