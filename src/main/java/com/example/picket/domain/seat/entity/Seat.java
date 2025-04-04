@@ -1,23 +1,14 @@
 package com.example.picket.domain.seat.entity;
 
 import com.example.picket.common.enums.Grade;
-import com.example.picket.domain.show.entity.Show;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.math.BigDecimal;
+import com.example.picket.domain.show.entity.ShowDate;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "seats")
@@ -40,14 +31,14 @@ public class Seat {
     private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "show_id", nullable = false)
-    private Show show;
+    @JoinColumn(name = "show_date_id", nullable = false)
+    private ShowDate showDate;
 
     @Builder
-    private Seat(Integer seatNumber, Grade grade, BigDecimal price, Show show) {
+    private Seat(Integer seatNumber, Grade grade, BigDecimal price, ShowDate showDate) {
         this.seatNumber = seatNumber;
         this.grade = grade;
         this.price = price;
-        this.show = show;
+        this.showDate = showDate;
     }
 }
