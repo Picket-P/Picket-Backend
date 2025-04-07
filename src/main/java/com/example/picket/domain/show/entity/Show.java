@@ -2,10 +2,10 @@ package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
+import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.dto.ShowUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -48,14 +48,21 @@ public class Show extends BaseEntity {
     private LocalDateTime reservationEnd;
 
     @Column
-    private Integer ticketsLimitPerUser; // null 이면 제한 없음
+    private Integer ticketsLimitPerUser;
 
     @Column(nullable = false)
     private boolean isDeleted = false;
 
-    @Builder
-    private Show(Long directorId, String title, String posterUrl, Category category, String description, String location,
-                 LocalDateTime reservationStart, LocalDateTime reservationEnd, Integer ticketsLimitPerUser, boolean isDeleted) {
+    @PrePersist
+    private void prePersist() {
+        if (reservationEnd == null) {
+            reservationEnd = reservationStart.toLocalDate().minusDays(1).atTime(LocalTime.MIDNIGHT);
+        }
+    }
+
+    public Show(Long directorId, String title, String posterUrl, Category category, String description,
+                String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
+                Integer ticketsLimitPerUser) {
         this.directorId = directorId;
         this.title = title;
         this.posterUrl = posterUrl;
@@ -65,14 +72,7 @@ public class Show extends BaseEntity {
         this.reservationStart = reservationStart;
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
-        this.isDeleted = isDeleted;
-    }
-
-    @PrePersist
-    private void prePersist() {
-        if (reservationEnd == null) { // reservationEnd가 null 이면 예매종료날짜가 공연시작날짜 전날 자정으로 set
-            reservationEnd = reservationStart.toLocalDate().minusDays(1).atTime(LocalTime.MIDNIGHT);
-        }
+        this.isDeleted = false;
     }
 
     public void update(ShowUpdateRequest request) {
@@ -86,7 +86,29 @@ public class Show extends BaseEntity {
         if (request.getTicketsLimitPerUser() != null) this.ticketsLimitPerUser = request.getTicketsLimitPerUser();
     }
 
+    // 소프트 삭제 처리
     public void softDelete() {
         this.isDeleted = true;
+        this.setDeletedAt(LocalDateTime.now());
+    }
+
+    // 응답 DTO로 변환
+    public ShowResponse toDto() {
+        ShowResponse dto = new ShowResponse();
+        dto.setId(this.id);
+        dto.setDirectorId(this.directorId);
+        dto.setTitle(this.title);
+        dto.setPosterUrl(this.posterUrl);
+        dto.setCategory(this.category.name());
+        dto.setDescription(this.description);
+        dto.setLocation(this.location);
+        dto.setReservationStart(this.reservationStart.toString());
+        dto.setReservationEnd(this.reservationEnd.toString());
+        dto.setTicketsLimitPerUser(this.ticketsLimitPerUser);
+        dto.setCreatedAt(this.getCreatedAt());
+        dto.setModifiedAt(this.getModifiedAt());
+        dto.setDeletedAt(this.getDeletedAt());
+        return dto;
     }
 }
+
