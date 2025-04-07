@@ -1,14 +1,12 @@
 package com.example.picket.domain.show.dto;
 
 import com.example.picket.domain.show.entity.Show;
-import com.example.picket.domain.show.entity.ShowDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -35,7 +33,7 @@ public class ShowResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime deletedAt;
 
-    public ShowResponse(Show show, List<ShowDate> showDates) {
+    public ShowResponse(Show show, List<ShowDateResponse> showDateResponses) {
         this.id = show.getId();
         this.directorId = show.getDirectorId();
         this.title = show.getTitle();
@@ -46,16 +44,13 @@ public class ShowResponse {
         this.reservationStart = show.getReservationStart().toString();
         this.reservationEnd = show.getReservationEnd().toString();
         this.ticketsLimitPerUser = show.getTicketsLimitPerUser();
-        this.showDates = showDates.stream()
-                .map(ShowDateResponse::from)
-                .collect(Collectors.toList());
-
+        this.showDates = showDateResponses;
         this.createdAt = show.getCreatedAt();
         this.modifiedAt = show.getModifiedAt();
         this.deletedAt = show.getDeletedAt();
     }
 
-    public static ShowResponse from(Show show, List<ShowDate> showDates) {
-        return new ShowResponse(show, showDates);
+    public static ShowResponse from(Show show, List<ShowDateResponse> showDateResponses) {
+        return new ShowResponse(show, showDateResponses);
     }
 }
