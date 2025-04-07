@@ -1,6 +1,7 @@
 package com.example.picket.domain.seat.entity;
 
 import com.example.picket.common.enums.Grade;
+import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.show.entity.ShowDate;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -25,6 +26,10 @@ public class Seat {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private SeatStatus seatStatus = SeatStatus.AVAILABLE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Grade grade;
 
     @Column(nullable = false)
@@ -35,8 +40,9 @@ public class Seat {
     private ShowDate showDate;
 
     @Builder
-    private Seat(Integer seatNumber, Grade grade, BigDecimal price, ShowDate showDate) {
+    private Seat(Integer seatNumber, SeatStatus seatStatus, Grade grade, BigDecimal price, ShowDate showDate) {
         this.seatNumber = seatNumber;
+        this.seatStatus = seatStatus;
         this.grade = grade;
         this.price = price;
         this.showDate = showDate;
