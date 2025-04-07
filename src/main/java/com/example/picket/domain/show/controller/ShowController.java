@@ -14,7 +14,6 @@ import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.service.ShowCommandService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.show.service.ShowResponseMapper;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +32,11 @@ public class ShowController {
 
     // 공연 생성
     @PostMapping("/admin/shows")
+    @AuthPermission(role = UserRole.ADMIN)
     public ResponseEntity<ShowResponse> createShow(@Auth AuthUser user, @RequestBody ShowCreateRequest request) {
         Show show = showCommandService.createShow(user, request);
         List<ShowDate> dates = showDateRepository.findAllByShowId(show.getId());
-        return ResponseEntity.ok(ShowResponse.from(show, dates.stream().map(ShowDateResponse::from).toList()));
+        return ResponseEntity.ok(ShowResponse.toDto(show, dates.stream().map(ShowDateResponse::toDto).toList()));
     }
 
     // 공연 목록 조회 API (카테고리, 정렬 지원)
