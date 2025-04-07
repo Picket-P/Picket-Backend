@@ -29,13 +29,21 @@ public class TicketQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Ticket getTicket(Long ticketId) {
+    public Ticket getTicket(Long userId, Long ticketId) {
 
         Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
                 () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
         );
 
+        validateUserInfo(userId,ticket);
+
         return ticket;
 
+    }
+
+    private void validateUserInfo(Long userId, Ticket ticket) {
+        if (ticket.getUser().getId() != userId) {
+            throw new CustomException(ErrorCode.TICKET_ACCESS_DENIED);
+        }
     }
 }

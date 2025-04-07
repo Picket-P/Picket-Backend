@@ -76,6 +76,7 @@ public enum ErrorCode {
     // TICKET
     TICKET_CANCEL_FORBIDDEN(FORBIDDEN, "예매자 본인만 취소할 수 있습니다."),
     TICKET_NOT_FOUND(NOT_FOUND, "존재하지 않는 Ticket입니다."),
+    TICKET_ACCESS_DENIED(FORBIDDEN, "본인이 예매한 티켓만 조회할 수 있습니다."),
 
     // T
 
