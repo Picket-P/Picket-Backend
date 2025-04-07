@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 import static com.example.picket.common.exception.ErrorCode.*;
 
 @Service
@@ -43,8 +45,7 @@ public class CommentCommandService {
         Comment comment = commentRepository.findByIdAndShowId(commentId, showId)
                 .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
         validateDeletePermission(userId, comment);
-
-        comment.deleteComment();
+        comment.updateDeletedAt(LocalDateTime.now());
     }
 
     private void validateDeletePermission(Long userId, Comment comment) {

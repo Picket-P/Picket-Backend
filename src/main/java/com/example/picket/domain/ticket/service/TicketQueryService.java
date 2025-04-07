@@ -1,8 +1,8 @@
 package com.example.picket.domain.ticket.service;
 
+import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
-import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,11 @@ public class TicketQueryService {
 
         return ticket;
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> hasValidTicket(List<Long> userIds, Long showId) {
+        return ticketRepository.findUserIdsWithValidTicket(userIds, showId, TicketStatus.TICKET_CANCELED);
     }
 
     private void validateUserInfo(Long userId, Ticket ticket) {
