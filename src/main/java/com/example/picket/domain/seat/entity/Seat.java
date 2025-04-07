@@ -5,7 +5,6 @@ import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.show.entity.ShowDate;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +25,7 @@ public class Seat {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private SeatStatus seatStatus = SeatStatus.AVAILABLE;
+    private SeatStatus seatStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,30 +38,19 @@ public class Seat {
     @JoinColumn(name = "show_date_id", nullable = false)
     private ShowDate showDate;
 
-    @Builder
-    private Seat(Integer seatNumber, SeatStatus seatStatus, Grade grade, BigDecimal price, ShowDate showDate) {
-        this.seatNumber = seatNumber;
-        this.seatStatus = seatStatus;
+    private Seat(Grade grade, Integer seatNumber, BigDecimal price, SeatStatus seatStatus, ShowDate showDate) {
         this.grade = grade;
+        this.seatNumber = seatNumber;
         this.price = price;
+        this.seatStatus = seatStatus;
         this.showDate = showDate;
+    }
+
+    public static Seat of(Grade grade, int seatNumber, BigDecimal price, ShowDate showDate) {
+        return new Seat(grade, seatNumber, price, SeatStatus.AVAILABLE, showDate);
     }
 
     public void updatePrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public static Seat of(Grade grade, int seatNumber, BigDecimal price, ShowDate showDate) {
-        return Seat.builder()
-                .grade(grade)
-                .seatNumber(seatNumber)
-                .price(price)
-                .seatStatus(SeatStatus.AVAILABLE)
-                .showDate(showDate)
-                .build();
-    }
-
-    private static String formatSeatNumber(Grade grade, int seatNumber) {
-        return grade.name() + String.format("%02d", seatNumber);
     }
 }
