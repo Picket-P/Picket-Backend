@@ -12,5 +12,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Optional<Comment> findByIdAndShowIdAndUserId(Long commentId, Long showId, Long userId);
     Optional<Comment> findByIdAndShowId(Long commentId, Long showId);
     @EntityGraph(attributePaths = {"user", "show"})
-    Page<Comment> findByShowId(Long showId, Pageable pageable);
+    Page<Comment> findByShowIdAndDeletedAtIsNull(Long showId, Pageable pageable);
 }
