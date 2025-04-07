@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -26,12 +27,12 @@ public class AuthPermissionAspect {
     public void checkPermission(org.aspectj.lang.JoinPoint joinPoint) {
         HttpSession session = request.getSession(false);
         if (session == null) {
-            throw new CustomException(ErrorCode.USER_ROLE_FORBIDDEN_PERMISSION);
+            throw new CustomException(HttpStatus.FORBIDDEN, "이 작업을 수행할 권한이 없습니다.");
         }
 
         AuthUser authUser = (AuthUser) session.getAttribute("authUser");
         if (authUser == null) {
-            throw new CustomException(ErrorCode.USER_ROLE_FORBIDDEN_PERMISSION);
+            throw new CustomException(HttpStatus.FORBIDDEN, "이 작업을 수행할 권한이 없습니다.");
         }
 
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
@@ -39,7 +40,7 @@ public class AuthPermissionAspect {
 
         UserRole requiredRole = authPermission.role();
         if (!authUser.getUserRole().equals(requiredRole)) {
-            throw new CustomException(ErrorCode.USER_ROLE_FORBIDDEN_PERMISSION); // 권한 없음
+            throw new CustomException(HttpStatus.FORBIDDEN, "이 작업을 수행할 권한이 없습니다.");
         }
     }
 }
