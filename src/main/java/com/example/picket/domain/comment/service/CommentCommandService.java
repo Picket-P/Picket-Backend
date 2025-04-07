@@ -49,9 +49,8 @@ public class CommentCommandService {
     }
 
     private void validateDeletePermission(Long userId, Comment comment) {
-        if(!userId.equals(comment.getUser().getId()) && !userId.equals(comment.getShow().getUser().getId())) {
+        if(!userId.equals(comment.getUser().getId()) && !userId.equals(comment.getShow().getDirectorId())) {
             throw new CustomException(COMMENT_DELETE_NOT_ALLOWED);
         }
     }
-
 }
