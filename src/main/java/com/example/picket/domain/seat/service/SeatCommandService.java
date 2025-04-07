@@ -4,17 +4,12 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.domain.seat.dto.SeatUpdateRequest;
+import com.example.picket.domain.seat.dto.request.SeatUpdateRequest;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +17,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +51,8 @@ public class SeatCommandService {
             int requestedCount = request.getQuantity();
 
             // 좌석 수 변경 처리
-            handleSeatCountChange(grade, currentSeats, requestedCount, isReservationStarted, showDate, request.getPrice(), result);
+            handleSeatCountChange(grade, currentSeats, requestedCount, isReservationStarted, showDate,
+                    request.getPrice(), result);
 
             // 좌석 가격 변경
             updateSeatPrices(currentSeats, request.getPrice());
@@ -79,7 +79,8 @@ public class SeatCommandService {
 
     // 좌석 수 변경 처리
     private void handleSeatCountChange(Grade grade, List<Seat> currentSeats, int requestedCount,
-                                       boolean isReservationStarted, ShowDate showDate, BigDecimal price, List<Seat> result) {
+                                       boolean isReservationStarted, ShowDate showDate, BigDecimal price,
+                                       List<Seat> result) {
         int currentCount = currentSeats.size();
 
         // 요청된 수가 현재 수보다 적으면 좌석 수 줄이기

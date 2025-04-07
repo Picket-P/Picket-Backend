@@ -1,10 +1,9 @@
-package com.example.picket.domain.seat.dto;
+package com.example.picket.domain.seat.dto.response;
 
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.seat.entity.Seat;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -16,7 +15,7 @@ public class SeatDetailResponse {
     private String formattedNumber;
     private SeatStatus status;
 
-    public SeatDetailResponse(Seat seat) {
+    private SeatDetailResponse(Seat seat) {
         this.id = seat.getId();
         this.seatNumber = seat.getSeatNumber();
         this.formattedNumber = formatSeatNumber(seat.getGrade(), seat.getSeatNumber());

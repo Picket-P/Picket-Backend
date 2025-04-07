@@ -1,9 +1,8 @@
-package com.example.picket.domain.show.dto;
+package com.example.picket.domain.show.dto.request;
 
 import com.example.picket.common.enums.Category;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
+import lombok.Getter;
 
 @Getter
 public class ShowUpdateRequest {

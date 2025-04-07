@@ -3,13 +3,22 @@ package com.example.picket.domain.show.entity;
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 @Table(name = "show_dates")
@@ -44,23 +53,28 @@ public class ShowDate extends BaseEntity {
     private Show show;
 
     public void discountRemainCount() {
-        if(this.availableSeatCount <= 0) {
+        if (this.availableSeatCount <= 0) {
             throw new CustomException(ErrorCode.SEAT_NO_AVAILABLE);
         } else {
             this.availableSeatCount -= 1;
         }
     }
 
-    public ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
-                Integer reservedSeatCount, Show show) {
-            this.date = date;
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.totalSeatCount = totalSeatCount;
-            this.reservedSeatCount = reservedSeatCount != null ? reservedSeatCount : 0;
-            this.availableSeatCount = totalSeatCount - this.reservedSeatCount;
-            this.show = show;
-        }
+    private ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
+                     Integer reservedSeatCount, Show show) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.totalSeatCount = totalSeatCount;
+        this.reservedSeatCount = reservedSeatCount != null ? reservedSeatCount : 0;
+        this.availableSeatCount = totalSeatCount - this.reservedSeatCount;
+        this.show = show;
+    }
+
+    public static ShowDate toEntity(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
+                                    Integer reservedSeatCount, Show show) {
+        return new ShowDate(date, startTime, endTime, totalSeatCount, reservedSeatCount, show);
+    }
 
     // 예약 좌석 계산 로직
     @PrePersist
