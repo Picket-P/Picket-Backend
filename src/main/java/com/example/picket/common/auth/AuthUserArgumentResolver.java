@@ -26,7 +26,7 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
             throw new CustomException(ErrorCode.AUTH_ANNOTATION_INVALID_USAGE);
         }
 
-        return true;
+        return hasAuthAnnotation;
     }
 
     @Override

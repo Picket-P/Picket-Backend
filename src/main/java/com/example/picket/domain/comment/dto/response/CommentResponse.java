@@ -1,7 +1,6 @@
 package com.example.picket.domain.comment.dto.response;
 
 import com.example.picket.domain.comment.entity.Comment;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -17,7 +16,6 @@ public class CommentResponse {
     private final LocalDateTime modifiedAt;
     private final Boolean isTicketBuyer;
 
-    @Builder
     public CommentResponse(Long userId,
                            String nickname,
                            Long id,
@@ -35,15 +33,14 @@ public class CommentResponse {
     }
 
 
-    public static CommentResponse from(Comment comment, Boolean isTicketBuyer) {
-        return CommentResponse.builder()
-                .userId(comment.getUser().getId())
-                .nickname(comment.getUser().getNickname())
-                .id(comment.getId())
-                .content(comment.getContent())
-                .createdAt(comment.getCreatedAt())
-                .modifiedAt(comment.getModifiedAt())
-                .isTicketBuyer(isTicketBuyer)
-                .build();
+    public static CommentResponse toDto(Comment comment, Boolean isTicketBuyer) {
+        return new CommentResponse(comment.getUser().getId()
+                , comment.getUser().getNickname()
+                , comment.getId()
+                , comment.getContent()
+                , comment.getCreatedAt()
+                , comment.getModifiedAt()
+                , isTicketBuyer
+        );
     }
 }

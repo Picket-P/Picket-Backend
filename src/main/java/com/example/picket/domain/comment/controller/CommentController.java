@@ -5,13 +5,17 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.comment.dto.request.CommentRequest;
 import com.example.picket.domain.comment.dto.response.CommentResponse;
 import com.example.picket.domain.comment.dto.response.PageCommentResponse;
+import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.service.CommentCommandService;
 import com.example.picket.domain.comment.service.CommentQueryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +29,13 @@ public class CommentController {
     public ResponseEntity<CommentResponse> createComment(@Auth AuthUser auth,
                                                          @PathVariable Long showId,
                                                          @RequestBody CommentRequest commentRequest) {
-        return ResponseEntity.ok(commentCommandService.createComment(auth.getId(), showId, commentRequest));
+
+        Comment comment = commentCommandService.createComment(auth.getId(), showId, commentRequest);
+        boolean hasTicket = commentQueryService
+                .hasValidTicket(List.of(comment.getUser().getId()), showId)
+                .contains(comment.getUser().getId());
+
+        return ResponseEntity.ok(CommentResponse.toDto(comment, hasTicket));
     }
 
     @PatchMapping("/shows/{showId}/comments/{commentId}")
@@ -33,7 +43,13 @@ public class CommentController {
                                                          @PathVariable Long showId,
                                                          @PathVariable Long commentId,
                                                          @RequestBody CommentRequest commentRequest) {
-        return ResponseEntity.ok(commentCommandService.updateComment(auth.getId(), showId, commentId, commentRequest));
+
+        Comment comment = commentCommandService.updateComment(auth.getId(), showId, commentId, commentRequest);
+        boolean hasTicket = commentQueryService
+                .hasValidTicket(List.of(comment.getUser().getId()), showId)
+                .contains(comment.getUser().getId());
+
+        return ResponseEntity.ok(CommentResponse.toDto(comment, hasTicket));
     }
 
     @DeleteMapping("/shows/{showId}/comments/{commentId}")
@@ -44,7 +60,17 @@ public class CommentController {
 
     @GetMapping("/shows/{showId}/comments")
     public ResponseEntity<PageCommentResponse> getComments(@PathVariable Long showId, @PageableDefault(size = 10, page = 0) Pageable pageable) {
-        return ResponseEntity.ok(commentQueryService.getComments(showId, pageable));
+        Page<Comment> comments = commentQueryService.getComments(showId, pageable);
+
+        List<Long> userIds = comments.getContent().stream()
+                .map(comment -> comment.getUser().getId())
+                .distinct()
+                .toList();
+
+        List<Long> validTicketUserIds = commentQueryService.hasValidTicket(userIds, showId);
+
+        return ResponseEntity.ok(PageCommentResponse.toDto(comments, comment ->
+                validTicketUserIds.contains(comment.getUser().getId())));
     }
 
 }

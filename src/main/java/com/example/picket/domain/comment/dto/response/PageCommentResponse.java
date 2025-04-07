@@ -1,7 +1,6 @@
 package com.example.picket.domain.comment.dto.response;
 
 import com.example.picket.domain.comment.entity.Comment;
-import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
@@ -18,7 +17,6 @@ public class PageCommentResponse {
     private final int totalPages;
     private final boolean last;
 
-    @Builder
     public PageCommentResponse(List<CommentResponse> content, int page, int size,
                                 long totalElements, int totalPages, boolean last) {
         this.content = content;
@@ -29,18 +27,13 @@ public class PageCommentResponse {
         this.last = last;
     }
 
-    public static PageCommentResponse from(Page<Comment> comments, Function<Comment, Boolean> ticketChecker) {
+    public static PageCommentResponse toDto(Page<Comment> comments, Function<Comment, Boolean> ticketChecker) {
         List<CommentResponse> responseList = comments.getContent().stream()
-                .map(comment -> CommentResponse.from(comment, ticketChecker.apply(comment)))
+                .map(comment -> CommentResponse.toDto(comment, ticketChecker.apply(comment)))
                 .toList();
 
-        return PageCommentResponse.builder()
-                .content(responseList)
-                .page(comments.getNumber())
-                .size(comments.getSize())
-                .totalElements(comments.getTotalElements())
-                .totalPages(comments.getTotalPages())
-                .last(comments.isLast())
-                .build();
+        return new PageCommentResponse(
+                responseList, comments.getNumber(), comments.getSize(), comments.getTotalElements(), comments.getTotalPages(), comments.isLast()
+        );
     }
 }
