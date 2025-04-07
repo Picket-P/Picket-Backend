@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@ToString
 public class ShowDateResponse {
 
     private final Long id;
