@@ -9,20 +9,25 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
-@Builder
 public class SeatGroupByGradeResponse {
     private Grade grade;
     private BigDecimal price;
     private List<SeatDetailResponse> seats;
 
-    public static SeatGroupByGradeResponse from(Grade grade, BigDecimal price, List<Seat> seats) {
-        return SeatGroupByGradeResponse.builder()
-                .grade(grade)
-                .price(price)
-                .seats(seats.stream()
-                        .map(SeatDetailResponse::from)
-                        .toList())
-                .build();
+    public SeatGroupByGradeResponse(Grade grade, BigDecimal price, List<SeatDetailResponse> seats) {
+        this.grade = grade;
+        this.price = price;
+        this.seats = seats;
+    }
+
+    public static SeatGroupByGradeResponse toDto(Grade grade, BigDecimal price, List<Seat> seats) {
+        return new SeatGroupByGradeResponse(
+                grade,
+                price,
+                seats.stream()
+                        .map(SeatDetailResponse::toDto)
+                        .toList()
+        );
     }
 }
 
