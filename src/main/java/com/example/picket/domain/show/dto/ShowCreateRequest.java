@@ -44,6 +44,7 @@ public class ShowCreateRequest {
     @Size(min = 1, message = "공연 날짜 목록은 최소 1개 이상이어야 합니다.")
     private List<ShowDateRequest> dates;
 
+    // 예약 종료일 기본값 처리
     public LocalDateTime getReservationEnd() {
         if (reservationEnd == null && !dates.isEmpty()) {
             return dates.get(0).getDate().atStartOfDay();
@@ -51,6 +52,7 @@ public class ShowCreateRequest {
         return reservationEnd;
     }
 
+    // 예약 종료일이 시작일보다 이전인지 검증
     @AssertTrue(message = "예매 종료일은 예매 시작일보다 같거나 이후여야 합니다.")
     public boolean isValidReservationPeriod() {
         return reservationStart == null || reservationEnd == null || !reservationEnd.isBefore(reservationStart);
