@@ -5,7 +5,6 @@ import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,11 +29,14 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Builder
     private Comment(String content, Show show, User user) {
         this.content = content;
         this.show = show;
         this.user = user;
+    }
+
+    public static Comment createComment(String content,  Show show, User user) {
+        return new Comment(content, show, user);
     }
 
     public void updateContent(String content) {

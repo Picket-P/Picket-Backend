@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 import java.util.Optional;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
@@ -25,4 +27,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Optional<Ticket> findByTicketId(@Param("ticketId") Long ticketId);
 
     Boolean existsByUserIdAndShowIdAndStatusNot(@Param("userId") Long userId, @Param("showId") Long showId, @Param("status") TicketStatus status);
+
+    @Query("SELECT DISTINCT t.user.id FROM Ticket t WHERE t.user.id IN :userIds AND t.show.id = :showId AND t.status <> :status")
+    List<Long> findUserIdsWithValidTicket(@Param("userIds") List<Long> userIds,
+                                          @Param("showId") Long showId,
+                                          @Param("status") TicketStatus status);
 }
