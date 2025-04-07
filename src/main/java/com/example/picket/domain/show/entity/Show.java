@@ -2,6 +2,7 @@ package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
+import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.show.dto.ShowUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "shows")
@@ -51,6 +54,12 @@ public class Show extends BaseEntity {
 
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "show", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShowDate> showDates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "show", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Seat> seats = new ArrayList<>();
 
     @PrePersist
     private void prePersist() {
