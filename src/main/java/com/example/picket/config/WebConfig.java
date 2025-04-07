@@ -1,7 +1,6 @@
 package com.example.picket.config;
 
 import com.example.picket.common.auth.AuthUserArgumentResolver;
-import com.example.picket.common.consts.Const;
 import com.example.picket.common.interceptor.AuthInterceptor;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/api/**")
-                .excludePathPatterns(Const.WHITE_LIST);
+                .addPathPatterns("/api/**");
     }
 
     @Override
