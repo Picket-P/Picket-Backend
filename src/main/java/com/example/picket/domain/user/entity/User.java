@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -50,7 +49,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Gender gender;
 
-    @Builder
     private User(String email, String password, UserRole userRole, String profileUrl, String nickname,
                  LocalDate birth, Gender gender) {
         this.email = email;
@@ -60,5 +58,10 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.birth = birth;
         this.gender = gender;
+    }
+
+    public static User toEntity(String email, String password, UserRole userRole, String profileUrl, String nickname,
+                                LocalDate birth, Gender gender) {
+        return new User(email, password, userRole, profileUrl, nickname, birth, gender);
     }
 }
