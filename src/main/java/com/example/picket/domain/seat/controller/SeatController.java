@@ -26,7 +26,6 @@ public class SeatController {
     // 좌석 상세 조회
     @GetMapping("/shows/{showId}/dates/{showDateId}/seats")
     public ResponseEntity<List<SeatGroupByGradeResponse>> getSeats(
-            @PathVariable Long showId,
             @PathVariable Long showDateId
     ) {
         List<Seat> seats = seatQueryService.getSeatsByShowDate(showDateId);
