@@ -24,7 +24,7 @@ public class SeatController {
     private final SeatResponseMapper seatResponseMapper;
 
     // 좌석 상세 조회
-    @GetMapping("/shows/{showId}/dates/{showDateId}/seats")
+    @GetMapping("/dates/{showDateId}/seats")
     public ResponseEntity<List<SeatGroupByGradeResponse>> getSeats(
             @PathVariable Long showDateId
     ) {
@@ -34,7 +34,7 @@ public class SeatController {
     }
 
     // 좌석 수정
-    @PatchMapping("/shows/{showId}/dates/{showDateId}/seats")
+    @PatchMapping("/dates/{showDateId}/seats")
     public ResponseEntity<List<SeatGroupByGradeResponse>> updateSeats(
             @Auth AuthUser authUser,
             @PathVariable Long showDateId,
@@ -46,7 +46,7 @@ public class SeatController {
     }
 
     // 좌석 삭제
-    @DeleteMapping("/shows/{showId}/dates/{showDateId}/seats/{seatId}")
+    @DeleteMapping("/seats/{seatId}")
     public ResponseEntity<Void> deleteSeat(
             @Auth AuthUser authUser,
             @PathVariable Long seatId
