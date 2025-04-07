@@ -61,4 +61,14 @@ public class ShowController {
         ShowResponse updated = showCommandService.updateShow(authUser, showId, request);
         return ResponseEntity.ok(updated);
     }
+
+    // 공연 삭제
+    @DeleteMapping("/shows/{showId}")
+    public ResponseEntity<Void> deleteShow(
+            @Auth AuthUser authUser,
+            @PathVariable Long showId
+    ) {
+        showCommandService.deleteShow(authUser, showId);
+        return ResponseEntity.noContent().build();
+    }
 }

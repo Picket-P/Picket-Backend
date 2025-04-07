@@ -123,6 +123,24 @@ public class ShowCommandService {
                         .toList());
     }
 
+    // 공연 삭제
+    @Transactional
+    public void deleteShow(@Auth AuthUser authUser, Long showId) {
+
+        Show show = showRepository.findById(showId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
+
+        if (!show.getDirectorId().equals(authUser.getId())) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다.");
+        }
+
+        if (show.getReservationStart().isBefore(LocalDateTime.now())) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "예매 시작 이후에는 공연을 삭제할 수 없습니다.");
+        }
+
+        show.softDelete(); // soft delete
+    }
+
     // 공연 시간 검증
     private void validateShowTimes(ShowCreateRequest request) {
 
