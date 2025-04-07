@@ -7,7 +7,7 @@ import com.example.picket.domain.like.repository.LikeRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import com.example.picket.domain.user.entity.User;
-import com.example.picket.domain.user.repository.UserRepository;
+import com.example.picket.domain.user.service.UserQueryService;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,13 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeCommandService {
 
     private final LikeRepository likeRepository;
-    private final UserRepository userRepository;
+    private final UserQueryService userQueryService;
     private final ShowRepository showRepository;
-
-
+    
     public void createLike(Long userId, Long showId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(
-                ErrorCode.USER_NOT_FOUND));
+        User user = userQueryService.findById(userId);
 
         Show show = showRepository.findById(showId).orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
 
@@ -34,7 +32,7 @@ public class LikeCommandService {
         }
 
         Like like = Like.toEntity(show, user);
-        
+
         likeRepository.save(like);
     }
 
