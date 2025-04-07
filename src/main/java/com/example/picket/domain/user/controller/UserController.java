@@ -7,18 +7,23 @@ import com.example.picket.domain.user.dto.request.UpdateUserRequest;
 import com.example.picket.domain.user.dto.request.WithdrawUserRequest;
 import com.example.picket.domain.user.dto.response.UserResponse;
 import com.example.picket.domain.user.entity.User;
+import com.example.picket.domain.user.service.UserCommandService;
 import com.example.picket.domain.user.service.UserQueryService;
-import com.example.picket.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
 public class UserController {
 
-    private final UserService userService;
+    private final UserCommandService userService;
     private final UserQueryService userQueryService;
 
     @GetMapping("/users")

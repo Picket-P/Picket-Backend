@@ -9,26 +9,23 @@ import com.example.picket.domain.seat.repository.SeatRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
-import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
-import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
-import com.example.picket.domain.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.example.picket.domain.user.service.UserQueryService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class TicketCommandService {
 
     private final TicketRepository ticketRepository;
-    private final UserRepository userRepository;
+    private final UserQueryService userQueryService;
     private final SeatRepository seatRepository;
     private final ShowDateRepository showDateRepository;
 
@@ -79,8 +76,7 @@ public class TicketCommandService {
     }
 
     private User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return userQueryService.findById(userId);
     }
 
     private Seat getSeat(Long seatId) {
@@ -94,7 +90,7 @@ public class TicketCommandService {
     }
 
     private void validateSeat(Seat seat) {
-        if(ticketRepository.existsBySeat(seat)){
+        if (ticketRepository.existsBySeat(seat)) {
             throw new CustomException(ErrorCode.SEAT_ALREADY_RESERVED);
         }
     }
