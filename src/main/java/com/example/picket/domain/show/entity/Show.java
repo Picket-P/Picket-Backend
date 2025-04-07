@@ -55,12 +55,6 @@ public class Show extends BaseEntity {
     @Column(nullable = false)
     private boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "show", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ShowDate> showDates = new ArrayList<>();
-
-    @OneToMany(mappedBy = "show", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Seat> seats = new ArrayList<>();
-
     @PrePersist
     private void prePersist() {
         if (reservationEnd == null) {
