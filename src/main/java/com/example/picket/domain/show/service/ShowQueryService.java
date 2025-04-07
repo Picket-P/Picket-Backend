@@ -1,25 +1,18 @@
 package com.example.picket.domain.show.service;
 
 import com.example.picket.common.enums.Category;
-import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
-import com.example.picket.domain.seat.dto.SeatSummaryResponse;
-import com.example.picket.domain.seat.entity.Seat;
-import com.example.picket.domain.seat.repository.SeatRepository;
-import com.example.picket.domain.show.dto.ShowDateResponse;
-import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,90 +21,60 @@ public class ShowQueryService {
 
     private final ShowRepository showRepository;
     private final ShowDateRepository showDateRepository;
-    private final SeatRepository seatRepository;
 
-    public List<ShowResponse> getShows(String category, String sortBy, String order) {
-        List<Show> shows;
+    // 공연 목록 조회
+    public List<Show> getShows(String category, String sortBy, String order) {
 
-        // 카테고리 미지정일 경우 기본 정렬
-        if (category != null && !category.isBlank()) {
-            shows = showRepository.findAllByCategoryAndIsDeletedFalse(Category.valueOf(category.toUpperCase()));
-        } else {
-            shows = showRepository.findAll();
+        List<Show> shows = fetchShowsByCategory(category); // 카테고리 필터링
+        sortShows(shows, sortBy, order); // 정렬 처리
+
+        return shows;
+    }
+
+    //공연 단건 조회
+    public Show getShowDetails(Long showId) {
+
+        return showRepository.findById(showId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
+    }
+
+    // 공연 날짜 조회
+    public List<ShowDate> getShowDatesByShowId(Long showId) {
+        return showDateRepository.findAllByShowId(showId);
+    }
+
+    // 카테고리 필터링 및 유효성 검사
+    private List<Show> fetchShowsByCategory(String category) {
+        if (category == null || category.isBlank()) {
+            return showRepository.findAll();
         }
 
-        List<ShowResponse> responses = shows.stream()
-                .map(show -> {
-                    List<ShowDateResponse> showDateResponses = showDateRepository.findAllByShowId(show.getId())
-                            .stream()
-                            .map(showDate -> {
-                                ShowDateResponse response = ShowDateResponse.from(showDate);
+        try {
+            Category categoryEnum = Category.valueOf(category.toUpperCase());
+            return showRepository.findAllByCategoryAndIsDeletedFalse(categoryEnum);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리입니다.");
+        }
+    }
 
-                                List<Seat> seats = seatRepository.findAllByShowDateId(showDate.getId());
-                                List<SeatSummaryResponse> summaryList = buildSeatSummary(seats);
-                                response.setSeatSummary(summaryList);
+    // 정렬 조건에 따라 공연 정렬
+    private void sortShows(List<Show> shows, String sortBy, String order) {
+        Comparator<Show> comparator;
 
-                                return response;
-                            })
-                            .toList();
+        if ("reservationStart".equalsIgnoreCase(sortBy)) {
+            comparator = Comparator.comparing(Show::getReservationStart);
+        } else {
+            comparator = Comparator.comparing(Show::getCreatedAt); // 기본 정렬: 생성일
+        }
 
-                    return ShowResponse.from(show, showDateResponses);
-                })
-                .collect(Collectors.toList());
+        if (!"asc".equalsIgnoreCase(order) && !"desc".equalsIgnoreCase(order) && order != null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 방식입니다. (asc, desc만 허용)");
+        }
 
-        // 정렬 기준 정의
-        Comparator<ShowResponse> comparator = Comparator.comparing(ShowResponse::getCreatedAt);
         if ("desc".equalsIgnoreCase(order)) {
             comparator = comparator.reversed();
         }
 
-        responses.sort(comparator);
-        return responses;
-    }
-
-    public ShowResponse getShowDetails(Long showId) {
-        Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
-
-        List<ShowDate> showDates = showDateRepository.findAllByShowId(showId);
-
-        List<ShowDateResponse> showDateResponses = showDates.stream()
-                .map(showDate -> {
-                    ShowDateResponse response = ShowDateResponse.from(showDate);
-
-                    List<Seat> seats = seatRepository.findAllByShowDateId(showDate.getId());
-                    List<SeatSummaryResponse> summaryList = buildSeatSummary(seats);
-                    response.setSeatSummary(summaryList);
-
-                    return response;
-                })
-                .sorted(Comparator.comparing(ShowDateResponse::getDate))
-                .toList();
-
-        return ShowResponse.from(show, showDateResponses);
-    }
-
-    private List<SeatSummaryResponse> buildSeatSummary(List<Seat> seats) {
-        return seats.stream()
-                .collect(Collectors.groupingBy(
-                        Seat::getGrade,
-                        Collectors.collectingAndThen(Collectors.toList(), groupedSeats -> {
-                            int total = groupedSeats.size();
-                            int reserved = (int) groupedSeats.stream()
-                                    .filter(seat -> seat.getSeatStatus() == SeatStatus.RESERVED)
-                                    .count();
-                            int available = total - reserved;
-
-                            return SeatSummaryResponse.builder()
-                                    .grade(groupedSeats.get(0).getGrade())
-                                    .total(total)
-                                    .reserved(reserved)
-                                    .available(available)
-                                    .build();
-                        })
-                ))
-                .values()
-                .stream()
-                .toList();
+        shows.sort(comparator);
     }
 }
