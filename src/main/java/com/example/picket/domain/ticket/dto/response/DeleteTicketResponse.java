@@ -28,7 +28,7 @@ public class DeleteTicketResponse {
 
     private LocalDateTime deletedAt;
 
-    public DeleteTicketResponse(Ticket ticket) {
+    private DeleteTicketResponse(Ticket ticket) {
         this.id = ticket.getId();
         this.userId = ticket.getUser().getId();
         this.showId = ticket.getShow().getId();
@@ -40,7 +40,7 @@ public class DeleteTicketResponse {
         this.deletedAt = ticket.getDeletedAt();
     }
 
-    public static DeleteTicketResponse from(Ticket ticket) {
+    public static DeleteTicketResponse toDto(Ticket ticket) {
         return new DeleteTicketResponse(ticket);
     }
 }

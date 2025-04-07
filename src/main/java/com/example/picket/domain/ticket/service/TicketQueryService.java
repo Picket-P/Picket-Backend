@@ -20,22 +20,22 @@ public class TicketQueryService {
     private final TicketRepository ticketRepository;
 
     @Transactional(readOnly = true)
-    public Page<GetTicketResponse> getTickets(Long userId, int size, int page) {
+    public Page<Ticket> getTickets(Long userId, int size, int page) {
 
         Sort sortStandard = Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page - 1, size, sortStandard);
 
-        return ticketRepository.findByUser(userId, pageable).map(GetTicketResponse::from);
-
+        return ticketRepository.findByUser(userId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public GetTicketResponse getTicket(Long ticketId) {
+    public Ticket getTicket(Long ticketId) {
 
         Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
                 () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
         );
-        return GetTicketResponse.from(ticket);
+
+        return ticket;
 
     }
 }

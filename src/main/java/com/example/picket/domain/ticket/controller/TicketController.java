@@ -5,6 +5,7 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
 import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
 import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
+import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.service.TicketCommandService;
 import com.example.picket.domain.ticket.service.TicketQueryService;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class TicketController {
     public ResponseEntity<CreateTicketResponse> createTicket(
             @PathVariable Long seatId,
             @Auth AuthUser authUser) {
-        CreateTicketResponse createTicketResponse = ticketCommandService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
-        return ResponseEntity.ok(createTicketResponse);
+        Ticket ticket = ticketCommandService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
+        return ResponseEntity.ok(CreateTicketResponse.toDto(ticket));
     }
 
     @GetMapping("tickets")
@@ -35,22 +36,22 @@ public class TicketController {
             @RequestParam(defaultValue = "1") int page,
             @Auth AuthUser authUser
     ) {
-        Page<GetTicketResponse> getTicketResponsePage = ticketQueryService.getTickets(authUser.getId(), size, page);
+        Page<GetTicketResponse> getTicketResponsePage = ticketQueryService.getTickets(authUser.getId(), size, page).map(GetTicketResponse::toDto);
         return ResponseEntity.ok(getTicketResponsePage);
     }
 
     @GetMapping("tickets/{ticketId}")
     public ResponseEntity<GetTicketResponse> getTicket(
             @PathVariable Long ticketId) {
-        GetTicketResponse getTicketResponse = ticketQueryService.getTicket(ticketId);
-        return ResponseEntity.ok(getTicketResponse);
+        Ticket ticket = ticketQueryService.getTicket(ticketId);
+        return ResponseEntity.ok(GetTicketResponse.toDto(ticket));
     }
 
     @PatchMapping("tickets/{ticketId}")
     public ResponseEntity<DeleteTicketResponse> deleteTicket(
             @PathVariable Long ticketId,
             @Auth AuthUser authUser) {
-        DeleteTicketResponse deleteTicketResponse = ticketCommandService.deleteTicket(ticketId, authUser.getId());
-        return ResponseEntity.ok(deleteTicketResponse);
+        Ticket ticket = ticketCommandService.deleteTicket(ticketId, authUser.getId());
+        return ResponseEntity.ok(DeleteTicketResponse.toDto(ticket));
     }
 }
