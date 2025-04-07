@@ -55,6 +55,6 @@ public class ShowCreateRequest {
     // 예약 종료일이 시작일보다 이전인지 검증
     @AssertTrue(message = "예매 종료일은 예매 시작일보다 같거나 이후여야 합니다.")
     public boolean isValidReservationPeriod() {
-        return reservationStart == null || reservationEnd == null || !reservationEnd.isBefore(reservationStart);
+        return reservationEnd == null || reservationEnd.isAfter(reservationStart) || reservationEnd.isEqual(reservationStart);
     }
 }
