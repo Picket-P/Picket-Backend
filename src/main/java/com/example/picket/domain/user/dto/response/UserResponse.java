@@ -15,12 +15,16 @@ public class UserResponse {
     private final LocalDate birth;
     private final Gender gender;
 
-    public UserResponse(String email, UserRole userRole, String profileUrl, String nickname, LocalDate birth, Gender gender) {
+    private UserResponse(String email, UserRole userRole, String profileUrl, String nickname, LocalDate birth, Gender gender) {
         this.email = email;
         this.userRole = userRole;
         this.profileUrl = profileUrl;
         this.nickname = nickname;
         this.birth = birth;
         this.gender = gender;
+    }
+
+    public static UserResponse toDto(String email, UserRole userRole, String profileUrl, String nickname, LocalDate birth, Gender gender) {
+        return new UserResponse(email, userRole, profileUrl, nickname, birth, gender);
     }
 }

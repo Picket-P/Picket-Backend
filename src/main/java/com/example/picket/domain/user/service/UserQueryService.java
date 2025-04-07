@@ -19,9 +19,9 @@ public class UserQueryService {
     @Transactional(readOnly = true)
     public UserResponse getUser(AuthUser authUser) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
-        return new UserResponse(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
+        return UserResponse.toDto(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
     }
 }

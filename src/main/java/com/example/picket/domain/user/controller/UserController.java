@@ -30,7 +30,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@Auth AuthUser authUser,
                                                    @RequestBody UpdateUserRequest request) {
         User updatedUser = userService.updateUser(authUser, request);
-        return ResponseEntity.ok(new UserResponse(
+        return ResponseEntity.ok(UserResponse.toDto(
                 updatedUser.getEmail(),
                 updatedUser.getUserRole(),
                 updatedUser.getProfileUrl(),
