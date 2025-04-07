@@ -8,6 +8,7 @@ import com.example.picket.domain.comment.dto.response.PageCommentResponse;
 import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.service.CommentCommandService;
 import com.example.picket.domain.comment.service.CommentQueryService;
+import com.example.picket.domain.ticket.service.TicketQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ public class CommentController {
 
     private final CommentCommandService commentCommandService;
     private final CommentQueryService  commentQueryService;
+    private final TicketQueryService ticketQueryService;
 
     @PostMapping("/shows/{showId}/comments")
     public ResponseEntity<CommentResponse> createComment(@Auth AuthUser auth,
@@ -31,7 +33,7 @@ public class CommentController {
                                                          @RequestBody CommentRequest commentRequest) {
 
         Comment comment = commentCommandService.createComment(auth.getId(), showId, commentRequest);
-        boolean hasTicket = commentQueryService
+        boolean hasTicket = ticketQueryService
                 .hasValidTicket(List.of(comment.getUser().getId()), showId)
                 .contains(comment.getUser().getId());
 
@@ -45,7 +47,7 @@ public class CommentController {
                                                          @RequestBody CommentRequest commentRequest) {
 
         Comment comment = commentCommandService.updateComment(auth.getId(), showId, commentId, commentRequest);
-        boolean hasTicket = commentQueryService
+        boolean hasTicket = ticketQueryService
                 .hasValidTicket(List.of(comment.getUser().getId()), showId)
                 .contains(comment.getUser().getId());
 
@@ -67,7 +69,7 @@ public class CommentController {
                 .distinct()
                 .toList();
 
-        List<Long> validTicketUserIds = commentQueryService.hasValidTicket(userIds, showId);
+        List<Long> validTicketUserIds = ticketQueryService.hasValidTicket(userIds, showId);
 
         return ResponseEntity.ok(PageCommentResponse.toDto(comments, comment ->
                 validTicketUserIds.contains(comment.getUser().getId())));
