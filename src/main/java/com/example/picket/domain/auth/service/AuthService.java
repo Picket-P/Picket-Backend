@@ -29,14 +29,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.USER_DUPLICATE_EMAIL);
         }
 
-        User newUser = User.builder()
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .userRole(userRole)
-                .nickname(nickname)
-                .birth(birth)
-                .gender(gender)
-                .build();
+        User newUser = User.toEntity(email, passwordEncoder.encode(password), userRole, null, nickname, birth, gender);
 
         userRepository.save(newUser);
     }
@@ -49,11 +42,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
         }
 
-        AuthUser authUser = AuthUser.builder()
-                .id(user.getId())
-                .userRole(user.getUserRole())
-                .build();
-
+        AuthUser authUser = AuthUser.toAuthUser(user.getId(), user.getUserRole());
         session.setAttribute("authUser", authUser);
 
         return user;

@@ -47,9 +47,7 @@ public class AuthController {
     @PostMapping("/auth/signin")
     public ResponseEntity<SigninResponse> signin(HttpSession session, @Valid @RequestBody SigninRequest request) {
         User user = authService.signin(session, request.getEmail(), request.getPassword());
-        SigninResponse response = SigninResponse.builder()
-                .nickname(user.getNickname())
-                .build();
+        SigninResponse response = SigninResponse.toDto(user.getNickname());
         return ResponseEntity.ok(response);
     }
 
