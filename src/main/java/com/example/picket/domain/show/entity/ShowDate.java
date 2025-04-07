@@ -1,25 +1,18 @@
 package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
-import com.example.picket.domain.show.dto.ShowDateResponse;
-import jakarta.persistence.*;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
+import com.example.picket.domain.seat.entity.Seat;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "show_dates")
@@ -48,6 +41,9 @@ public class ShowDate extends BaseEntity {
 
     @Column(nullable = false)
     private Integer availableSeatCount; // 예매 가능한 좌석 수 (totalSeatCount - reservedSeatCount)
+
+    @OneToMany(mappedBy = "showDate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Seat> seats = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_id", nullable = false)
