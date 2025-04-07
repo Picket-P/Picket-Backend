@@ -1,12 +1,11 @@
-package com.example.picket.domain.seat.dto;
+package com.example.picket.domain.seat.dto.request;
 
 import com.example.picket.common.enums.Grade;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Getter;
-
 import java.math.BigDecimal;
+import lombok.Getter;
 
 @Getter
 public class SeatCreateRequest {

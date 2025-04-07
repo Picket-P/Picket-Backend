@@ -1,4 +1,4 @@
-package com.example.picket.domain.show.dto;
+package com.example.picket.domain.show.dto.request;
 
 import com.example.picket.common.enums.Category;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -6,11 +6,10 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
@@ -55,6 +54,7 @@ public class ShowCreateRequest {
     // 예약 종료일이 시작일보다 이전인지 검증
     @AssertTrue(message = "예매 종료일은 예매 시작일보다 같거나 이후여야 합니다.")
     public boolean isValidReservationPeriod() {
-        return reservationEnd == null || reservationEnd.isAfter(reservationStart) || reservationEnd.isEqual(reservationStart);
+        return reservationEnd == null || reservationEnd.isAfter(reservationStart) || reservationEnd.isEqual(
+                reservationStart);
     }
 }

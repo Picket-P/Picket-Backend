@@ -3,31 +3,24 @@ package com.example.picket.domain.show.service;
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
-import com.example.picket.common.enums.Grade;
-import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
-import com.example.picket.domain.seat.dto.SeatCreateRequest;
+import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
-import com.example.picket.domain.show.dto.ShowCreateRequest;
-import com.example.picket.domain.show.dto.ShowDateResponse;
-import com.example.picket.domain.show.dto.ShowResponse;
-import com.example.picket.domain.show.dto.ShowUpdateRequest;
+import com.example.picket.domain.show.dto.request.ShowCreateRequest;
+import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.repository.ShowRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +38,7 @@ public class ShowCommandService {
         validateShowTimes(request);
 
         // 공연 생성 및 저장
-        Show show = new Show(
+        Show show = Show.toEntity(
                 authUser.getId(),
                 request.getTitle(),
                 request.getPosterUrl(),
@@ -61,7 +54,7 @@ public class ShowCommandService {
 
         // 날짜별 공연 정보 및 좌석 생성
         for (var dateRequest : request.getDates()) {
-            ShowDate showDate = new ShowDate(
+            ShowDate showDate = ShowDate.toEntity(
                     dateRequest.getDate(),
                     dateRequest.getStartTime(),
                     dateRequest.getEndTime(),
@@ -135,7 +128,9 @@ public class ShowCommandService {
 
     // 카테고리 유효성 검사
     private void validateCategory(Category category) {
-        if (category == null) return;
+        if (category == null) {
+            return;
+        }
 
         boolean isValid = Arrays.stream(Category.values())
                 .anyMatch(c -> c.equals(category));

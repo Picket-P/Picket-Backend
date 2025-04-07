@@ -2,17 +2,22 @@ package com.example.picket.domain.seat.controller;
 
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
-import com.example.picket.domain.seat.dto.SeatGroupByGradeResponse;
-import com.example.picket.domain.seat.dto.SeatUpdateRequest;
+import com.example.picket.domain.seat.dto.request.SeatUpdateRequest;
+import com.example.picket.domain.seat.dto.response.SeatGroupByGradeResponse;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatCommandService;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.seat.service.SeatResponseMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

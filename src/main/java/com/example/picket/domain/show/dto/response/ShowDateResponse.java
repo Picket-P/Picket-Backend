@@ -1,14 +1,12 @@
-package com.example.picket.domain.show.dto;
+package com.example.picket.domain.show.dto.response;
 
-import com.example.picket.domain.seat.dto.SeatSummaryResponse;
+import com.example.picket.domain.seat.dto.response.SeatSummaryResponse;
 import com.example.picket.domain.show.entity.ShowDate;
-import lombok.Getter;
-import lombok.ToString;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class ShowDateResponse {
@@ -22,7 +20,7 @@ public class ShowDateResponse {
     private final Integer availableSeatCount;
     private final List<SeatSummaryResponse> seatSummary;
 
-    public ShowDateResponse(ShowDate showDate) {
+    private ShowDateResponse(ShowDate showDate) {
         this.id = showDate.getId();
         this.date = showDate.getDate();
         this.startTime = showDate.getStartTime();

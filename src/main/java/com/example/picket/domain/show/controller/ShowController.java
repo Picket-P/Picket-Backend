@@ -4,21 +4,28 @@ import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.annotation.AuthPermission;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.UserRole;
-import com.example.picket.domain.show.dto.ShowCreateRequest;
-import com.example.picket.domain.show.dto.ShowDateResponse;
-import com.example.picket.domain.show.dto.ShowResponse;
-import com.example.picket.domain.show.dto.ShowUpdateRequest;
+import com.example.picket.domain.show.dto.request.ShowCreateRequest;
+import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
+import com.example.picket.domain.show.dto.response.ShowDateResponse;
+import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.service.ShowCommandService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.show.service.ShowResponseMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1")

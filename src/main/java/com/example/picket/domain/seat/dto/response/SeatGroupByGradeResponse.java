@@ -1,12 +1,10 @@
-package com.example.picket.domain.seat.dto;
+package com.example.picket.domain.seat.dto.response;
 
 import com.example.picket.common.enums.Grade;
 import com.example.picket.domain.seat.entity.Seat;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class SeatGroupByGradeResponse {
@@ -14,7 +12,7 @@ public class SeatGroupByGradeResponse {
     private BigDecimal price;
     private List<SeatDetailResponse> seats;
 
-    public SeatGroupByGradeResponse(Grade grade, BigDecimal price, List<SeatDetailResponse> seats) {
+    private SeatGroupByGradeResponse(Grade grade, BigDecimal price, List<SeatDetailResponse> seats) {
         this.grade = grade;
         this.price = price;
         this.seats = seats;

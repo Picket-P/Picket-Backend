@@ -1,13 +1,12 @@
 package com.example.picket.domain.seat.service;
 
 import com.example.picket.common.enums.Grade;
-import com.example.picket.domain.seat.dto.SeatGroupByGradeResponse;
+import com.example.picket.domain.seat.dto.response.SeatGroupByGradeResponse;
 import com.example.picket.domain.seat.entity.Seat;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SeatResponseMapper {

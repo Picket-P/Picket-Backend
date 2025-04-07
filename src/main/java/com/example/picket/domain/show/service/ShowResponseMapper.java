@@ -1,18 +1,17 @@
 package com.example.picket.domain.show.service;
 
 import com.example.picket.common.enums.SeatStatus;
-import com.example.picket.domain.seat.dto.SeatSummaryResponse;
+import com.example.picket.domain.seat.dto.response.SeatSummaryResponse;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
-import com.example.picket.domain.show.dto.ShowDateResponse;
-import com.example.picket.domain.show.dto.ShowResponse;
+import com.example.picket.domain.show.dto.response.ShowDateResponse;
+import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

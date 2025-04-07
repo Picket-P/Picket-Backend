@@ -1,15 +1,14 @@
-package com.example.picket.domain.show.dto;
+package com.example.picket.domain.show.dto.request;
 
-import com.example.picket.domain.seat.dto.SeatCreateRequest;
+import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class ShowDateRequest {

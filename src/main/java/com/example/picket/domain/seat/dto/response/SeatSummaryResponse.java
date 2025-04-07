@@ -1,7 +1,6 @@
-package com.example.picket.domain.seat.dto;
+package com.example.picket.domain.seat.dto.response;
 
 import com.example.picket.common.enums.Grade;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -12,7 +11,7 @@ public class SeatSummaryResponse {
     private int reserved;
     private int available;
 
-    public SeatSummaryResponse(Grade grade, int total, int reserved, int available) {
+    private SeatSummaryResponse(Grade grade, int total, int reserved, int available) {
         this.grade = grade;
         this.total = total;
         this.reserved = reserved;
