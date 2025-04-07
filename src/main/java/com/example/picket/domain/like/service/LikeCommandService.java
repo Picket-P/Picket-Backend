@@ -33,16 +33,14 @@ public class LikeCommandService {
             throw new CustomException(ErrorCode.LIKE_ALREADY_EXIST);
         }
 
-        Like like = Like.builder()
-                .user(user)
-                .show(show)
-                .build();
-
+        Like like = Like.toEntity(show, user);
+        
         likeRepository.save(like);
     }
 
     public void deleteLike(Long userId, Long showId, Long likeId) {
-        Like like = likeRepository.findWithUserAndShowById(likeId).orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
+        Like like = likeRepository.findWithUserAndShowById(likeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
 
         if (!Objects.equals(like.getUser().getId(), userId)) {
             throw new CustomException(ErrorCode.LIKE_REQUEST_USER_MISMATCH);

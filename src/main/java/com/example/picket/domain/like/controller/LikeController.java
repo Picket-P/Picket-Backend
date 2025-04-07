@@ -5,8 +5,13 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.like.dto.response.LikeResponse;
 import com.example.picket.domain.like.service.LikeCommandService;
 import com.example.picket.domain.like.service.LikeQueryService;
+import com.example.picket.domain.show.entity.Show;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,8 +34,17 @@ public class LikeController {
     public ResponseEntity<Page<LikeResponse>> getLikes(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size,
                                                        @Auth AuthUser authUser) {
-        Page<LikeResponse> responses = likeQueryService.getLikes(authUser.getId(), page, size);
-
+        List<Show> shows = likeQueryService.getLikes(authUser.getId(), page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        List<LikeResponse> likeResponses = shows.stream().map(
+                show -> LikeResponse.toDto(
+                        show.getId(),
+                        show.getTitle(),
+                        show.getCategory(),
+                        show.getDescription()
+                )
+        ).toList();
+        Page<LikeResponse> responses = new PageImpl<>(likeResponses, pageable, likeResponses.size());
         return ResponseEntity.ok(responses);
     }
 
