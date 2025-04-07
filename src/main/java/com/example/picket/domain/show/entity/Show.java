@@ -46,7 +46,7 @@ public class Show extends BaseEntity {
     @Column
     private Integer ticketsLimitPerUser; // null 이면 제한 없음
 
-    @JoinColumn(name = "director_id", nullable = false)
+    @Column(name = "director_id", nullable = false)
     private Long directorId;
 
     @Builder
