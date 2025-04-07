@@ -22,28 +22,28 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponse updateUser(AuthUser authUser, UpdateUserRequest request) {
+    public User updateUser(AuthUser authUser, UpdateUserRequest request) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
         }
 
         user.update(request.getNickname(), request.getProfileUrl());
 
-        return new UserResponse(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(), user.getBirth(), user.getGender());
+        return user;
     }
 
     @Transactional
     public void updatePassword(AuthUser authUser, UpdatePasswordRequest request) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
         }
 
         String encodePassword = passwordEncoder.encode(request.getNewPassword());
@@ -54,11 +54,11 @@ public class UserService {
     @Transactional
     public void withdrawUserRequest(AuthUser authUser, WithdrawUserRequest request) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_USER)
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
         }
 
         userRepository.delete(user);

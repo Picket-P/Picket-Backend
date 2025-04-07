@@ -6,6 +6,7 @@ import com.example.picket.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.picket.domain.user.dto.request.UpdateUserRequest;
 import com.example.picket.domain.user.dto.request.WithdrawUserRequest;
 import com.example.picket.domain.user.dto.response.UserResponse;
+import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
 import com.example.picket.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,15 @@ public class UserController {
     @PatchMapping("/users")
     public ResponseEntity<UserResponse> updateUser(@Auth AuthUser authUser,
                                                    @RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(userService.updateUser(authUser, request));
+        User updatedUser = userService.updateUser(authUser, request);
+        return ResponseEntity.ok(new UserResponse(
+                updatedUser.getEmail(),
+                updatedUser.getUserRole(),
+                updatedUser.getProfileUrl(),
+                updatedUser.getNickname(),
+                updatedUser.getBirth(),
+                updatedUser.getGender()
+        ));
     }
 
     @PatchMapping("/users/password")

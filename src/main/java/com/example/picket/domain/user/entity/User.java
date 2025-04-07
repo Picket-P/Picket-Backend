@@ -70,7 +70,7 @@ public class User extends BaseEntity {
         this.profileUrl = profileUrl;
     }
 
-    public void passwordUpdate(String newPassword) {
-        this.password = newPassword;
+    public void passwordUpdate(String encodePassword) {
+        this.password = encodePassword;
     }
 }
