@@ -35,7 +35,7 @@ public class ShowQueryService {
 
         // 카테고리 미지정일 경우 기본 정렬
         if (category != null && !category.isBlank()) {
-            shows = showRepository.findAllByCategory(Category.valueOf(category.toUpperCase()));
+            shows = showRepository.findAllByCategoryAndIsDeletedFalse(Category.valueOf(category.toUpperCase()));
         } else {
             shows = showRepository.findAll();
         }

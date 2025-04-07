@@ -22,6 +22,9 @@ public class Show extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "director_id", nullable = false)
+    private Long directorId;
+
     @Column(nullable = false)
     private String title;
 
@@ -47,12 +50,12 @@ public class Show extends BaseEntity {
     @Column
     private Integer ticketsLimitPerUser; // null 이면 제한 없음
 
-    @Column(name = "director_id", nullable = false)
-    private Long directorId;
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
     @Builder
     private Show(Long directorId, String title, String posterUrl, Category category, String description, String location,
-                 LocalDateTime reservationStart, LocalDateTime reservationEnd, Integer ticketsLimitPerUser) {
+                 LocalDateTime reservationStart, LocalDateTime reservationEnd, Integer ticketsLimitPerUser, boolean isDeleted) {
         this.directorId = directorId;
         this.title = title;
         this.posterUrl = posterUrl;
@@ -62,6 +65,7 @@ public class Show extends BaseEntity {
         this.reservationStart = reservationStart;
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
+        this.isDeleted = isDeleted;
     }
 
     @PrePersist
@@ -82,4 +86,7 @@ public class Show extends BaseEntity {
         if (request.getTicketsLimitPerUser() != null) this.ticketsLimitPerUser = request.getTicketsLimitPerUser();
     }
 
+    public void softDelete() {
+        this.isDeleted = true;
+    }
 }
