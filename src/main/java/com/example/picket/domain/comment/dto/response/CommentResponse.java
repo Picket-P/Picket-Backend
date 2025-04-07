@@ -35,7 +35,7 @@ public class CommentResponse {
     }
 
 
-    public static CommentResponse from (Comment comment, Boolean isTicketBuyer) {
+    public static CommentResponse from(Comment comment, Boolean isTicketBuyer) {
         return CommentResponse.builder()
                 .userId(comment.getUser().getId())
                 .nickname(comment.getUser().getNickname())

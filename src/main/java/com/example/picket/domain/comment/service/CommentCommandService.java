@@ -13,8 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.example.picket.common.exception.ErrorCode.COMMENT_NOT_FOUND_IN_SHOW;
-import static com.example.picket.common.exception.ErrorCode.SHOW_NOT_FOUND;
+import static com.example.picket.common.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,9 +51,17 @@ public class CommentCommandService {
 
     @Transactional
     public void deleteComment(Long userId, Long showId, Long commentId) {
-        Comment comment = commentRepository.findByIdAndShowIdAndUserId(commentId, showId, userId)
+        Comment comment = commentRepository.findByIdAndShowId(commentId, showId)
                 .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
+        validateDeletePermission(userId, comment);
+
         comment.deleteComment();
+    }
+
+    private void validateDeletePermission(Long userId, Comment comment) {
+        if(!userId.equals(comment.getUser().getId()) || !userId.equals(comment.getShow().getId())) {
+            throw new CustomException(COMMENT_DELETE_NOT_ALLOWED);
+        }
     }
 
     // todo : 추후 ticketService로 이동

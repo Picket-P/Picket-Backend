@@ -28,6 +28,7 @@ public enum ErrorCode {
 
     // COMMENT
     COMMENT_NOT_FOUND_IN_SHOW(NOT_FOUND, "해당 공연에 해당 사용자의 댓글이 없습니다."),
+    COMMENT_DELETE_NOT_ALLOWED(FORBIDDEN, "해당 댓글의 삭제 권한이 없습니다."),
 
     // ENUM
     USER_TYPE_INVALID(BAD_REQUEST, "유효하지 않은 사용자 유형입니다."),
