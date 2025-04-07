@@ -2,12 +2,13 @@ package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
-import com.example.picket.domain.user.entity.User;
+import com.example.picket.domain.show.dto.ShowUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -69,4 +70,16 @@ public class Show extends BaseEntity {
             reservationEnd = reservationStart.toLocalDate().minusDays(1).atTime(LocalTime.MIDNIGHT);
         }
     }
+
+    public void update(ShowUpdateRequest request) {
+        if (request.getTitle() != null) this.title = request.getTitle();
+        if (request.getPosterUrl() != null) this.posterUrl = request.getPosterUrl();
+        if (request.getCategory() != null) this.category = request.getCategory();
+        if (request.getDescription() != null) this.description = request.getDescription();
+        if (request.getLocation() != null) this.location = request.getLocation();
+        if (request.getReservationStart() != null) this.reservationStart = request.getReservationStart();
+        if (request.getReservationEnd() != null) this.reservationEnd = request.getReservationEnd();
+        if (request.getTicketsLimitPerUser() != null) this.ticketsLimitPerUser = request.getTicketsLimitPerUser();
+    }
+
 }
