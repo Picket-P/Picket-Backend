@@ -42,7 +42,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
         }
 
-        AuthUser authUser = AuthUser.toAuthUser(user.getId(), user.getUserRole());
+        AuthUser authUser = AuthUser.toEntity(user.getId(), user.getUserRole());
         session.setAttribute("authUser", authUser);
 
         return user;
