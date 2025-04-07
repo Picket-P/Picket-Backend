@@ -2,7 +2,6 @@ package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
-import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.dto.ShowUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -89,26 +88,7 @@ public class Show extends BaseEntity {
     // 소프트 삭제 처리
     public void softDelete() {
         this.isDeleted = true;
-        this.setDeletedAt(LocalDateTime.now());
-    }
-
-    // 응답 DTO로 변환
-    public ShowResponse toDto() {
-        ShowResponse dto = new ShowResponse();
-        dto.setId(this.id);
-        dto.setDirectorId(this.directorId);
-        dto.setTitle(this.title);
-        dto.setPosterUrl(this.posterUrl);
-        dto.setCategory(this.category.name());
-        dto.setDescription(this.description);
-        dto.setLocation(this.location);
-        dto.setReservationStart(this.reservationStart.toString());
-        dto.setReservationEnd(this.reservationEnd.toString());
-        dto.setTicketsLimitPerUser(this.ticketsLimitPerUser);
-        dto.setCreatedAt(this.getCreatedAt());
-        dto.setModifiedAt(this.getModifiedAt());
-        dto.setDeletedAt(this.getDeletedAt());
-        return dto;
+        this.updateDeletedAt(LocalDateTime.now());
     }
 }
 

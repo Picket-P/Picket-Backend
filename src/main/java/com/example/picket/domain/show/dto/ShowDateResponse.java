@@ -34,8 +34,8 @@ public class ShowDateResponse {
         this.seatSummary = new ArrayList<>();
     }
 
-    public static ShowDateResponse from(ShowDate showDate) {
-        return showDate.toDto();
+    public static ShowDateResponse toDto(ShowDate showDate) {
+        return new ShowDateResponse(showDate);
     }
 
     public void setSeatSummary(List<SeatSummaryResponse> summaryList) {
