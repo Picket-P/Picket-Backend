@@ -35,7 +35,7 @@ public class ShowDateResponse {
     }
 
     public static ShowDateResponse from(ShowDate showDate) {
-        return new ShowDateResponse(showDate);
+        return showDate.toDto();
     }
 
     public void setSeatSummary(List<SeatSummaryResponse> summaryList) {
