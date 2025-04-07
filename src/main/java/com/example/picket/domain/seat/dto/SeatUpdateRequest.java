@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 @Getter
 public class SeatUpdateRequest {
 
-    private String grade;
-    private int quantity;
-    private BigDecimal price;
+    private String grade;       // 등급 (예: VIP)
+    private int quantity;       // 좌석 수
+    private BigDecimal price;   // 좌석 가격
 }
