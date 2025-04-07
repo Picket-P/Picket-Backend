@@ -37,140 +37,135 @@ public class ShowCommandService {
     private final ShowDateRepository showDateRepository;
     private final SeatRepository seatRepository;
 
+    // 공연 생성
     @Transactional
-    public ShowResponse createShow(@Auth AuthUser authUser, ShowCreateRequest request) {
+    public Show createShow(@Auth AuthUser authUser, ShowCreateRequest request) {
 
-        validateShowTimes(request); // 공연 시간 검증
+        // 시작/종료 시간 유효성 검사
+        validateShowTimes(request);
 
-        Show show = showRepository.save(
-                Show.builder()
-                        .directorId(authUser.getId())
-                        .title(request.getTitle())
-                        .posterUrl(request.getPosterUrl())
-                        .category(request.getCategory())
-                        .description(request.getDescription())
-                        .location(request.getLocation())
-                        .reservationStart(request.getReservationStart())
-                        .reservationEnd(request.getReservationEnd())
-                        .ticketsLimitPerUser(request.getTicketsLimitPerUser())
-                        .build()
+        // 공연 생성 및 저장
+        Show show = new Show(
+                authUser.getId(),
+                request.getTitle(),
+                request.getPosterUrl(),
+                request.getCategory(),
+                request.getDescription(),
+                request.getLocation(),
+                request.getReservationStart(),
+                request.getReservationEnd(),
+                request.getTicketsLimitPerUser()
+                // show 생성 시 isDeleted = false로 생성자에서 고정
         );
+        showRepository.save(show);
 
-        List<ShowDate> showDates = request.getDates().stream()
-                .map(dateRequest -> {
-                    ShowDate showDate = ShowDate.builder()
-                            .date(dateRequest.getDate())
-                            .startTime(dateRequest.getStartTime())
-                            .endTime(dateRequest.getEndTime())
-                            .totalSeatCount(dateRequest.getTotalSeatCount())
-                            .reservedSeatCount(0)
-                            .show(show)
-                            .build();
+        // 날짜별 공연 정보 및 좌석 생성
+        for (var dateRequest : request.getDates()) {
+            ShowDate showDate = new ShowDate(
+                    dateRequest.getDate(),
+                    dateRequest.getStartTime(),
+                    dateRequest.getEndTime(),
+                    dateRequest.getTotalSeatCount(),
+                    0, // 예약 수 초기값
+                    show
+            );
+            showDateRepository.save(showDate);
+            createSeatsForShowDate(showDate, dateRequest.getSeatCreateRequests());
+        }
 
-                    showDateRepository.save(showDate);
-
-                    // 좌석 생성
-                    createSeatsForShowDate(showDate, dateRequest.getSeatCreateRequests());
-
-                    return showDate;
-                }).toList();
-
-        return ShowResponse.from(
-                show,
-                showDates.stream()
-                        .map(ShowDateResponse::from)
-                        .toList()
-        );
+        return show;
     }
 
-    // 공연 정보 수정
+    // 공연 수정
     @Transactional
-    public ShowResponse updateShow(@Auth AuthUser authUser, Long showId, ShowUpdateRequest request) {
-
+    public Show updateShow(@Auth AuthUser authUser, Long showId, ShowUpdateRequest request) {
         Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
-        if (!show.getDirectorId().equals(authUser.getId())) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다.");
+        if (show.isDeleted()) {  // 소프트 delete 된 상태라면 수정 불가능
+            throw new CustomException(HttpStatus.FORBIDDEN, "삭제된 공연은 수정할 수 없습니다.");
         }
 
-        if (show.getReservationStart().isBefore(LocalDateTime.now())) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "예매 시작 이후에는 공연을 수정할 수 없습니다.");
-        }
+        validateOwnership(authUser, show); // 소유자 확인
+        validateUpdatable(show);           // 수정 가능 상태 확인
+        validateCategory(request.getCategory()); // 카테고리 유효성 검사
 
-        List<ShowDate> existingDates = showDateRepository.findAllByShowId(showId);
-        boolean anyDateEnded = existingDates.stream()
-                .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
-        if (anyDateEnded) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "종료된 공연은 수정할 수 없습니다.");
-        }
-
-        if (request.getCategory() != null) {
-            boolean isValidCategory = Arrays.stream(Category.values())
-                    .anyMatch(c -> c.name().equalsIgnoreCase(request.getCategory().name()));
-
-            if (!isValidCategory) {
-                throw new CustomException(HttpStatus.BAD_REQUEST, "지원하지 않는 카테고리입니다.");
-            }
-        }
-
-        // 업데이트
-        show.update(request);
-
-        return ShowResponse.from(show,
-                showDateRepository.findAllByShowId(showId).stream()
-                        .map(ShowDateResponse::from)
-                        .toList());
+        show.update(request); // Entity 내 update 로직 실행
+        return show;
     }
 
-    // 공연 삭제
+    // 공연 삭제 (soft delete)
     @Transactional
     public void deleteShow(@Auth AuthUser authUser, Long showId) {
-
         Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
-        if (!show.getDirectorId().equals(authUser.getId())) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다.");
-        }
+        validateOwnership(authUser, show);
 
+        // 예매 시작 이후 삭제 불가
         if (show.getReservationStart().isBefore(LocalDateTime.now())) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "예매 시작 이후에는 공연을 삭제할 수 없습니다.");
         }
 
-        show.softDelete(); // soft delete
+        show.softDelete();  // isDeleted = true 처리
     }
 
-    // 공연 시간 검증
-    private void validateShowTimes(ShowCreateRequest request) {
+    // 공연 작성자 검증
+    private void validateOwnership(AuthUser user, Show show) {
+        if (!show.getDirectorId().equals(user.getId())) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다.");
+        }
+    }
 
+    // 공연 수정 가능 상태 검증
+    private void validateUpdatable(Show show) {
+        // 예매 시작 이후 수정 불가
+        if (show.getReservationStart().isBefore(LocalDateTime.now())) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "예매 시작 이후에는 공연을 수정할 수 없습니다.");
+        }
+
+        // 공연 종료 여부 확인
+        boolean hasEnded = showDateRepository.findAllByShowId(show.getId()).stream()
+                .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
+
+        if (hasEnded) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "종료된 공연은 수정할 수 없습니다.");
+        }
+    }
+
+    // 카테고리 유효성 검사
+    private void validateCategory(Category category) {
+        if (category == null) return;
+
+        boolean isValid = Arrays.stream(Category.values())
+                .anyMatch(c -> c.equals(category));
+
+        if (!isValid) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "지원하지 않는 카테고리입니다.");
+        }
+    }
+
+    // 공연 시작/종료 시간 유효성 검사
+    private void validateShowTimes(ShowCreateRequest request) {
         request.getDates().forEach(dateRequest -> {
             if (dateRequest.getStartTime().isAfter(dateRequest.getEndTime())) {
-                throw new CustomException(ErrorCode.SHOW_DATE_INVALID_TIME);
+                throw new CustomException(HttpStatus.BAD_REQUEST, "공연 시작 시간이 종료 시간보다 늦을 수 없습니다.");
             }
         });
     }
 
-    // 공연 날짜 별로 좌석 생성
+    // 날짜별 좌석 생성
     private void createSeatsForShowDate(ShowDate showDate, List<SeatCreateRequest> seatRequests) {
-
         List<Seat> seats = new ArrayList<>();
 
         for (SeatCreateRequest seatRequest : seatRequests) {
-            Grade grade = seatRequest.getGrade();
-            int count = seatRequest.getSeatCount();
-            BigDecimal price = seatRequest.getPrice();
-
-            for (int i = 1; i <= count; i++) {
-                Seat seat = Seat.builder()
-                        .seatNumber(i)
-                        .seatStatus(SeatStatus.AVAILABLE)
-                        .grade(grade)
-                        .price(price)
-                        .showDate(showDate)
-                        .build();
-
-                seats.add(seat);
+            for (int i = 1; i <= seatRequest.getSeatCount(); i++) {
+                seats.add(Seat.of(
+                        seatRequest.getGrade(),
+                        i,
+                        seatRequest.getPrice(),
+                        showDate
+                ));
             }
         }
 
