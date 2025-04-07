@@ -94,9 +94,4 @@ public class ShowDate extends BaseEntity {
         this.reservedSeatCount -= count;
         this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
     }
-
-    // 응답 DTO로 변환
-    public ShowDateResponse toDto() {
-        return new ShowDateResponse(this);
-    }
 }
