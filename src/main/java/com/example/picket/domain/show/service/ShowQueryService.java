@@ -1,8 +1,13 @@
 package com.example.picket.domain.show.service;
 
 import com.example.picket.common.enums.Category;
+import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
+import com.example.picket.domain.seat.dto.SeatSummaryResponse;
+import com.example.picket.domain.seat.entity.Seat;
+import com.example.picket.domain.seat.repository.SeatRepository;
+import com.example.picket.domain.show.dto.ShowDateResponse;
 import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -23,9 +28,9 @@ public class ShowQueryService {
 
     private final ShowRepository showRepository;
     private final ShowDateRepository showDateRepository;
+    private final SeatRepository seatRepository;
 
     public List<ShowResponse> getShows(String category, String sortBy, String order) {
-
         List<Show> shows;
 
         // 카테고리 미지정일 경우 기본 정렬
@@ -37,35 +42,25 @@ public class ShowQueryService {
 
         List<ShowResponse> responses = shows.stream()
                 .map(show -> {
-                    List<ShowDate> showDates = showDateRepository.findAllByShowId(show.getId());
-                    return ShowResponse.from(show, showDates);
+                    List<ShowDateResponse> showDateResponses = showDateRepository.findAllByShowId(show.getId())
+                            .stream()
+                            .map(showDate -> {
+                                ShowDateResponse response = ShowDateResponse.from(showDate);
+
+                                List<Seat> seats = seatRepository.findAllByShowDateId(showDate.getId());
+                                List<SeatSummaryResponse> summaryList = buildSeatSummary(seats);
+                                response.setSeatSummary(summaryList);
+
+                                return response;
+                            })
+                            .toList();
+
+                    return ShowResponse.from(show, showDateResponses);
                 })
                 .collect(Collectors.toList());
 
-//        // 정렬 기준 정의
-//        Comparator<ShowResponse> comparator;
-//
-//        switch (sortBy != null ? sortBy.toLowerCase() : "createdat") {
-//            case "reservationstart":
-//                comparator = Comparator.comparing(r -> r.getShowDates().get(0).getStartTime());
-//                break;
-//            case "views":
-//                comparator = Comparator.comparing(ShowResponse::getViews); // 추후 views 필드 추가 필요
-//                break;
-//            case "likes":
-//                comparator = Comparator.comparing(ShowResponse::getLikes); // 추후 likes 필드 추가 필요
-//                break;
-//            case "reservation":
-//                comparator = Comparator.comparing(ShowResponse::getReservationCount); // 추후 예약 수 필드 추가 필요
-//                break;
-//            case "createdat":
-//            default:
-//                comparator = Comparator.comparing(ShowResponse::getCreatedAt);
-//        }
-
         // 정렬 기준 정의
         Comparator<ShowResponse> comparator = Comparator.comparing(ShowResponse::getCreatedAt);
-
         if ("desc".equalsIgnoreCase(order)) {
             comparator = comparator.reversed();
         }
@@ -80,7 +75,43 @@ public class ShowQueryService {
 
         List<ShowDate> showDates = showDateRepository.findAllByShowId(showId);
 
-        return ShowResponse.from(show, showDates);
+        List<ShowDateResponse> showDateResponses = showDates.stream()
+                .map(showDate -> {
+                    ShowDateResponse response = ShowDateResponse.from(showDate);
+
+                    List<Seat> seats = seatRepository.findAllByShowDateId(showDate.getId());
+                    List<SeatSummaryResponse> summaryList = buildSeatSummary(seats);
+                    response.setSeatSummary(summaryList);
+
+                    return response;
+                })
+                .sorted(Comparator.comparing(ShowDateResponse::getDate))
+                .toList();
+
+        return ShowResponse.from(show, showDateResponses);
+    }
+
+    private List<SeatSummaryResponse> buildSeatSummary(List<Seat> seats) {
+        return seats.stream()
+                .collect(Collectors.groupingBy(
+                        Seat::getGrade,
+                        Collectors.collectingAndThen(Collectors.toList(), groupedSeats -> {
+                            int total = groupedSeats.size();
+                            int reserved = (int) groupedSeats.stream()
+                                    .filter(seat -> seat.getSeatStatus() == SeatStatus.RESERVED)
+                                    .count();
+                            int available = total - reserved;
+
+                            return SeatSummaryResponse.builder()
+                                    .grade(groupedSeats.get(0).getGrade())
+                                    .total(total)
+                                    .reserved(reserved)
+                                    .available(available)
+                                    .build();
+                        })
+                ))
+                .values()
+                .stream()
+                .toList();
     }
 }
-
