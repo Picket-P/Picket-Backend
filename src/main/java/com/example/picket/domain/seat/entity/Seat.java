@@ -47,4 +47,22 @@ public class Seat {
         this.price = price;
         this.showDate = showDate;
     }
+
+    public void updatePrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public static Seat of(Grade grade, int seatNumber, BigDecimal price, ShowDate showDate) {
+        return Seat.builder()
+                .grade(grade)
+                .seatNumber(seatNumber)
+                .price(price)
+                .seatStatus(SeatStatus.AVAILABLE)
+                .showDate(showDate)
+                .build();
+    }
+
+    private static String formatSeatNumber(Grade grade, int seatNumber) {
+        return grade.name() + String.format("%02d", seatNumber);
+    }
 }
