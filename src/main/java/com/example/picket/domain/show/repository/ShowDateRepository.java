@@ -11,9 +11,9 @@ import java.util.Optional;
 
 public interface ShowDateRepository extends JpaRepository<ShowDate, Long> {
 
-    @EntityGraph(attributePaths = {"show", "seats"}) // Show와 Seat 관련된 데이터를 fetch join으로 미리 로드
+    @EntityGraph(attributePaths = {"show"}) // Show와 Seat 관련된 데이터를 fetch join으로 미리 로드
     List<ShowDate> findAllByShowId(Long showId);
 
-    @EntityGraph(attributePaths = {"show", "seats"}) // Show와 Seat 관련된 데이터를 fetch join으로 미리 로드
+    @EntityGraph(attributePaths = {"show"}) // Show와 Seat 관련된 데이터를 fetch join으로 미리 로드
     Optional<ShowDate> findByShow(Show show);
 }
