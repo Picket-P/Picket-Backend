@@ -1,6 +1,7 @@
 package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
+import com.example.picket.domain.show.dto.ShowDateResponse;
 import jakarta.persistence.*;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
@@ -15,9 +16,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
@@ -60,24 +61,23 @@ public class ShowDate extends BaseEntity {
         }
     }
 
-    @Builder
-    private ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
-                     Integer reservedSeatCount, Show show) {
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.totalSeatCount = totalSeatCount;
-        this.reservedSeatCount = reservedSeatCount != null ? reservedSeatCount : 0;
-        this.availableSeatCount = totalSeatCount - this.reservedSeatCount;
-        this.show = show;
-    }
+    public ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
+                Integer reservedSeatCount, Show show) {
+            this.date = date;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.totalSeatCount = totalSeatCount;
+            this.reservedSeatCount = reservedSeatCount != null ? reservedSeatCount : 0;
+            this.availableSeatCount = totalSeatCount - this.reservedSeatCount;
+            this.show = show;
+        }
 
+    // 예약 좌석 계산 로직
     @PrePersist
     @PreUpdate
     private void updateAvailableSeats() {
         this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
     }
-
 
     public void reserveSeats(int count) {
         if (this.reservedSeatCount + count > this.totalSeatCount) {
@@ -93,5 +93,10 @@ public class ShowDate extends BaseEntity {
         }
         this.reservedSeatCount -= count;
         this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
+    }
+
+    // 응답 DTO로 변환
+    public ShowDateResponse toDto() {
+        return new ShowDateResponse(this);
     }
 }
