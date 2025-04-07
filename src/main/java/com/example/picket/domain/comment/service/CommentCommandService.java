@@ -23,7 +23,7 @@ public class CommentCommandService {
     @Transactional
     public Comment createComment(Long userId, Long showId, CommentRequest commentRequest) {
 
-        return commentRepository.save(Comment.createComment(commentRequest.getContent()
+        return commentRepository.save(Comment.toEntity(commentRequest.getContent()
                 , showRepository.findById(showId).orElseThrow(()-> new CustomException(SHOW_NOT_FOUND))
                 , userRepository.getReferenceById(userId))
         );
