@@ -3,12 +3,14 @@ package com.example.picket.domain.show.service;
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Grade;
+import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.seat.dto.SeatCreateRequest;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
 import com.example.picket.domain.show.dto.ShowCreateRequest;
+import com.example.picket.domain.show.dto.ShowDateResponse;
 import com.example.picket.domain.show.dto.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -62,17 +64,23 @@ public class ShowCommandService {
 
                     showDateRepository.save(showDate);
 
-                    // ⬇️ 좌석 생성
+                    // 좌석 생성
                     createSeatsForShowDate(showDate, dateRequest.getSeatCreateRequests());
 
                     return showDate;
                 }).toList();
 
-        return ShowResponse.from(show, showDates);
+        return ShowResponse.from(
+                show,
+                showDates.stream()
+                        .map(ShowDateResponse::from)
+                        .toList()
+        );
     }
 
     // 공연 시간 검증
     private void validateShowTimes(ShowCreateRequest request) {
+
         request.getDates().forEach(dateRequest -> {
             if (dateRequest.getStartTime().isAfter(dateRequest.getEndTime())) {
                 throw new CustomException(ErrorCode.SHOW_DATE_INVALID_TIME);
@@ -80,7 +88,9 @@ public class ShowCommandService {
         });
     }
 
+    // 공연 날짜 별로 좌석 생성
     private void createSeatsForShowDate(ShowDate showDate, List<SeatCreateRequest> seatRequests) {
+
         List<Seat> seats = new ArrayList<>();
 
         for (SeatCreateRequest seatRequest : seatRequests) {
@@ -91,9 +101,10 @@ public class ShowCommandService {
             for (int i = 1; i <= count; i++) {
                 Seat seat = Seat.builder()
                         .seatNumber(i)
+                        .seatStatus(SeatStatus.AVAILABLE)
                         .grade(grade)
                         .price(price)
-                        .showDate(showDate) // ✅ 이 부분이 중요!
+                        .showDate(showDate)
                         .build();
 
                 seats.add(seat);
