@@ -16,13 +16,15 @@ public class SeatDetailResponse {
     private String formattedNumber;
     private SeatStatus status;
 
-    public static SeatDetailResponse from(Seat seat) {
-        return new SeatDetailResponse(
-                seat.getId(),
-                seat.getSeatNumber(),
-                formatSeatNumber(seat.getGrade(), seat.getSeatNumber()),
-                seat.getSeatStatus()
-        );
+    public SeatDetailResponse(Seat seat) {
+        this.id = seat.getId();
+        this.seatNumber = seat.getSeatNumber();
+        this.formattedNumber = formatSeatNumber(seat.getGrade(), seat.getSeatNumber());
+        this.status = seat.getSeatStatus();
+    }
+
+    public static SeatDetailResponse toDto(Seat seat) {
+        return new SeatDetailResponse(seat);
     }
 
     private static String formatSeatNumber(Grade grade, int seatNumber) {

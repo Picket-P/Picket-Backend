@@ -21,7 +21,7 @@ public class SeatResponseMapper {
                     Grade grade = entry.getKey();
                     List<Seat> groupedSeats = entry.getValue();
                     BigDecimal price = groupedSeats.get(0).getPrice(); // 등급별 가격 동일
-                    return SeatGroupByGradeResponse.from(grade, price, groupedSeats);
+                    return SeatGroupByGradeResponse.toDto(grade, price, groupedSeats);
                 })
                 .toList();
     }

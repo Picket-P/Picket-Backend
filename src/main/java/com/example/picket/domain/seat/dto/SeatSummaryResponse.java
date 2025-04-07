@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class SeatSummaryResponse {
 
     private Grade grade;
@@ -13,12 +12,15 @@ public class SeatSummaryResponse {
     private int reserved;
     private int available;
 
-    @Builder
     public SeatSummaryResponse(Grade grade, int total, int reserved, int available) {
         this.grade = grade;
         this.total = total;
         this.reserved = reserved;
         this.available = available;
+    }
+
+    public static SeatSummaryResponse toDto(Grade grade, int total, int reserved, int available) {
+        return new SeatSummaryResponse(grade, total, reserved, available);
     }
 }
 
