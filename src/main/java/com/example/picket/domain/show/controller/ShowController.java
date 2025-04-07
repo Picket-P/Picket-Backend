@@ -6,6 +6,7 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.show.dto.ShowCreateRequest;
 import com.example.picket.domain.show.dto.ShowResponse;
+import com.example.picket.domain.show.dto.ShowUpdateRequest;
 import com.example.picket.domain.show.service.ShowCommandService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ public class ShowController {
     private final ShowCommandService showCommandService;
     private final ShowQueryService showQueryService;
 
+    // 공연 생성
     @PostMapping("/admin/shows")
     @AuthPermission(role = UserRole.ADMIN)
     public ResponseEntity<ShowResponse> createShow(
@@ -33,11 +35,13 @@ public class ShowController {
         return ResponseEntity.ok(response);
     }
 
+    // 공연 단건 조회
     @GetMapping("/shows/{showId}")
     public ResponseEntity<ShowResponse> getShowDetails(@PathVariable Long showId) {
         return ResponseEntity.ok(showQueryService.getShowDetails(showId));
     }
 
+    // 공연 목록 조회
     @GetMapping("/shows")
     public List<ShowResponse> getShows(
             @RequestParam(required = false) String category,
@@ -45,5 +49,16 @@ public class ShowController {
             @RequestParam(defaultValue = "desc") String order
     ) {
         return showQueryService.getShows(category, sortBy, order);
+    }
+
+    // 공연 수정
+    @PatchMapping("/shows/{showId}")
+    public ResponseEntity<ShowResponse> updateShow(
+            @Auth AuthUser authUser,
+            @PathVariable Long showId,
+            @RequestBody ShowUpdateRequest request
+    ) {
+        ShowResponse updated = showCommandService.updateShow(authUser, showId, request);
+        return ResponseEntity.ok(updated);
     }
 }
