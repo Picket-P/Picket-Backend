@@ -6,6 +6,7 @@ import com.example.picket.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.picket.domain.user.dto.request.UpdateUserRequest;
 import com.example.picket.domain.user.dto.request.WithdrawUserRequest;
 import com.example.picket.domain.user.dto.response.UserResponse;
+import com.example.picket.domain.user.service.UserQueryService;
 import com.example.picket.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final UserQueryService userQueryService;
 
     @GetMapping("/users")
     public ResponseEntity<UserResponse> getUser(@Auth AuthUser authUser) {
-        return ResponseEntity.ok(userService.getUser(authUser));
+        return ResponseEntity.ok(userQueryService.getUser(authUser));
     }
 
     @PatchMapping("/users")
