@@ -26,7 +26,7 @@ public class ShowResponseMapper {
                 .map(this::toShowDateResponseWithSeatSummary)
                 .toList();
 
-        return ShowResponse.from(show, showDateResponses);
+        return ShowResponse.toDto(show, showDateResponses);
     }
 
     // 좌석 요약 정보 포함한 공연 날짜 응답 생성
@@ -34,7 +34,7 @@ public class ShowResponseMapper {
         List<Seat> seats = seatRepository.findAllByShowDateId(showDate.getId());
         List<SeatSummaryResponse> seatSummaries = buildSeatSummary(seats);
 
-        ShowDateResponse response = ShowDateResponse.from(showDate);
+        ShowDateResponse response = ShowDateResponse.toDto(showDate);
         response.setSeatSummary(seatSummaries);
         return response;
     }
