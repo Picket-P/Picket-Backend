@@ -82,4 +82,18 @@ public class SeatCommandService {
             }
         }
     }
+
+    // 좌석 삭제
+    @Transactional
+    public void deleteSeat(AuthUser authUser, Long seatId) {
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "좌석을 찾을 수 없습니다."));
+
+        // 예매된 좌석인지 체크
+        if (seat.getSeatStatus() == SeatStatus.RESERVED) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "이미 예약된 좌석은 삭제할 수 없습니다.");
+        }
+
+        seatRepository.delete(seat);
+    }
 }

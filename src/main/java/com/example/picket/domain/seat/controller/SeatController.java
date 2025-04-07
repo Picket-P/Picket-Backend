@@ -40,5 +40,15 @@ public class SeatController {
         seatCommandService.updateSeats(authUser, showDateId, requests);
         return ResponseEntity.ok().build();
     }
+
+    // 좌석 삭제
+    @DeleteMapping("/shows/{showId}/dates/{showDateId}/seats/{seatId}")
+    public ResponseEntity<Void> deleteSeat(
+            @Auth AuthUser authUser,
+            @PathVariable Long seatId
+    ) {
+        seatCommandService.deleteSeat(authUser, seatId);
+        return ResponseEntity.noContent().build();
+    }
 }
 
