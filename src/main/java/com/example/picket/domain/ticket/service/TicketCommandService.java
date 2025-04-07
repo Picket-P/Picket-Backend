@@ -33,10 +33,11 @@ public class TicketCommandService {
     private final ShowDateRepository showDateRepository;
 
     @Transactional
-    public CreateTicketResponse createTicket(Long userId, UserRole userRole, Long seatId) {
+    public Ticket createTicket(Long userId, UserRole userRole, Long seatId) {
 
         Seat foundSeat = getSeat(seatId);
         Show foundShow = foundSeat.getShow();
+
         validateTicketCreationTime(foundShow);
 
         validateSeat(foundSeat);
@@ -47,22 +48,16 @@ public class TicketCommandService {
 
         discountShowDateRemainCount(foundShowDate);
 
-        Ticket ticket = Ticket.builder()
-                .user(foundUser)
-                .show(foundShow)
-                .seat(foundSeat)
-                .price(foundPrice)
-                .status(TicketStatus.TICKET_CREATED)
-                .build();
+        Ticket ticket = Ticket.toEntity(foundUser, foundShow, foundSeat, foundPrice, TicketStatus.TICKET_CREATED);
 
         ticketRepository.save(ticket);
 
-        return CreateTicketResponse.from(ticket);
+        return ticket;
 
     }
 
     @Transactional
-    public DeleteTicketResponse deleteTicket(Long ticketId, Long userId) {
+    public Ticket deleteTicket(Long ticketId, Long userId) {
 
         Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
                 () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
@@ -71,16 +66,16 @@ public class TicketCommandService {
         validateUserInfo(userId, ticket);
 
         ShowDate showDate = getShowDate(ticket.getShow());
+
         if (LocalDate.now().isBefore(showDate.getDate())) {
             ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
             // TODO : 환불 처리 로직 구현 ?
             // 환불이 성공적으로 끝났다면, TicketStatus와 deletedAt 업데이트
             ticket.updateTicketStatus(TicketStatus.TICKET_EXPIRED);
             ticket.updateDeletedAt(LocalDateTime.now());
-
         }
 
-        return DeleteTicketResponse.from(ticket);
+        return ticket;
     }
 
     private User getUser(Long userId) {

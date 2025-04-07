@@ -26,7 +26,7 @@ public class CreateTicketResponse {
 
     private LocalDateTime modifiedAt;
 
-    public CreateTicketResponse(Ticket ticket) {
+    private CreateTicketResponse(Ticket ticket) {
         this.id = ticket.getId();
         this.userId = ticket.getUser().getId();
         this.showId = ticket.getShow().getId();
@@ -37,7 +37,7 @@ public class CreateTicketResponse {
         this.modifiedAt = ticket.getModifiedAt();
     }
 
-    public static CreateTicketResponse from(Ticket ticket) {
+    public static CreateTicketResponse toDto(Ticket ticket) {
         return new CreateTicketResponse(ticket);
     }
 }
