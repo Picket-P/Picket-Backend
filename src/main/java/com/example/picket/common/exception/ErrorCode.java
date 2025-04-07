@@ -69,18 +69,15 @@ public enum ErrorCode {
     TICKET_TYPE_INVALID(BAD_REQUEST, "유효하지 않은 티켓 유형입니다."),
 
     // S
-    SHOW_NOT_FOUND(NOT_FOUND, "존재하지 않는 Show입니다."),
     SHOW_DATE_NOT_FOUND(NOT_FOUND, "존재하지 않는 ShowDate입니다."),
     SHOW_RESERVATION_TIME_INVALID_AFTER_SHOW(BAD_REQUEST, "예매 종료 시간 이후 입니다."),
     SHOW_RESERVATION_TIME_INVALID_BEFORE_SHOW(BAD_REQUEST, "예매 시작 시간 전입니다."),
 
     // TICKET
-    TICKET_TYPE_INVALID(BAD_REQUEST, "유효하지 않은 티켓 유형입니다."),
     TICKET_CANCEL_FORBIDDEN(FORBIDDEN, "예매자 본인만 취소할 수 있습니다."),
     TICKET_NOT_FOUND(NOT_FOUND, "존재하지 않는 Ticket입니다."),
 
     // T
-    TICKET_NOT_FOUND(NOT_FOUND, "존재하지 않는 Ticket입니다."),
 
     // USER
     USER_DUPLICATE_EMAIL(BAD_REQUEST, "이미 가입되어있는 이메일 입니다."),
