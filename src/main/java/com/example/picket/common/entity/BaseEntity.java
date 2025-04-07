@@ -21,9 +21,10 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
+    @Column
     private LocalDateTime deletedAt;
 
-    public void updateDeletedAt (LocalDateTime time) {
-        this.deletedAt = time;
+    public void updateDeletedAt (LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
