@@ -42,8 +42,10 @@ public class TicketController {
 
     @GetMapping("tickets/{ticketId}")
     public ResponseEntity<GetTicketResponse> getTicket(
-            @PathVariable Long ticketId) {
-        Ticket ticket = ticketQueryService.getTicket(ticketId);
+            @PathVariable Long ticketId,
+            @Auth AuthUser authUser
+    ) {
+        Ticket ticket = ticketQueryService.getTicket(authUser.getId(), ticketId);
         return ResponseEntity.ok(GetTicketResponse.toDto(ticket));
     }
 
