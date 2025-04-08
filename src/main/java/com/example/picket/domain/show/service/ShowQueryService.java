@@ -4,7 +4,6 @@ import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
