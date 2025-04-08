@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class WithdrawUserRequest {
 
-    @Schema(description = "비밀번호", example = "password123!")
+    @Schema(description = "비밀번호", example = "Aodlstory321!")
     @NotBlank
     private String password;
 }
