@@ -69,7 +69,7 @@ class SeatCommandServiceTest {
 
             Seat existingSeat = Seat.toEntity(grade, 1, newPrice, showDate);
 
-            given(showDateQueryService.findById(showDateId)).willReturn(showDate);
+            given(showDateQueryService.getShowDate(showDateId)).willReturn(showDate);
             given(seatRepository.findAllByShowDateId(showDateId)).willReturn(List.of(existingSeat));
             given(seatRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
 
@@ -101,7 +101,7 @@ class SeatCommandServiceTest {
             Seat seat1 = Seat.toEntity(Grade.VIP, 1, price, showDate);
             Seat seat2 = Seat.toEntity(Grade.VIP, 2, price, showDate);
 
-            given(showDateQueryService.findById(showDateId)).willReturn(showDate);
+            given(showDateQueryService.getShowDate(showDateId)).willReturn(showDate);
             given(seatRepository.findAllByShowDateId(showDateId)).willReturn(List.of(seat1, seat2));
 
             SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 1, price);
@@ -131,7 +131,7 @@ class SeatCommandServiceTest {
             Seat seat1 = Seat.toEntity(Grade.VIP, 1, price, showDate);
             Seat seat2 = Seat.toEntity(Grade.VIP, 2, price, showDate);
 
-            given(showDateQueryService.findById(showDateId)).willReturn(showDate);
+            given(showDateQueryService.getShowDate(showDateId)).willReturn(showDate);
             given(seatRepository.findAllByShowDateId(showDateId)).willReturn(List.of(seat1, seat2));
 
             SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 1, price);
@@ -163,7 +163,7 @@ class SeatCommandServiceTest {
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
-            given(showDateQueryService.findById(showDate.getId()))
+            given(showDateQueryService.getShowDate(showDate.getId()))
                     .willReturn(showDate);
 
             Seat reservedSeat = Seat.toEntity(Grade.VIP, 1, price, showDate);
@@ -200,7 +200,7 @@ class SeatCommandServiceTest {
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
-            given(showDateQueryService.findById(showDate.getId()))
+            given(showDateQueryService.getShowDate(showDate.getId()))
                     .willReturn(showDate);
 
             // 현재 좌석 2개 중 1개는 예약된 상태 (줄일 수 없음)

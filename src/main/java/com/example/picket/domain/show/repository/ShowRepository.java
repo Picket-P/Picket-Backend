@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ShowRepository extends JpaRepository<Show, Long> {
 
-    List<Show> findAllByCategoryAndIsDeletedFalse(Category category);
+    List<Show> findAllByCategoryAndDeletedAtIsNull(Category category);
 }
