@@ -13,7 +13,8 @@ public class ShowDateCommandService {
 
     private final ShowDateRepository showDateRepository;
 
-    public void save(ShowDate showDate) {
+    public void createShowDate(ShowDate showDate) {
         showDateRepository.save(showDate);
     }
+
 }

@@ -32,7 +32,7 @@ public class SeatCommandService {
     // 좌석 수정
     @Transactional
     public List<Seat> updateSeats(AuthUser authUser, Long showDateId, List<SeatUpdateRequest> requests) {
-        ShowDate showDate = showDateQueryService.findById(showDateId);
+        ShowDate showDate = showDateQueryService.getShowDate(showDateId);
 
         Show show = showDate.getShow();
         boolean isReservationStarted = show.getReservationStart().isBefore(LocalDateTime.now());

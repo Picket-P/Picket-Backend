@@ -10,8 +10,8 @@ import com.example.picket.domain.show.dto.response.ShowDateResponse;
 import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
-import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.service.ShowCommandService;
+import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.show.service.ShowResponseMapper;
 import java.util.List;
@@ -34,15 +34,16 @@ public class ShowController {
 
     private final ShowCommandService showCommandService;
     private final ShowQueryService showQueryService;
+    private final ShowDateQueryService showDateQueryService;
+
     private final ShowResponseMapper showResponseMapper;
-    private final ShowDateRepository showDateRepository;
 
     // 공연 생성
     @PostMapping("/admin/shows")
     @AuthPermission(role = UserRole.ADMIN)
     public ResponseEntity<ShowResponse> createShow(@Auth AuthUser user, @RequestBody ShowCreateRequest request) {
         Show show = showCommandService.createShow(user, request);
-        List<ShowDate> dates = showDateRepository.findAllByShowId(show.getId());
+        List<ShowDate> dates = showDateQueryService.getShowDatesByShowId(show.getId());
         return ResponseEntity.ok(ShowResponse.toDto(show, dates.stream().map(ShowDateResponse::toDto).toList()));
     }
 
@@ -57,7 +58,7 @@ public class ShowController {
 
         List<ShowResponse> response = shows.stream()
                 .map(show -> {
-                    List<ShowDate> showDates = showQueryService.getShowDatesByShowId(show.getId());
+                    List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(show.getId());
                     return showResponseMapper.toDto(show, showDates);
                 })
                 .toList();
@@ -68,8 +69,8 @@ public class ShowController {
     // 공연 단건 조회
     @GetMapping("/shows/{showId}")
     public ResponseEntity<ShowResponse> getShowDetail(@PathVariable Long showId) {
-        Show show = showQueryService.getShowDetails(showId);
-        List<ShowDate> showDates = showQueryService.getShowDatesByShowId(showId);
+        Show show = showQueryService.getShow(showId);
+        List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(showId);
         ShowResponse response = showResponseMapper.toDto(show, showDates);
         return ResponseEntity.ok(response);
     }
@@ -82,7 +83,7 @@ public class ShowController {
             @RequestBody ShowUpdateRequest request
     ) {
         Show show = showCommandService.updateShow(authUser, showId, request);
-        List<ShowDate> showDates = showDateRepository.findAllByShowId(showId);
+        List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(showId);
 
         ShowResponse response = showResponseMapper.toDto(show, showDates);
         return ResponseEntity.ok(response);
@@ -97,4 +98,5 @@ public class ShowController {
         showCommandService.deleteShow(authUser, showId);
         return ResponseEntity.noContent().build();
     }
+
 }

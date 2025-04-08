@@ -62,7 +62,7 @@ class LikeCommandServiceTest {
             Long showId = 1L;
             User user = mock(User.class);
             given(userQueryService.findById(any())).willReturn(user);
-            given(showQueryService.findById(any())).willThrow(new CustomException(ErrorCode.SHOW_NOT_FOUND));
+            given(showQueryService.getShow(any())).willThrow(new CustomException(ErrorCode.SHOW_NOT_FOUND));
 
             // when & then
             assertThatThrownBy(
@@ -79,7 +79,7 @@ class LikeCommandServiceTest {
             User user = mock(User.class);
             Show show = mock(Show.class);
             given(userQueryService.findById(any())).willReturn(user);
-            given(showQueryService.findById(any())).willReturn(show);
+            given(showQueryService.getShow(any())).willReturn(show);
             given(likeRepository.existsByUserIdAndShowId(any(), any())).willReturn(true);
 
             // when & then
@@ -97,7 +97,7 @@ class LikeCommandServiceTest {
             User user = mock(User.class);
             Show show = mock(Show.class);
             given(userQueryService.findById(any())).willReturn(user);
-            given(showQueryService.findById(any())).willReturn(show);
+            given(showQueryService.getShow(any())).willReturn(show);
             given(likeRepository.existsByUserIdAndShowId(any(), any())).willReturn(false);
 
             // when
@@ -105,7 +105,7 @@ class LikeCommandServiceTest {
 
             // then
             verify(userQueryService, times(1)).findById(any());
-            verify(showQueryService, times(1)).findById(any());
+            verify(showQueryService, times(1)).getShow(any());
             verify(likeRepository, times(1)).existsByUserIdAndShowId(any(), any());
             verify(likeRepository, times(1)).save(any());
         }

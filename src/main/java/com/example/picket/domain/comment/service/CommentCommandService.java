@@ -26,8 +26,8 @@ public class CommentCommandService {
     public Comment createComment(Long userId, Long showId, CommentRequest commentRequest) {
 
         return commentRepository.save(Comment.toEntity(commentRequest.getContent()
-                , showQueryService.findById(showId)
-                , userQueryService.findById(userId))
+                , showQueryService.getShow(showId)
+                , userQueryService.getReferenceById(userId))
         );
     }
 

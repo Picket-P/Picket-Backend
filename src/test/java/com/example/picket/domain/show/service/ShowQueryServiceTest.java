@@ -5,7 +5,6 @@ import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +21,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ShowQueryServiceTest {
@@ -87,6 +84,7 @@ class ShowQueryServiceTest {
                         reservationStart, reservationEnd, 2
                     )
                 );
+            verify(showRepository, times(1)).findAll();
         }
 
         @Test
@@ -120,6 +118,40 @@ class ShowQueryServiceTest {
                         reservationStart, reservationEnd, 2
                     )
                 );
+            verify(showRepository, times(1)).findAllByCategoryAndIsDeletedFalse(Category.MUSICAL);
+        }
+
+        @Test
+        void 공연_목록_조회_정렬_조건_변경_성공() throws Exception {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime reservationStart = now;
+            LocalDateTime reservationEnd = now.plusDays(1);
+
+            Show show = Show.toEntity(1L, "제목1", "포스터1.jpg",
+                Category.MUSICAL, "내용1", "장소1",
+                reservationStart, reservationEnd, 2
+            );
+            setCreatedAt(show, now);
+
+            List<Show> mockShows = new ArrayList<>(List.of(show));
+            given(showRepository.findAllByCategoryAndIsDeletedFalse(Category.MUSICAL)).willReturn(mockShows);
+
+            // when
+            List<Show> result = showQueryService.getShows("musical", "reservationStart", "desc");
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result)
+                .extracting("directorId", "title", "posterUrl", "category",
+                    "description", "location", "reservationStart", "reservationEnd", "ticketsLimitPerUser"
+                )
+                .containsExactly(
+                    tuple(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
+                        reservationStart, reservationEnd, 2
+                    )
+                );
+            verify(showRepository, times(1)).findAllByCategoryAndIsDeletedFalse(Category.MUSICAL);
         }
 
         @Test
@@ -142,7 +174,7 @@ class ShowQueryServiceTest {
 
     @Nested
     class 공연_단건_조회_테스트 {
-        
+
         @Test
         void 공연_단건_조회_성공() throws Exception {
             // given
@@ -159,7 +191,7 @@ class ShowQueryServiceTest {
             given(showRepository.findById(showId)).willReturn(Optional.of(show));
 
             // when
-            Show result = showQueryService.getShowDetails(showId);
+            Show result = showQueryService.getShow(showId);
 
             // then
             assertThat(result)
@@ -169,6 +201,20 @@ class ShowQueryServiceTest {
                 .containsExactly(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
                     reservationStart, reservationEnd, 2
                 );
+            verify(showRepository, times(1)).findById(showId);
+        }
+
+        @Test
+        void 공연_단건_조회_찾을_수_없는_공연_ID_예외() throws Exception {
+            // given
+            Long showId = -1L;
+            given(showRepository.findById(showId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> showQueryService.getShow(showId))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("해당 공연을 찾을 수 없습니다.");
+
         }
     }
 

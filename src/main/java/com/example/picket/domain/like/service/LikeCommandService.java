@@ -25,7 +25,7 @@ public class LikeCommandService {
     public void createLike(Long userId, Long showId) {
         User user = userQueryService.findById(userId);
 
-        Show show = showQueryService.findById(showId);
+        Show show = showQueryService.getShow(showId);
 
         if (likeRepository.existsByUserIdAndShowId(user.getId(), show.getId())) {
             throw new CustomException(ErrorCode.LIKE_ALREADY_EXIST);

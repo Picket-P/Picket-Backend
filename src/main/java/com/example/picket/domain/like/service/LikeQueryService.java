@@ -28,6 +28,6 @@ public class LikeQueryService {
                 }
         ).toList();
 
-        return showQueryService.findAllById(showId);
+        return showQueryService.getShowDatesByShowIds(showId);
     }
 }

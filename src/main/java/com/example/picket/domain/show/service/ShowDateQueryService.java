@@ -18,17 +18,18 @@ public class ShowDateQueryService {
 
     private final ShowDateRepository showDateRepository;
 
-    public ShowDate findById(Long id) {
-        return showDateRepository.findById(id)
+    public ShowDate getShowDate(Long showDateId) {
+        return showDateRepository.findById(showDateId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "공연 날짜를 찾을 수 없습니다."));
     }
 
-    public List<ShowDate> findAllByShowId(Long id) {
-        return showDateRepository.findAllByShowId(id);
+    public List<ShowDate> getShowDatesByShowId(Long showId) {
+        return showDateRepository.findAllByShowId(showId);
     }
 
-    public ShowDate findByShow(Show show) {
-        return showDateRepository.findByShow(show).orElseThrow(
+    public ShowDate getShowDateByShow(Show show) {
+        return showDateRepository.findShowDateByShow(show).orElseThrow(
                 () -> new CustomException(ErrorCode.SHOW_DATE_NOT_FOUND));
     }
+
 }
