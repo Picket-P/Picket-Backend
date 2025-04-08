@@ -1,8 +1,9 @@
 package com.example.picket.common.interceptor;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import com.example.picket.common.consts.Const;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -25,7 +26,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
 
         if (session == null) {
-            throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED_LOGIN);
+            throw new CustomException(UNAUTHORIZED, "로그인 이후 이용 가능합니다.");
         }
 
         return true;

@@ -6,9 +6,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.like.entity.Like;
 import com.example.picket.domain.like.repository.LikeRepository;
 import com.example.picket.domain.show.entity.Show;
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class LikeCommandServiceTest {
@@ -46,7 +47,7 @@ class LikeCommandServiceTest {
             // given
             Long userId = 1L;
             Long showId = 1L;
-            given(userQueryService.findById(any())).willThrow(new CustomException(ErrorCode.USER_NOT_FOUND));
+            given(userQueryService.findById(any())).willThrow(new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
 
             // when & then
             assertThatThrownBy(
@@ -62,7 +63,7 @@ class LikeCommandServiceTest {
             Long showId = 1L;
             User user = mock(User.class);
             given(userQueryService.findById(any())).willReturn(user);
-            given(showQueryService.getShow(any())).willThrow(new CustomException(ErrorCode.SHOW_NOT_FOUND));
+            given(showQueryService.getShow(any())).willThrow(new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
             // when & then
             assertThatThrownBy(
@@ -79,7 +80,7 @@ class LikeCommandServiceTest {
             User user = mock(User.class);
             Show show = mock(Show.class);
             given(userQueryService.findById(any())).willReturn(user);
-            given(showQueryService.getShow(any())).willReturn(show);
+            given(showQueryService.findById(any())).willReturn(show);
             given(likeRepository.existsByUserIdAndShowId(any(), any())).willReturn(true);
 
             // when & then

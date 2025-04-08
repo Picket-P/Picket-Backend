@@ -1,7 +1,8 @@
 package com.example.picket.common.enums;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import java.util.Arrays;
 
 
@@ -18,6 +19,6 @@ public enum Category {
         return Arrays.stream(Category.values())
                 .filter(t -> t.name().equalsIgnoreCase(type))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_TYPE_INVALID));
+                .orElseThrow(() -> new CustomException(BAD_REQUEST, "유효하지 않은 카테고리 유형입니다."));
     }
 }

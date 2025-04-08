@@ -1,9 +1,16 @@
 package com.example.picket.domain.ticket.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.entity.Show;
@@ -13,23 +20,15 @@ import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TicketCommandServiceTest {
@@ -122,7 +121,7 @@ class TicketCommandServiceTest {
         // when / then
         assertThatThrownBy(() -> ticketCommandService.createTicket(userId, UserRole.USER, seatId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage(ErrorCode.SEAT_ALREADY_RESERVED.getMessage());
+                .hasMessage("이미 예매된 좌석입니다.");
     }
 
     @Test
@@ -142,7 +141,7 @@ class TicketCommandServiceTest {
         // when & then
         assertThatThrownBy(() -> ticketCommandService.createTicket(userId, UserRole.USER, seatId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage(ErrorCode.SHOW_RESERVATION_TIME_INVALID_BEFORE_SHOW.getMessage());
+                .hasMessage("예매 시작 시간 전입니다.");
     }
 
     @Test
@@ -163,7 +162,7 @@ class TicketCommandServiceTest {
         // when / then
         assertThatThrownBy(() -> ticketCommandService.createTicket(userId, UserRole.USER, seatId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage(ErrorCode.SHOW_RESERVATION_TIME_INVALID_AFTER_SHOW.getMessage());
+                .hasMessage("예매 종료 시간 이후 입니다.");
     }
 
     @Test
@@ -206,7 +205,7 @@ class TicketCommandServiceTest {
         // when / then
         assertThatThrownBy(() -> ticketCommandService.deleteTicket(ticketId, userId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage(ErrorCode.TICKET_CANCEL_FORBIDDEN.getMessage());
+                .hasMessage("예매자 본인만 취소할 수 있습니다.");
     }
 
 }

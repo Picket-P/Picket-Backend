@@ -1,7 +1,8 @@
 package com.example.picket.common.enums;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import java.util.Arrays;
 
 public enum Gender {
@@ -11,6 +12,6 @@ public enum Gender {
         return Arrays.stream(Gender.values())
                 .filter(t -> t.name().equalsIgnoreCase(type))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.GENDER_TYPE_INVALID));
+                .orElseThrow(() -> new CustomException(BAD_REQUEST, "유효하지 않은 성별 유형입니다."));
     }
 }

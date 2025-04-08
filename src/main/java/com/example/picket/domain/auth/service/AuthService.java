@@ -1,10 +1,13 @@
 package com.example.picket.domain.auth.service;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.config.PasswordEncoder;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
@@ -26,7 +29,7 @@ public class AuthService {
                        UserRole userRole) {
 
         if (userRepository.existsByEmail(email)) {
-            throw new CustomException(ErrorCode.USER_DUPLICATE_EMAIL);
+            throw new CustomException(BAD_REQUEST, "이미 가입되어있는 이메일 입니다.");
         }
 
         User newUser = User.toEntity(email, passwordEncoder.encode(password), userRole, null, nickname, birth, gender);
@@ -36,10 +39,10 @@ public class AuthService {
 
     public User signin(HttpSession session, String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
+            throw new CustomException(UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
 
         AuthUser authUser = AuthUser.toEntity(user.getId(), user.getUserRole());

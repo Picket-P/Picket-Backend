@@ -1,9 +1,10 @@
 package com.example.picket.common.auth;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -23,7 +24,7 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
         boolean isAuthUserType = parameter.getParameterType().equals(AuthUser.class);
 
         if (hasAuthAnnotation != isAuthUserType) {
-            throw new CustomException(ErrorCode.AUTH_ANNOTATION_INVALID_USAGE);
+            throw new CustomException(BAD_REQUEST, "@Auth와 AuthUser 타입은 함께 사용되어야 합니다.");
         }
 
         return hasAuthAnnotation;

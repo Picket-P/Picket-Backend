@@ -1,7 +1,8 @@
 package com.example.picket.domain.show.service;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
@@ -25,7 +26,7 @@ public class ShowDateQueryService {
 
     public ShowDate getShowDateByShow(Show show) {
         return showDateRepository.findShowDateByShow(show)
-            .orElseThrow(() -> new CustomException(ErrorCode.SHOW_DATE_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(NOT_FOUND, "존재하지 않는 ShowDate입니다."));
     }
 
     public List<ShowDate> getShowDatesByShowId(Long showId) {

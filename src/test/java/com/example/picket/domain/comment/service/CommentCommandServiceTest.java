@@ -1,11 +1,18 @@
 package com.example.picket.domain.comment.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.comment.dto.request.CommentRequest;
 import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.repository.CommentRepository;
@@ -15,23 +22,17 @@ import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class CommentCommandServiceTest {
@@ -50,14 +51,14 @@ class CommentCommandServiceTest {
 
 
     @Test
-    void 댓글생성시_공연이_존재하지_않을_경우_오류_발생(){
+    void 댓글생성시_공연이_존재하지_않을_경우_오류_발생() {
         // given
         Long userId = 1L;
         User user = createUser(userId);
 
         Long showId = 1L;
         Show show = createShow(user, showId);
-        given(showQueryService.getShow(anyLong())).willThrow(new CustomException(ErrorCode.SHOW_NOT_FOUND));
+        given(showQueryService.getShow(anyLong())).willThrow(new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
         CommentRequest commentRequest = new CommentRequest("댓글내용");
 
