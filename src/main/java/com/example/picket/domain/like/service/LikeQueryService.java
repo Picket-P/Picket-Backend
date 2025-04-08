@@ -3,7 +3,7 @@ package com.example.picket.domain.like.service;
 import com.example.picket.domain.like.entity.Like;
 import com.example.picket.domain.like.repository.LikeRepository;
 import com.example.picket.domain.show.entity.Show;
-import com.example.picket.domain.show.repository.ShowRepository;
+import com.example.picket.domain.show.service.ShowQueryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeQueryService {
 
     private final LikeRepository likeRepository;
-    private final ShowRepository showRepository;
+    private final ShowQueryService showQueryService;
 
     public List<Show> getLikes(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -28,6 +28,6 @@ public class LikeQueryService {
                 }
         ).toList();
 
-        return showRepository.findAllById(showId);
+        return showQueryService.findAllById(showId);
     }
 }

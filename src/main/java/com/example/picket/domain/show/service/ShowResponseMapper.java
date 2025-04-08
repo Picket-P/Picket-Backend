@@ -3,7 +3,7 @@ package com.example.picket.domain.show.service;
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.seat.dto.response.SeatSummaryResponse;
 import com.example.picket.domain.seat.entity.Seat;
-import com.example.picket.domain.seat.repository.SeatRepository;
+import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.dto.response.ShowDateResponse;
 import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ShowResponseMapper {
 
-    private final SeatRepository seatRepository;
+    private final SeatQueryService seatQueryService;
 
     // 공연 + 날짜 + 좌석 요약 정보를 포함한 응답 변환
     public ShowResponse toDto(Show show, List<ShowDate> showDates) {
@@ -30,7 +30,7 @@ public class ShowResponseMapper {
 
     // 좌석 요약 정보 포함한 공연 날짜 응답 생성
     private ShowDateResponse toShowDateResponseWithSeatSummary(ShowDate showDate) {
-        List<Seat> seats = seatRepository.findAllByShowDateId(showDate.getId());
+        List<Seat> seats = seatQueryService.findAllByShowDateId(showDate.getId());
         List<SeatSummaryResponse> seatSummaries = buildSeatSummary(seats);
 
         ShowDateResponse response = ShowDateResponse.toDto(showDate);
@@ -50,7 +50,7 @@ public class ShowResponseMapper {
                                     .count();
                             int available = total - reserved;
 
-                            return new SeatSummaryResponse(
+                            return SeatSummaryResponse.toDto(
                                     groupedSeats.get(0).getGrade(),
                                     total,
                                     reserved,

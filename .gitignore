@@ -38,5 +38,3 @@ out/
 
 ### env, yml, properties file ###
 *.env
-*.yml
-*.properties

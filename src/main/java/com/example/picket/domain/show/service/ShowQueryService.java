@@ -1,18 +1,18 @@
 package com.example.picket.domain.show.service;
 
+import static com.example.picket.common.exception.ErrorCode.SHOW_NOT_FOUND;
+
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
-import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.repository.ShowRepository;
+import java.util.Comparator;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Comparator;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ import java.util.List;
 public class ShowQueryService {
 
     private final ShowRepository showRepository;
-    private final ShowDateRepository showDateRepository;
+    private final ShowDateQueryService showDateQueryService;
 
     // 공연 목록 조회
     public List<Show> getShows(String category, String sortBy, String order) {
@@ -40,7 +40,7 @@ public class ShowQueryService {
 
     // 공연 날짜 조회
     public List<ShowDate> getShowDatesByShowId(Long showId) {
-        return showDateRepository.findAllByShowId(showId);
+        return showDateQueryService.findAllByShowId(showId);
     }
 
     // 카테고리 필터링 및 유효성 검사
@@ -76,5 +76,13 @@ public class ShowQueryService {
         }
 
         shows.sort(comparator);
+    }
+
+    public Show findById(Long id) {
+        return showRepository.findById(id).orElseThrow(() -> new CustomException(SHOW_NOT_FOUND));
+    }
+
+    public List<Show> findAllById(List<Long> ids) {
+        return showRepository.findAllById(ids);
     }
 }
