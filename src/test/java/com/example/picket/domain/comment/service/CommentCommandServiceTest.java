@@ -5,15 +5,16 @@ import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
+import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.comment.dto.request.CommentRequest;
 import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.repository.CommentRepository;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
-import com.example.picket.domain.show.repository.ShowRepository;
+import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.user.entity.User;
-import com.example.picket.domain.user.repository.UserRepository;
+import com.example.picket.domain.user.service.UserQueryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,10 +37,10 @@ import static org.mockito.BDDMockito.given;
 class CommentCommandServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserQueryService userQueryService;
 
     @Mock
-    private ShowRepository showRepository;
+    private ShowQueryService showQueryService;
 
     @Mock
     private CommentRepository commentRepository;
@@ -55,6 +56,8 @@ class CommentCommandServiceTest {
         User user = createUser(userId);
 
         Long showId = 1L;
+        Show show = createShow(user, showId);
+        given(showQueryService.findById(anyLong())).willThrow(new CustomException(ErrorCode.SHOW_NOT_FOUND));
 
         CommentRequest commentRequest = new CommentRequest("댓글내용");
 
@@ -72,11 +75,11 @@ class CommentCommandServiceTest {
         // given
         Long userId = 1L;
         User user = createUser(userId);
+        given(userQueryService.findById(anyLong())).willReturn(user);
 
         Long showId = 1L;
         Show show = createShow(user, showId);
-
-        given(showRepository.findById(anyLong())).willReturn(Optional.of(show));
+        given(showQueryService.findById(anyLong())).willReturn(show);
 
         CommentRequest commentRequest = new CommentRequest("댓글내용");
 
