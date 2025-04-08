@@ -21,12 +21,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserCommandServiceTest {
 
     @Mock
     UserRepository userRepository;
@@ -35,7 +34,7 @@ class UserServiceTest {
     PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private UserService userService;
+    private UserCommandService userCommandService;
 
     @Test
     void 존재하지않는_사용자를_조회시_예외처리를_던진다() {
@@ -46,12 +45,12 @@ class UserServiceTest {
 
         BDDMockito.given(userRepository.findById(anyLong())).willReturn(Optional.empty());
         // when & then
-        assertThrows(CustomException.class, () -> userService.updateUser(authUser, request), "해당 유저를 찾을 수 없습니다."
+        assertThrows(CustomException.class, () -> userCommandService.updateUser(authUser, request), "해당 유저를 찾을 수 없습니다."
         );
     }
 
     @Test
-    void 입력한_비밀번호가_잘못되면_예외처리를_한다() {
+    void 유저정보_업데이트_시_입력한_비밀번호가_잘못되면_예외처리를_던진다() {
         // given
         Long userId = 1L;
         AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
@@ -59,7 +58,7 @@ class UserServiceTest {
         User user = mock();
         BDDMockito.given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         // when & then
-        assertThrows(CustomException.class, () -> userService.updateUser(authUser, request),
+        assertThrows(CustomException.class, () -> userCommandService.updateUser(authUser, request),
                 "비밀번호가 일치하지 않습니다.");
     }
 
@@ -79,7 +78,7 @@ class UserServiceTest {
         BDDMockito.given(passwordEncoder.matches("test", "test")).willReturn(true);
 
         // when
-        User response = userService.updateUser(authUser, request);
+        User response = userCommandService.updateUser(authUser, request);
 
         // then
         assertThat(response).isNotNull();
@@ -87,7 +86,7 @@ class UserServiceTest {
     }
 
     @Test
-    void 존재하지않는_사용자를_조회시_예외처리를_던진다2() {
+    void 비밀번호_업데이트_시_존재하지_않는_사용자를_조회하면_예외처리를_던진다() {
         // given
         Long userId = 1L;
         AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
@@ -95,12 +94,12 @@ class UserServiceTest {
 
         BDDMockito.given(userRepository.findById(anyLong())).willReturn(Optional.empty());
         // when & then
-        assertThrows(CustomException.class, () -> userService.updatePassword(authUser, request), "해당 유저를 찾을 수 없습니다."
+        assertThrows(CustomException.class, () -> userCommandService.updatePassword(authUser, request), "해당 유저를 찾을 수 없습니다."
         );
     }
 
     @Test
-    void 입력한_비밀번호가_잘못되면_예외처리를_한다2() {
+    void 비밀번호_업데이트_시_입력한_비밀번호가_잘못되면_예외처리를_던진다() {
         // given
         Long userId = 1L;
         AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
@@ -108,7 +107,7 @@ class UserServiceTest {
         User user = mock();
         BDDMockito.given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         // when & then
-        assertThrows(CustomException.class, () -> userService.updatePassword(authUser, request),
+        assertThrows(CustomException.class, () -> userCommandService.updatePassword(authUser, request),
                 "비밀번호가 일치하지 않습니다.");
     }
 
@@ -128,14 +127,14 @@ class UserServiceTest {
         BDDMockito.given(passwordEncoder.encode("test2")).willReturn("test2");
 
         // when
-        userService.updatePassword(authUser, request);
+        userCommandService.updatePassword(authUser, request);
 
         // then
         verify(user).passwordUpdate("test2");
     }
 
     @Test
-    void 존재하지않는_사용자를_조회시_예외처리를_던진다3() {
+    void 유저탈퇴_시_존재하지_않는_사용자를_조회하면_예외처리를_던진다() {
         // given
         Long userId = 1L;
         AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
@@ -143,12 +142,12 @@ class UserServiceTest {
 
         BDDMockito.given(userRepository.findById(anyLong())).willReturn(Optional.empty());
         // when & then
-        assertThrows(CustomException.class, () -> userService.withdrawUserRequest(authUser, request), "해당 유저를 찾을 수 없습니다."
+        assertThrows(CustomException.class, () -> userCommandService.withdrawUserRequest(authUser, request), "해당 유저를 찾을 수 없습니다."
         );
     }
 
     @Test
-    void 입력한_비밀번호가_잘못되면_예외처리를_한다3() {
+    void 유저탈퇴_시_입력한_비밀번호가_잘못되면_예외처리를_던진다() {
         // given
         Long userId = 1L;
         AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
@@ -156,7 +155,7 @@ class UserServiceTest {
         User user = mock();
         BDDMockito.given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         // when & then
-        assertThrows(CustomException.class, () -> userService.withdrawUserRequest(authUser, request),
+        assertThrows(CustomException.class, () -> userCommandService.withdrawUserRequest(authUser, request),
                 "비밀번호가 일치하지 않습니다.");
     }
 
@@ -173,7 +172,7 @@ class UserServiceTest {
         BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
         BDDMockito.given(passwordEncoder.matches(request.getPassword(), "test")).willReturn(true);
         // when
-        userService.withdrawUserRequest(authUser, request);
+        userCommandService.withdrawUserRequest(authUser, request);
         // then
         verify(userRepository, times(1)).delete(user);
     }
