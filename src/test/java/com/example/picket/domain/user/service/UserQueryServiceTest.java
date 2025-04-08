@@ -1,24 +1,23 @@
 package com.example.picket.domain.user.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.user.dto.response.UserResponse;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class UserQueryServiceTest {
@@ -37,8 +36,7 @@ class UserQueryServiceTest {
 
         BDDMockito.given(userRepository.findById(anyLong())).willReturn(Optional.empty());
         // when & then
-        assertThrows(CustomException.class, () -> userQueryService.getUser(authUser), "해당 유저를 찾을 수 없습니다."
-                );
+        assertThrows(CustomException.class, () -> userQueryService.getUserResponse(authUser), "해당 유저를 찾을 수 없습니다.");
     }
 
     @Test
@@ -49,7 +47,7 @@ class UserQueryServiceTest {
         User user = mock();
         BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
         // when
-        UserResponse userResponse = userQueryService.getUser(authUser);
+        UserResponse userResponse = userQueryService.getUserResponse(authUser);
         // then
         assertThat(userResponse).isNotNull();
     }

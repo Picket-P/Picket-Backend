@@ -30,7 +30,7 @@ public class ShowResponseMapper {
 
     // 좌석 요약 정보 포함한 공연 날짜 응답 생성
     private ShowDateResponse toShowDateResponseWithSeatSummary(ShowDate showDate) {
-        List<Seat> seats = seatQueryService.findAllByShowDateId(showDate.getId());
+        List<Seat> seats = seatQueryService.getSeatsByShowDate(showDate.getId());
         List<SeatSummaryResponse> seatSummaries = buildSeatSummary(seats);
 
         ShowDateResponse response = ShowDateResponse.toDto(showDate);

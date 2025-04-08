@@ -32,7 +32,7 @@ public class UserController {
     @Operation(summary = "유저 프로필 조회", description = "유저 프로필 조회 API입니다")
     @GetMapping("/users")
     public ResponseEntity<UserResponse> getUser(@Auth AuthUser authUser) {
-        return ResponseEntity.ok(userQueryService.getUser(authUser));
+        return ResponseEntity.ok(userQueryService.getUserResponse(authUser));
     }
 
     @Operation(summary = "유저 프로필 수정", description = "유저 프로필 수정 API입니다")

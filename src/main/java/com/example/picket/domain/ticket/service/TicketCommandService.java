@@ -82,11 +82,11 @@ public class TicketCommandService {
     }
 
     private User getUser(Long userId) {
-        return userQueryService.findById(userId);
+        return userQueryService.getUser(userId);
     }
 
     private Seat getSeat(Long seatId) {
-        return seatQueryService.findById(seatId);
+        return seatQueryService.getSeat(seatId);
     }
 
     private ShowDate getShowDate(Show show) {

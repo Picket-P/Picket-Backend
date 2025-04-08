@@ -25,7 +25,7 @@ public class LikeCommandService {
     private final ShowQueryService showQueryService;
 
     public void createLike(Long userId, Long showId) {
-        User user = userQueryService.findById(userId);
+        User user = userQueryService.getUser(userId);
 
         Show show = showQueryService.getShow(showId);
 

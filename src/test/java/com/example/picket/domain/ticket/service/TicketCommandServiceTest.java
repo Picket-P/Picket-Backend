@@ -58,13 +58,13 @@ class TicketCommandServiceTest {
         ShowDate showDate = mock(ShowDate.class);
         User user = mock(User.class);
 
-        when(seatQueryService.findById(seatId)).thenReturn(seat);
+        when(seatQueryService.getSeat(seatId)).thenReturn(seat);
         when(seat.getShowDate()).thenReturn(showDate);
         when(showDate.getShow()).thenReturn(show);
         when(show.getReservationStart()).thenReturn(LocalDateTime.now().minusHours(1));
         when(show.getReservationEnd()).thenReturn(LocalDateTime.now().plusHours(1));
         when(ticketRepository.existsBySeat(seat)).thenReturn(false);
-        when(userQueryService.findById(userId)).thenReturn(user);
+        when(userQueryService.getUser(userId)).thenReturn(user);
         when(seat.getPrice()).thenReturn(BigDecimal.valueOf(10000));
         when(seat.getShowDate()).thenReturn(showDate);
 
@@ -87,13 +87,13 @@ class TicketCommandServiceTest {
         ShowDate showDate = mock(ShowDate.class);
         User user = mock(User.class);
 
-        when(seatQueryService.findById(seatId)).thenReturn(seat);
+        when(seatQueryService.getSeat(seatId)).thenReturn(seat);
         when(seat.getShowDate()).thenReturn(showDate);
         when(showDate.getShow()).thenReturn(show);
         when(show.getReservationStart()).thenReturn(LocalDateTime.now().minusHours(1));
         when(show.getReservationEnd()).thenReturn(LocalDateTime.now().plusHours(1));
         when(ticketRepository.existsBySeat(seat)).thenReturn(false);
-        when(userQueryService.findById(userId)).thenReturn(user);
+        when(userQueryService.getUser(userId)).thenReturn(user);
         when(seat.getPrice()).thenReturn(BigDecimal.valueOf(10000));
 
         Ticket ticket = mock(Ticket.class);
@@ -111,7 +111,7 @@ class TicketCommandServiceTest {
 
         // given
         Seat seat = mock(Seat.class);
-        when(seatQueryService.findById(seatId)).thenReturn(seat);
+        when(seatQueryService.getSeat(seatId)).thenReturn(seat);
         when(seat.getShowDate()).thenReturn(mock(ShowDate.class));
         when(seat.getShowDate().getShow()).thenReturn(mock(Show.class));
         when(seat.getShowDate().getShow().getReservationStart()).thenReturn(LocalDateTime.now().minusDays(1));
@@ -131,7 +131,7 @@ class TicketCommandServiceTest {
         Show show = mock(Show.class);
         ShowDate showDate = mock(ShowDate.class);
 
-        when(seatQueryService.findById(seatId)).thenReturn(seat);
+        when(seatQueryService.getSeat(seatId)).thenReturn(seat);
         when(seat.getShowDate()).thenReturn(showDate);
         when(showDate.getShow()).thenReturn(show);
 
@@ -151,7 +151,7 @@ class TicketCommandServiceTest {
         Show show = mock(Show.class);
         ShowDate showDate = mock(ShowDate.class);
 
-        when(seatQueryService.findById(seatId)).thenReturn(seat);
+        when(seatQueryService.getSeat(seatId)).thenReturn(seat);
         when(seat.getShowDate()).thenReturn(showDate);
         when(showDate.getShow()).thenReturn(show);
 
