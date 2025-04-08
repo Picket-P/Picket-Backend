@@ -13,10 +13,12 @@ import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -41,30 +43,30 @@ public class ShowCommandService {
 
         // 공연 생성 및 저장
         Show show = Show.toEntity(
-                authUser.getId(),
-                request.getTitle(),
-                request.getPosterUrl(),
-                request.getCategory(),
-                request.getDescription(),
-                request.getLocation(),
-                request.getReservationStart(),
-                request.getReservationEnd(),
-                request.getTicketsLimitPerUser()
-                // show 생성 시 isDeleted = false로 생성자에서 고정
+            authUser.getId(),
+            request.getTitle(),
+            request.getPosterUrl(),
+            request.getCategory(),
+            request.getDescription(),
+            request.getLocation(),
+            request.getReservationStart(),
+            request.getReservationEnd(),
+            request.getTicketsLimitPerUser()
+            // show 생성 시 isDeleted = false로 생성자에서 고정
         );
         showRepository.save(show);
 
         // 날짜별 공연 정보 및 좌석 생성
         for (var dateRequest : request.getDates()) {
             ShowDate showDate = ShowDate.toEntity(
-                    dateRequest.getDate(),
-                    dateRequest.getStartTime(),
-                    dateRequest.getEndTime(),
-                    dateRequest.getTotalSeatCount(),
-                    0, // 예약 수 초기값
-                    show
+                dateRequest.getDate(),
+                dateRequest.getStartTime(),
+                dateRequest.getEndTime(),
+                dateRequest.getTotalSeatCount(),
+                0, // 예약 수 초기값
+                show
             );
-            showDateCommandService.save(showDate);
+            showDateCommandService.createShowDate(showDate);
             createSeatsForShowDate(showDate, dateRequest.getSeatCreateRequests());
         }
 
@@ -75,7 +77,7 @@ public class ShowCommandService {
     @Transactional
     public Show updateShow(@Auth AuthUser authUser, Long showId, ShowUpdateRequest request) {
         Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
+            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
         if (show.isDeleted()) {  // 소프트 delete 된 상태라면 수정 불가능
             throw new CustomException(HttpStatus.FORBIDDEN, "삭제된 공연은 수정할 수 없습니다.");
@@ -93,7 +95,7 @@ public class ShowCommandService {
     @Transactional
     public void deleteShow(@Auth AuthUser authUser, Long showId) {
         Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
+            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
         validateOwnership(authUser, show);
 
@@ -120,8 +122,8 @@ public class ShowCommandService {
         }
 
         // 공연 종료 여부 확인
-        boolean hasEnded = showDateQueryService.findAllByShowId(show.getId()).stream()
-                .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
+        boolean hasEnded = showDateQueryService.getShowDatesByShowId(show.getId()).stream()
+            .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
 
         if (hasEnded) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "종료된 공연은 수정할 수 없습니다.");
@@ -135,7 +137,7 @@ public class ShowCommandService {
         }
 
         boolean isValid = Arrays.stream(Category.values())
-                .anyMatch(c -> c.equals(category));
+            .anyMatch(c -> c.equals(category));
 
         if (!isValid) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "지원하지 않는 카테고리입니다.");
@@ -158,10 +160,10 @@ public class ShowCommandService {
         for (SeatCreateRequest seatRequest : seatRequests) {
             for (int i = 1; i <= seatRequest.getSeatCount(); i++) {
                 seats.add(Seat.toEntity(
-                        seatRequest.getGrade(),
-                        i,
-                        seatRequest.getPrice(),
-                        showDate
+                    seatRequest.getGrade(),
+                    i,
+                    seatRequest.getPrice(),
+                    showDate
                 ));
             }
         }

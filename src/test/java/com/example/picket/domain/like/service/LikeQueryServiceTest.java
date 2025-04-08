@@ -58,7 +58,7 @@ class LikeQueryServiceTest {
             // then
             assertThat(result).isEmpty();
             verify(likeRepository, times(1)).findLikesByUserId(userId, pageable);
-            verify(showQueryService, times(1)).findAllById(Collections.emptyList());
+            verify(showQueryService, times(1)).getShowDatesByShowIds(Collections.emptyList());
         }
 
         @Test
@@ -82,7 +82,7 @@ class LikeQueryServiceTest {
             List<Show> showList = List.of(show1, show2);
 
             given(likeRepository.findLikesByUserId(any(), any())).willReturn(likeList);
-            given(showQueryService.findAllById(any())).willReturn(showList);
+            given(showQueryService.getShowDatesByShowIds(any())).willReturn(showList);
 
             // when
             List<Show> result = likeQueryService.getLikes(userId, page, size);
@@ -91,7 +91,7 @@ class LikeQueryServiceTest {
             assertThat(result).hasSize(2);
             assertThat(result).containsExactly(show1, show2);
             verify(likeRepository, times(1)).findLikesByUserId(any(), any());
-            verify(showQueryService, times(1)).findAllById(any());
+            verify(showQueryService, times(1)).getShowDatesByShowIds(any());
         }
 
         @Test
@@ -113,7 +113,7 @@ class LikeQueryServiceTest {
             List<Show> showList = List.of(show1);
 
             given(likeRepository.findLikesByUserId(any(), any())).willReturn(likeList);
-            given(showQueryService.findAllById(any())).willReturn(showList);
+            given(showQueryService.getShowDatesByShowIds(any())).willReturn(showList);
 
             // when
             List<Show> result = likeQueryService.getLikes(userId, page, size);
@@ -122,7 +122,7 @@ class LikeQueryServiceTest {
             assertThat(result).hasSize(1);
             assertThat(result).containsExactly(show1);
             verify(likeRepository, times(1)).findLikesByUserId(any(), any());
-            verify(showQueryService, times(1)).findAllById(any());
+            verify(showQueryService, times(1)).getShowDatesByShowIds(any());
         }
     }
 

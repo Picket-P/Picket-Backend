@@ -1,18 +1,16 @@
 package com.example.picket.domain.show.service;
 
-import static com.example.picket.common.exception.ErrorCode.SHOW_NOT_FOUND;
-
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
-import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
-import java.util.Comparator;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShowQueryService {
 
     private final ShowRepository showRepository;
-    private final ShowDateQueryService showDateQueryService;
 
     // 공연 목록 조회
     public List<Show> getShows(String category, String sortBy, String order) {
@@ -32,15 +29,14 @@ public class ShowQueryService {
     }
 
     //공연 단건 조회
-    public Show getShowDetails(Long showId) {
-
+    public Show getShow(Long showId) {
         return showRepository.findById(showId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
     }
 
-    // 공연 날짜 조회
-    public List<ShowDate> getShowDatesByShowId(Long showId) {
-        return showDateQueryService.findAllByShowId(showId);
+    // 공연 목록 조회, Show Ids
+    public List<Show> getShowDatesByShowIds(List<Long> showIds) {
+        return showRepository.findAllById(showIds);
     }
 
     // 카테고리 필터링 및 유효성 검사
@@ -78,11 +74,5 @@ public class ShowQueryService {
         shows.sort(comparator);
     }
 
-    public Show findById(Long id) {
-        return showRepository.findById(id).orElseThrow(() -> new CustomException(SHOW_NOT_FOUND));
-    }
 
-    public List<Show> findAllById(List<Long> ids) {
-        return showRepository.findAllById(ids);
-    }
 }

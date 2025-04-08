@@ -13,9 +13,11 @@ import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +59,7 @@ public class TicketCommandService {
     public Ticket deleteTicket(Long ticketId, Long userId) {
 
         Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
-                () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
+            () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
         );
 
         validateUserInfo(userId, ticket);
@@ -84,7 +86,7 @@ public class TicketCommandService {
     }
 
     private ShowDate getShowDate(Show show) {
-        return showDateQueryService.findByShow(show);
+        return showDateQueryService.getShowDateByShow(show);
     }
 
     private void validateSeat(Seat seat) {

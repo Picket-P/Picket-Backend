@@ -179,7 +179,7 @@ class TicketCommandServiceTest {
         when(user.getId()).thenReturn(userId);
         when(ticketRepository.findByTicketId(ticketId)).thenReturn(Optional.of(ticket));
         when(ticket.getShow()).thenReturn(show);
-        when(showDateQueryService.findByShow(show)).thenReturn(showDate);
+        when(showDateQueryService.getShowDateByShow(show)).thenReturn(showDate);
         when(showDate.getDate()).thenReturn(LocalDate.now().plusDays(1));
 
         // when
