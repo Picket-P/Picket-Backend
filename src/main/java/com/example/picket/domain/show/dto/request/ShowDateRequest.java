@@ -35,7 +35,5 @@ public class ShowDateRequest {
 
     private List<SeatCreateRequest> seatCreateRequests;
 
-
-
 }
 
