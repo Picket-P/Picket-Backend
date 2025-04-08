@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-@Tag(name = "유저 조회 API", description = "유저 프로필 조회 API입니다.")
+@Tag(name = "유저 관리 API", description = "유저 프로필 조회, 프로필 수정, 비밀번호 수정, 유저 탈퇴 기능 API입니다.")
 public class UserController {
 
     private final UserCommandService userService;
