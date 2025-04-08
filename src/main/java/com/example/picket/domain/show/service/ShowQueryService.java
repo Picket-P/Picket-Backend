@@ -40,21 +40,19 @@ public class ShowQueryService {
         return showRepository.findAllById(showIds);
     }
 
-    // Valid 레벨에서 검사하기에 유효한 코드가 아닙니다.
-    // CreateRequest 에서 NotNull 검사를 하기에 애초에 null 로 올 수 없습니다.
-//    // 카테고리 필터링 및 유효성 검사
-//    private List<Show> fetchShowsByCategory(Category category) {
-//        if (category == null || category.isBlank()) {
-//            return showRepository.findAll();
-//        }
-//
-//        try {
-//            Category categoryEnum = Category.valueOf(category.toUpperCase());
-//            return showRepository.findAllByCategoryAndDeletedAtIsNull(categoryEnum);
-//        } catch (IllegalArgumentException e) {
-//            throw new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리입니다.");
-//        }
-//    }
+    // 카테고리 필터링 및 유효성 검사
+    private List<Show> fetchShowsByCategory(String category) {
+        if (category == null || category.isBlank()) {
+            return showRepository.findAll();
+        }
+
+        try {
+            Category categoryEnum = Category.valueOf(category.toUpperCase());
+            return showRepository.findAllByCategoryAndDeletedAtIsNull(categoryEnum);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리입니다.");
+        }
+    }
 
     // 정렬 조건에 따라 공연 정렬
     private void sortShows(List<Show> shows, String sortBy, String order) {
