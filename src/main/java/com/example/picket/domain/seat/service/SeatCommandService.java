@@ -1,5 +1,9 @@
 package com.example.picket.domain.seat.service;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
@@ -18,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,10 +67,10 @@ public class SeatCommandService {
     @Transactional
     public void deleteSeat(AuthUser authUser, Long seatId) {
         Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "좌석을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "좌석을 찾을 수 없습니다."));
 
         if (seat.getSeatStatus() == SeatStatus.RESERVED) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "이미 예약된 좌석은 삭제할 수 없습니다.");
+            throw new CustomException(FORBIDDEN, "이미 예약된 좌석은 삭제할 수 없습니다.");
         }
 
         seatRepository.delete(seat);
@@ -93,7 +96,7 @@ public class SeatCommandService {
     // 좌석 수 줄이기
     private void reduceSeats(List<Seat> currentSeats, int requestedCount, boolean isReservationStarted) {
         if (isReservationStarted) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "예매 시작 이후에는 좌석 수 감소가 불가능합니다. 삭제 API를 사용해주세요.");
+            throw new CustomException(BAD_REQUEST, "예매 시작 이후에는 좌석 수 감소가 불가능합니다. 삭제 API를 사용해주세요.");
         }
 
         int toRemove = currentSeats.size() - requestedCount;
@@ -105,7 +108,7 @@ public class SeatCommandService {
                 .toList();
 
         if (removable.size() < toRemove) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "예약된 좌석이 있어 일부 좌석을 줄일 수 없습니다.");
+            throw new CustomException(BAD_REQUEST, "예약된 좌석이 있어 일부 좌석을 줄일 수 없습니다.");
         }
 
         seatRepository.deleteAll(removable);

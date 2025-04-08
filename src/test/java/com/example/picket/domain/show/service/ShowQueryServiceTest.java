@@ -1,9 +1,20 @@
 package com.example.picket.domain.show.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,26 +23,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 @ExtendWith(MockitoExtension.class)
 class ShowQueryServiceTest {
 
     @Mock
     ShowRepository showRepository;
-
-    @Mock
-    ShowDateQueryService showDateQueryService;
 
     @InjectMocks
     ShowQueryService showQueryService;
@@ -47,8 +43,8 @@ class ShowQueryServiceTest {
             LocalDateTime reservationEnd = now.plusDays(1);
 
             Show show = Show.toEntity(1L, "제목1", "포스터1.jpg",
-                Category.MUSICAL, "내용1", "장소1",
-                reservationStart, reservationEnd, 2
+                    Category.MUSICAL, "내용1", "장소1",
+                    reservationStart, reservationEnd, 2
             );
 
             setCreatedAt(show, now);
@@ -62,14 +58,14 @@ class ShowQueryServiceTest {
             // then
             assertThat(result).hasSize(1);
             assertThat(result)
-                .extracting("directorId", "title", "posterUrl", "category",
-                    "description", "location", "reservationStart", "reservationEnd", "ticketsLimitPerUser"
-                )
-                .containsExactly(
-                    tuple(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
-                        reservationStart, reservationEnd, 2
+                    .extracting("directorId", "title", "posterUrl", "category",
+                            "description", "location", "reservationStart", "reservationEnd", "ticketsLimitPerUser"
                     )
-                );
+                    .containsExactly(
+                            tuple(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
+                                    reservationStart, reservationEnd, 2
+                            )
+                    );
             verify(showRepository, times(1)).findAllByCategoryAndDeletedAtIsNull(Category.MUSICAL);
         }
 
@@ -81,8 +77,8 @@ class ShowQueryServiceTest {
             LocalDateTime reservationEnd = now.plusDays(1);
 
             Show show = Show.toEntity(1L, "제목1", "포스터1.jpg",
-                Category.MUSICAL, "내용1", "장소1",
-                reservationStart, reservationEnd, 2
+                    Category.MUSICAL, "내용1", "장소1",
+                    reservationStart, reservationEnd, 2
             );
             setCreatedAt(show, now);
 
@@ -95,14 +91,14 @@ class ShowQueryServiceTest {
             // then
             assertThat(result).hasSize(1);
             assertThat(result)
-                .extracting("directorId", "title", "posterUrl", "category",
-                    "description", "location", "reservationStart", "reservationEnd", "ticketsLimitPerUser"
-                )
-                .containsExactly(
-                    tuple(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
-                        reservationStart, reservationEnd, 2
+                    .extracting("directorId", "title", "posterUrl", "category",
+                            "description", "location", "reservationStart", "reservationEnd", "ticketsLimitPerUser"
                     )
-                );
+                    .containsExactly(
+                            tuple(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
+                                    reservationStart, reservationEnd, 2
+                            )
+                    );
             verify(showRepository, times(1)).findAllByCategoryAndDeletedAtIsNull(Category.MUSICAL);
         }
 
@@ -110,8 +106,8 @@ class ShowQueryServiceTest {
         void 공연_목록_조회_유효하지_않은_order_예외() throws Exception {
             // when & then
             assertThatThrownBy(() -> showQueryService.getShows(Category.MUSICAL, "createdAt", "invalidOrder"))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("유효하지 않은 정렬 방식입니다. (asc, desc만 허용)");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("유효하지 않은 정렬 방식입니다. (asc, desc만 허용)");
         }
 
     }
@@ -128,8 +124,8 @@ class ShowQueryServiceTest {
             LocalDateTime reservationEnd = now.plusDays(1);
 
             Show show = Show.toEntity(1L, "제목1", "포스터1.jpg",
-                Category.MUSICAL, "내용1", "장소1",
-                reservationStart, reservationEnd, 2
+                    Category.MUSICAL, "내용1", "장소1",
+                    reservationStart, reservationEnd, 2
             );
             setCreatedAt(show, now);
             given(showRepository.findById(showId)).willReturn(Optional.of(show));
@@ -139,12 +135,12 @@ class ShowQueryServiceTest {
 
             // then
             assertThat(result)
-                .extracting("directorId", "title", "posterUrl", "category",
-                    "description", "location", "reservationStart", "reservationEnd", "ticketsLimitPerUser"
-                )
-                .containsExactly(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
-                    reservationStart, reservationEnd, 2
-                );
+                    .extracting("directorId", "title", "posterUrl", "category",
+                            "description", "location", "reservationStart", "reservationEnd", "ticketsLimitPerUser"
+                    )
+                    .containsExactly(1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
+                            reservationStart, reservationEnd, 2
+                    );
             verify(showRepository, times(1)).findById(showId);
         }
 
@@ -156,8 +152,8 @@ class ShowQueryServiceTest {
 
             // when & then
             assertThatThrownBy(() -> showQueryService.getShow(showId))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("해당 공연을 찾을 수 없습니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("해당 공연을 찾을 수 없습니다.");
 
         }
     }

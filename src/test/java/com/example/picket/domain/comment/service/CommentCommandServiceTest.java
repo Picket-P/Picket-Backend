@@ -76,7 +76,7 @@ class CommentCommandServiceTest {
         // given
         Long userId = 1L;
         User user = createUser(userId);
-        given(userQueryService.findById(anyLong())).willReturn(user);
+        given(userQueryService.getUser(anyLong())).willReturn(user);
 
         Long showId = 1L;
         Show show = createShow(user, showId);

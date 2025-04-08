@@ -1,21 +1,21 @@
 package com.example.picket.domain.seat.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SeatQueryServiceTest {
@@ -34,7 +34,7 @@ class SeatQueryServiceTest {
         when(seatRepository.findByIdWithShowDateAndShow(seatId)).thenReturn(Optional.of(seat));
 
         // when
-        Seat result = seatQueryService.findById(seatId);
+        Seat result = seatQueryService.getSeat(seatId);
 
         // then
         assertThat(result).isEqualTo(seat);
@@ -48,9 +48,9 @@ class SeatQueryServiceTest {
         when(seatRepository.findByIdWithShowDateAndShow(seatId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> seatQueryService.findById(seatId))
+        assertThatThrownBy(() -> seatQueryService.getSeat(seatId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage(ErrorCode.SEAT_NOT_FOUND.getMessage());
+                .hasMessage("존재하지 않는 Seat입니다.");
 
         verify(seatRepository).findByIdWithShowDateAndShow(seatId);
     }
@@ -77,7 +77,7 @@ class SeatQueryServiceTest {
         List<Seat> seats = List.of(mock(Seat.class));
         when(seatRepository.findAllByShowDateId(showDateId)).thenReturn(seats);
 
-        List<Seat> result = seatQueryService.findAllByShowDateId(showDateId);
+        List<Seat> result = seatQueryService.getSeatsByShowDate(showDateId);
 
         assertThat(result).isEqualTo(seats);
         verify(seatRepository).findAllByShowDateId(showDateId);

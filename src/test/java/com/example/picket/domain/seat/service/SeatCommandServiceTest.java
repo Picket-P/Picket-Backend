@@ -1,5 +1,14 @@
 package com.example.picket.domain.seat.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Grade;
@@ -12,6 +21,12 @@ import com.example.picket.domain.seat.repository.SeatRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.service.ShowDateQueryService;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,18 +34,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SeatCommandServiceTest {
@@ -145,7 +148,7 @@ class SeatCommandServiceTest {
         }
 
         @Test
-        void 예매_시작_이후에는_좌석_수_감소_불가()  {
+        void 예매_시작_이후에는_좌석_수_감소_불가() {
             // given
             Show show = Show.toEntity(
                     1L, "공연", "image.png", Category.CONCERT, "desc",

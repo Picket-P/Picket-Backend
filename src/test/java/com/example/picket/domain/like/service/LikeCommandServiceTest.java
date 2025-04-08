@@ -22,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class LikeCommandServiceTest {
@@ -47,7 +46,7 @@ class LikeCommandServiceTest {
             // given
             Long userId = 1L;
             Long showId = 1L;
-            given(userQueryService.findById(any())).willThrow(new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
+            given(userQueryService.getUser(any())).willThrow(new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
 
             // when & then
             assertThatThrownBy(
@@ -62,7 +61,7 @@ class LikeCommandServiceTest {
             Long userId = 1L;
             Long showId = 1L;
             User user = mock(User.class);
-            given(userQueryService.findById(any())).willReturn(user);
+            given(userQueryService.getUser(any())).willReturn(user);
             given(showQueryService.getShow(any())).willThrow(new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
             // when & then
@@ -79,8 +78,8 @@ class LikeCommandServiceTest {
             Long showId = 1L;
             User user = mock(User.class);
             Show show = mock(Show.class);
-            given(userQueryService.findById(any())).willReturn(user);
-            given(showQueryService.findById(any())).willReturn(show);
+            given(userQueryService.getUser(any())).willReturn(user);
+            given(showQueryService.getShow(any())).willReturn(show);
             given(likeRepository.existsByUserIdAndShowId(any(), any())).willReturn(true);
 
             // when & then
@@ -97,7 +96,7 @@ class LikeCommandServiceTest {
             Long showId = 1L;
             User user = mock(User.class);
             Show show = mock(Show.class);
-            given(userQueryService.findById(any())).willReturn(user);
+            given(userQueryService.getUser(any())).willReturn(user);
             given(showQueryService.getShow(any())).willReturn(show);
             given(likeRepository.existsByUserIdAndShowId(any(), any())).willReturn(false);
 
@@ -105,7 +104,7 @@ class LikeCommandServiceTest {
             likeCommandService.createLike(userId, showId);
 
             // then
-            verify(userQueryService, times(1)).findById(any());
+            verify(userQueryService, times(1)).getUser(any());
             verify(showQueryService, times(1)).getShow(any());
             verify(likeRepository, times(1)).existsByUserIdAndShowId(any(), any());
             verify(likeRepository, times(1)).save(any());
