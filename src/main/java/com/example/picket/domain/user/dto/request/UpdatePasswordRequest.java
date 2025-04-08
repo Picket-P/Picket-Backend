@@ -9,11 +9,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UpdatePasswordRequest {
 
-    @Schema(description = "비밀번호", example = "기존 비밀번호입니다.")
+    @Schema(description = "비밀번호", example = "password123!")
     @NotBlank
     private String password;
 
-    @Schema(description = "새 비밀번호", example = "새로 변경할 비밀번호입니다.")
+    @Schema(description = "새 비밀번호", example = "newpassword123!")
     @NotBlank
     private String newPassword;
 }

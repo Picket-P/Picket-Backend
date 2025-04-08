@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UpdateUserRequest {
 
-    @Schema(description = "비밀번호", example = "기존 비밀번호입니다.")
+    @Schema(description = "비밀번호", example = "password123!")
     @NotBlank
     private String password;
 
