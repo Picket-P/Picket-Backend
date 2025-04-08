@@ -9,7 +9,10 @@ import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.service.CommentCommandService;
 import com.example.picket.domain.comment.service.CommentQueryService;
 import com.example.picket.domain.ticket.service.TicketQueryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,12 +24,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/")
+@Tag(name = "댓글 관리 API", description = "댓글 다건조회, 생성, 수정, 삭제 기능 API입니다.")
 public class CommentController {
 
     private final CommentCommandService commentCommandService;
     private final CommentQueryService  commentQueryService;
     private final TicketQueryService ticketQueryService;
 
+    @Operation(summary = "댓글 생성", description = "댓글을 생성할 수 있습니다.")
     @PostMapping("/shows/{showId}/comments")
     public ResponseEntity<CommentResponse> createComment(@Auth AuthUser auth,
                                                          @PathVariable Long showId,
@@ -40,6 +45,7 @@ public class CommentController {
         return ResponseEntity.ok(CommentResponse.toDto(comment, hasTicket));
     }
 
+    @Operation(summary = "댓글 수정", description = "댓글을 수정할 수 있습니다.")
     @PatchMapping("/shows/{showId}/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(@Auth AuthUser auth,
                                                          @PathVariable Long showId,
@@ -54,14 +60,17 @@ public class CommentController {
         return ResponseEntity.ok(CommentResponse.toDto(comment, hasTicket));
     }
 
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제할 수 있습니다.")
     @DeleteMapping("/shows/{showId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@Auth AuthUser auth, @PathVariable Long showId, @PathVariable Long commentId) {
         commentCommandService.deleteComment(auth.getId(), showId, commentId);
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "댓글 다건 조회", description = "댓글을 다건 조회할 수 있습니다.")
     @GetMapping("/shows/{showId}/comments")
-    public ResponseEntity<PageCommentResponse> getComments(@PathVariable Long showId, @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    public ResponseEntity<PageCommentResponse> getComments(@PathVariable Long showId
+            , @ParameterObject @PageableDefault(size = 10, page = 0, sort = "createdAt,desc") Pageable pageable) {
         Page<Comment> comments = commentQueryService.getComments(showId, pageable);
 
         List<Long> userIds = comments.getContent().stream()
