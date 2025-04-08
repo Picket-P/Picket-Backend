@@ -15,7 +15,7 @@ public class SeatQueryService {
     private final SeatRepository seatRepository;
 
     public Seat findById(Long id) {
-        return seatRepository.findById(id).orElseThrow(
+        return seatRepository.findByIdWithShowDateAndShow(id).orElseThrow(
                 () -> new CustomException(ErrorCode.SEAT_NOT_FOUND));
     }
 
