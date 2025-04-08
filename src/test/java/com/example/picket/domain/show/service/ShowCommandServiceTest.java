@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -65,97 +64,6 @@ class ShowCommandServiceTest {
     @BeforeEach
     void setUp() {
         authUser = AuthUser.toEntity(1L, UserRole.DIRECTOR);
-    }
-
-    // 리플렉션
-    private void setCreatedAt(Show show, LocalDateTime createdAt) throws Exception {
-        ReflectionTestUtils.setField(show, "createdAt", createdAt);
-    }
-
-    private void setShowId(Show show, Long id) {
-        ReflectionTestUtils.setField(show, "id", id);
-    }
-
-    private Show createShow(LocalDateTime now) {
-        return Show.toEntity(
-            authUser.getId(),
-            "원래 제목",
-            "origin.jpg",
-            Category.MUSICAL,
-            "원래 설명",
-            "원래 장소",
-            now.plusDays(1),
-            now.plusDays(2),
-            2
-        );
-    }
-
-    private Show createShow(LocalDateTime reservationStart, LocalDateTime reservationEnd) {
-        return Show.toEntity(
-            authUser.getId(),
-            "원래 제목",
-            "origin.jpg",
-            Category.MUSICAL,
-            "원래 설명",
-            "원래 장소",
-            reservationStart,
-            reservationEnd,
-            2
-        );
-    }
-
-    private Show createShow(ShowCreateRequest request) {
-        return Show.toEntity(
-            authUser.getId(),
-            request.getTitle(),
-            request.getPosterUrl(),
-            request.getCategory(),
-            request.getDescription(),
-            request.getLocation(),
-            request.getReservationStart(),
-            request.getReservationEnd(),
-            request.getTicketsLimitPerUser()
-        );
-    }
-
-    private ShowCreateRequest createShowCreateRequest(
-        LocalDateTime reservationStart,
-        LocalDateTime reservationEnd,
-        LocalTime dateStartTime,
-        LocalTime dateEndTime
-    ) {
-        return new ShowCreateRequest(
-            "테스트 공연",
-            "poster.jpg",
-            Category.MUSICAL,
-            "공연 설명",
-            "서울",
-            reservationStart,
-            reservationEnd,
-            2,
-            List.of(
-                new ShowDateRequest(
-                    LocalDate.now().plusDays(1),
-                    dateStartTime,
-                    dateEndTime,
-                    10,
-                    List.of(new SeatCreateRequest(Grade.A, 5, BigDecimal.valueOf(50000)))
-                )
-            )
-        );
-    }
-
-    private ShowUpdateRequest createShowUpdateRequest(LocalDateTime now) {
-        return new ShowUpdateRequest(
-            "새 제목",
-            "new.jpg",
-            Category.CONCERT,
-            "새 설명",
-            "새 장소",
-            now.plusDays(3),
-            now.plusDays(4),
-            3
-        );
     }
 
     @Nested
@@ -216,7 +124,7 @@ class ShowCommandServiceTest {
 
     @Nested
     class 공연_수정_테스트 {
-        
+
         @Test
         void 공연_수정_성공() throws Exception {
             // given
@@ -241,7 +149,7 @@ class ShowCommandServiceTest {
 
             verify(showRepository, times(1)).findById(showId);
         }
-        
+
         @Test
         void 공연_수정_없는_공연ID_예외발생() throws Exception {
             // given
@@ -298,7 +206,7 @@ class ShowCommandServiceTest {
                 .isInstanceOf(CustomException.class)
                 .hasMessage("해당 작업을 수행할 권한이 없습니다.");
         }
-        
+
         @Test
         void 공연_수정_예매_시작_이후에는_공연_수정불가_예외발생() throws Exception {
             // given
@@ -411,6 +319,97 @@ class ShowCommandServiceTest {
                 .hasMessage("예매 시작 이후에는 공연을 삭제할 수 없습니다.");
             verify(showRepository, times(1)).findById(showId);
         }
+    }
+
+    // 리플렉션
+    private void setCreatedAt(Show show, LocalDateTime createdAt) throws Exception {
+        ReflectionTestUtils.setField(show, "createdAt", createdAt);
+    }
+
+    private void setShowId(Show show, Long id) {
+        ReflectionTestUtils.setField(show, "id", id);
+    }
+
+    private Show createShow(LocalDateTime now) {
+        return Show.toEntity(
+            authUser.getId(),
+            "원래 제목",
+            "origin.jpg",
+            Category.MUSICAL,
+            "원래 설명",
+            "원래 장소",
+            now.plusDays(1),
+            now.plusDays(2),
+            2
+        );
+    }
+
+    private Show createShow(LocalDateTime reservationStart, LocalDateTime reservationEnd) {
+        return Show.toEntity(
+            authUser.getId(),
+            "원래 제목",
+            "origin.jpg",
+            Category.MUSICAL,
+            "원래 설명",
+            "원래 장소",
+            reservationStart,
+            reservationEnd,
+            2
+        );
+    }
+
+    private Show createShow(ShowCreateRequest request) {
+        return Show.toEntity(
+            authUser.getId(),
+            request.getTitle(),
+            request.getPosterUrl(),
+            request.getCategory(),
+            request.getDescription(),
+            request.getLocation(),
+            request.getReservationStart(),
+            request.getReservationEnd(),
+            request.getTicketsLimitPerUser()
+        );
+    }
+
+    private ShowCreateRequest createShowCreateRequest(
+        LocalDateTime reservationStart,
+        LocalDateTime reservationEnd,
+        LocalTime dateStartTime,
+        LocalTime dateEndTime
+    ) {
+        return new ShowCreateRequest(
+            "테스트 공연",
+            "poster.jpg",
+            Category.MUSICAL,
+            "공연 설명",
+            "서울",
+            reservationStart,
+            reservationEnd,
+            2,
+            List.of(
+                new ShowDateRequest(
+                    LocalDate.now().plusDays(1),
+                    dateStartTime,
+                    dateEndTime,
+                    10,
+                    List.of(new SeatCreateRequest(Grade.A, 5, BigDecimal.valueOf(50000)))
+                )
+            )
+        );
+    }
+
+    private ShowUpdateRequest createShowUpdateRequest(LocalDateTime now) {
+        return new ShowUpdateRequest(
+            "새 제목",
+            "new.jpg",
+            Category.CONCERT,
+            "새 설명",
+            "새 장소",
+            now.plusDays(3),
+            now.plusDays(4),
+            3
+        );
     }
 
 }
