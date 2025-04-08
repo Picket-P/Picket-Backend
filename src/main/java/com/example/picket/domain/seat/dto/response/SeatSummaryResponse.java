@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 public class SeatSummaryResponse {
 
-    private Grade grade;
-    private int total;
-    private int reserved;
-    private int available;
+    private final Grade grade;
+    private final int total;
+    private final int reserved;
+    private final int available;
 
     private SeatSummaryResponse(Grade grade, int total, int reserved, int available) {
         this.grade = grade;
@@ -21,5 +21,6 @@ public class SeatSummaryResponse {
     public static SeatSummaryResponse toDto(Grade grade, int total, int reserved, int available) {
         return new SeatSummaryResponse(grade, total, reserved, available);
     }
+
 }
 
