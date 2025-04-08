@@ -9,6 +9,9 @@ import com.example.picket.domain.seat.service.SeatCommandService;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.seat.service.SeatResponseMapper;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,13 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Tag(name = "좌석 관리 API", description = "좌석 조회, 좌석 수정, 좌석 삭제 기능 API입니다.")
 public class SeatController {
 
     private final SeatQueryService seatQueryService;
     private final SeatCommandService seatCommandService;
     private final SeatResponseMapper seatResponseMapper;
 
-    // 좌석 상세 조회
+    @Operation(summary = "좌석 상세 조회", description = "좌석을 조회할 수 있습니다.")
     @GetMapping("/dates/{showDateId}/seats")
     public ResponseEntity<List<SeatGroupByGradeResponse>> getSeats(
             @PathVariable Long showDateId
@@ -38,7 +42,7 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
-    // 좌석 수정
+    @Operation(summary = "좌석 수정", description = "좌석을 수정할 수 있습니다.")
     @PatchMapping("/dates/{showDateId}/seats")
     public ResponseEntity<List<SeatGroupByGradeResponse>> updateSeats(
             @Auth AuthUser authUser,
@@ -50,7 +54,7 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
-    // 좌석 삭제
+    @Operation(summary = "좌석 삭제", description = "좌석을 삭제할 수 있습니다.")
     @DeleteMapping("/seats/{seatId}")
     public ResponseEntity<Void> deleteSeat(
             @Auth AuthUser authUser,
