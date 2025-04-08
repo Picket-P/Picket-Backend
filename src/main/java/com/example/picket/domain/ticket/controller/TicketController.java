@@ -8,6 +8,8 @@ import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.service.TicketCommandService;
 import com.example.picket.domain.ticket.service.TicketQueryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +19,13 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/")
+@Tag(name = "티켓 관리 API", description = "티켓 생성, 다건 조회, 단건조회, 삭제 기능 API입니다.")
 public class TicketController {
 
     private final TicketCommandService ticketCommandService;
     private final TicketQueryService ticketQueryService;
 
+    @Operation(summary = "티켓 생성", description = "티켓을 생성할 수 있습니다.")
     @PostMapping("seats/{seatId}/tickets")
     public ResponseEntity<CreateTicketResponse> createTicket(
             @PathVariable Long seatId,
@@ -30,6 +34,7 @@ public class TicketController {
         return ResponseEntity.ok(CreateTicketResponse.toDto(ticket));
     }
 
+    @Operation(summary = "티켓 다건 조회", description = "티켓을 다건 조회할 수 있습니다.")
     @GetMapping("tickets")
     public ResponseEntity<Page<GetTicketResponse>> getTickets(
             @RequestParam(defaultValue = "10") int size,
@@ -40,6 +45,7 @@ public class TicketController {
         return ResponseEntity.ok(getTicketResponsePage);
     }
 
+    @Operation(summary = "티켓 단건 조회", description = "티켓을 단건 조회할 수 있습니다.")
     @GetMapping("tickets/{ticketId}")
     public ResponseEntity<GetTicketResponse> getTicket(
             @PathVariable Long ticketId,
@@ -49,6 +55,7 @@ public class TicketController {
         return ResponseEntity.ok(GetTicketResponse.toDto(ticket));
     }
 
+    @Operation(summary = "티켓 삭제", description = "티켓을 삭제할 수 있습니다.")
     @PatchMapping("tickets/{ticketId}")
     public ResponseEntity<DeleteTicketResponse> deleteTicket(
             @PathVariable Long ticketId,
