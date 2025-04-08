@@ -41,7 +41,7 @@ public class TicketCommandService {
 
         User foundUser = getUser(userId);
         BigDecimal foundPrice = foundSeat.getPrice();
-        ShowDate foundShowDate = getShowDate(foundShow);
+        ShowDate foundShowDate = foundSeat.getShowDate();
 
         discountShowDateRemainCount(foundShowDate);
 
