@@ -26,8 +26,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("select t from Ticket t where t.id = :ticketId")
     Optional<Ticket> findByTicketId(@Param("ticketId") Long ticketId);
 
-    Boolean existsByUserIdAndShowIdAndStatusNot(@Param("userId") Long userId, @Param("showId") Long showId, @Param("status") TicketStatus status);
-
     @Query("SELECT DISTINCT t.user.id FROM Ticket t WHERE t.user.id IN :userIds AND t.show.id = :showId AND t.status <> :status")
     List<Long> findUserIdsWithValidTicket(@Param("userIds") List<Long> userIds,
                                           @Param("showId") Long showId,
