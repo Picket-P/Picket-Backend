@@ -3,6 +3,7 @@ package com.example.picket.domain.show.controller;
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.annotation.AuthPermission;
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
@@ -15,6 +16,8 @@ import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.show.service.ShowResponseMapper;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +44,7 @@ public class ShowController {
     // 공연 생성
     @PostMapping("/admin/shows")
     @AuthPermission(role = UserRole.ADMIN)
-    public ResponseEntity<ShowResponse> createShow(@Auth AuthUser user, @RequestBody ShowCreateRequest request) {
+    public ResponseEntity<ShowResponse> createShow(@Auth AuthUser user, @Valid @RequestBody ShowCreateRequest request) {
         Show show = showCommandService.createShow(user, request);
         List<ShowDate> dates = showDateQueryService.getShowDatesByShowId(show.getId());
         return ResponseEntity.ok(ShowResponse.toDto(show, dates.stream().map(ShowDateResponse::toDto).toList()));
@@ -50,7 +53,7 @@ public class ShowController {
     // 공연 목록 조회 API (카테고리, 정렬 지원)
     @GetMapping("/shows")
     public ResponseEntity<List<ShowResponse>> getShows(
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Category category,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String order
     ) {
@@ -80,7 +83,7 @@ public class ShowController {
     public ResponseEntity<ShowResponse> updateShow(
             @Auth AuthUser authUser,
             @PathVariable Long showId,
-            @RequestBody ShowUpdateRequest request
+            @Valid @RequestBody ShowUpdateRequest request
     ) {
         Show show = showCommandService.updateShow(authUser, showId, request);
         List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(showId);

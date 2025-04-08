@@ -52,7 +52,6 @@ public class ShowCommandService {
             request.getReservationStart(),
             request.getReservationEnd(),
             request.getTicketsLimitPerUser()
-            // show 생성 시 isDeleted = false로 생성자에서 고정
         );
         showRepository.save(show);
 
@@ -79,13 +78,13 @@ public class ShowCommandService {
         Show show = showRepository.findById(showId)
             .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
 
-        if (show.isDeleted()) {  // 소프트 delete 된 상태라면 수정 불가능
+        if (show.getDeletedAt() != null) {  // 소프트 delete 된 상태라면 수정 불가능
             throw new CustomException(HttpStatus.FORBIDDEN, "삭제된 공연은 수정할 수 없습니다.");
         }
 
         validateOwnership(authUser, show); // 소유자 확인
         validateUpdatable(show);           // 수정 가능 상태 확인
-        validateCategory(request.getCategory()); // 카테고리 유효성 검사
+//        validateCategory(request.getCategory()); // 카테고리 유효성 검사   valid 레벨에서 검증되기에 빼겠습니다.
 
         show.update(request); // Entity 내 update 로직 실행
         return show;
@@ -104,7 +103,8 @@ public class ShowCommandService {
             throw new CustomException(HttpStatus.BAD_REQUEST, "예매 시작 이후에는 공연을 삭제할 수 없습니다.");
         }
 
-        show.softDelete();  // isDeleted = true 처리
+        // SofeDelete 처리
+        show.softDelete();
     }
 
     // 공연 작성자 검증
@@ -127,20 +127,6 @@ public class ShowCommandService {
 
         if (hasEnded) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "종료된 공연은 수정할 수 없습니다.");
-        }
-    }
-
-    // 카테고리 유효성 검사
-    private void validateCategory(Category category) {
-        if (category == null) {
-            return;
-        }
-
-        boolean isValid = Arrays.stream(Category.values())
-            .anyMatch(c -> c.equals(category));
-
-        if (!isValid) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "지원하지 않는 카테고리입니다.");
         }
     }
 

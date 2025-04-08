@@ -11,7 +11,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+
 @Getter
+@AllArgsConstructor
 public class ShowDateRequest {
 
     @NotNull(message = "공연 날짜는 필수 입력값입니다.")
@@ -32,18 +35,7 @@ public class ShowDateRequest {
 
     private List<SeatCreateRequest> seatCreateRequests;
 
-    private ShowDateRequest(LocalDate date, LocalTime startTime, LocalTime endTime,
-                            Integer totalSeatCount, List<SeatCreateRequest> seatCreateRequests) {
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.totalSeatCount = totalSeatCount;
-        this.seatCreateRequests = seatCreateRequests;
-    }
 
-    public static ShowDateRequest toDto(LocalDate date, LocalTime startTime, LocalTime endTime,
-                                        Integer totalSeatCount, List<SeatCreateRequest> seatCreateRequests) {
-        return new ShowDateRequest(date, startTime, endTime, totalSeatCount, seatCreateRequests);
-    }
+
 }
 

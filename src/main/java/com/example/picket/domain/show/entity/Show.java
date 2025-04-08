@@ -56,9 +56,6 @@ public class Show extends BaseEntity {
     @Column
     private Integer ticketsLimitPerUser;
 
-    @Column(nullable = false)
-    private boolean isDeleted = false;
-
     @PrePersist
     private void prePersist() {
         if (reservationEnd == null) {
@@ -78,7 +75,6 @@ public class Show extends BaseEntity {
         this.reservationStart = reservationStart;
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
-        this.isDeleted = false;
     }
 
     public static Show toEntity(Long directorId, String title, String posterUrl, Category category, String description,
@@ -117,7 +113,6 @@ public class Show extends BaseEntity {
 
     // 소프트 삭제 처리
     public void softDelete() {
-        this.isDeleted = true;
         this.updateDeletedAt(LocalDateTime.now());
     }
 }

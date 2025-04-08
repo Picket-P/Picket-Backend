@@ -57,7 +57,7 @@ class CommentCommandServiceTest {
 
         Long showId = 1L;
         Show show = createShow(user, showId);
-        given(showQueryService.findById(anyLong())).willThrow(new CustomException(ErrorCode.SHOW_NOT_FOUND));
+        given(showQueryService.getShow(anyLong())).willThrow(new CustomException(ErrorCode.SHOW_NOT_FOUND));
 
         CommentRequest commentRequest = new CommentRequest("댓글내용");
 
@@ -79,7 +79,7 @@ class CommentCommandServiceTest {
 
         Long showId = 1L;
         Show show = createShow(user, showId);
-        given(showQueryService.findById(anyLong())).willReturn(show);
+        given(showQueryService.getShow(anyLong())).willReturn(show);
 
         CommentRequest commentRequest = new CommentRequest("댓글내용");
 
