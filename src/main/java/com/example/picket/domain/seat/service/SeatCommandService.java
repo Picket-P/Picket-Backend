@@ -55,9 +55,6 @@ public class SeatCommandService {
 
             // 좌석 가격 변경
             updateSeatPrices(currentSeats, request.getPrice());
-
-            // 변경된 좌석들을 결과에 추가
-            result.addAll(currentSeats);
         }
 
         return result;
@@ -126,15 +123,12 @@ public class SeatCommandService {
                 .max()
                 .orElse(0); // 현재 좌석이 없으면 0을 기준으로 시작
 
-        // 좌석 추가
         for (int i = 1; i <= toAdd; i++) {
             Seat newSeat = Seat.toEntity(grade, nextNumber + i, price, showDate);
-            result.add(seatRepository.save(newSeat));
-        }
+            Seat savedSeat = seatRepository.save(newSeat);
 
-        // 추가된 좌석들 `currentSeats`에 반영
-        for (int i = 1; i <= toAdd; i++) {
-            currentSeats.add(Seat.toEntity(grade, nextNumber + i, price, showDate));
+            result.add(savedSeat);
+            currentSeats.add(savedSeat); // 저장된 Seat를 currentSeats에도 추가
         }
     }
 
