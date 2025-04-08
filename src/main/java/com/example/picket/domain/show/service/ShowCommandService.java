@@ -65,6 +65,7 @@ public class ShowCommandService {
                 0, // 예약 수 초기값
                 show
             );
+
             showDateCommandService.createShowDate(showDate);
             createSeatsForShowDate(showDate, dateRequest.getSeatCreateRequests());
         }

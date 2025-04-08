@@ -23,13 +23,13 @@ public class ShowDateQueryService {
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "공연 날짜를 찾을 수 없습니다."));
     }
 
-    public List<ShowDate> getShowDatesByShowId(Long showId) {
-        return showDateRepository.findAllByShowId(showId);
+    public ShowDate getShowDateByShow(Show show) {
+        return showDateRepository.findShowDateByShow(show)
+            .orElseThrow(() -> new CustomException(ErrorCode.SHOW_DATE_NOT_FOUND));
     }
 
-    public ShowDate getShowDateByShow(Show show) {
-        return showDateRepository.findShowDateByShow(show).orElseThrow(
-                () -> new CustomException(ErrorCode.SHOW_DATE_NOT_FOUND));
+    public List<ShowDate> getShowDatesByShowId(Long showId) {
+        return showDateRepository.findAllByShowId(showId);
     }
 
 }

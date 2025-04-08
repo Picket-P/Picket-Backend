@@ -36,11 +36,6 @@ class ShowQueryServiceTest {
     @InjectMocks
     ShowQueryService showQueryService;
 
-    // 리플렉션
-    private void setCreatedAt(Show show, LocalDateTime createdAt) throws Exception {
-        ReflectionTestUtils.setField(show, "createdAt", createdAt);
-    }
-
     @Nested
     class 공연_목록_조회_테스트 {
 
@@ -165,6 +160,11 @@ class ShowQueryServiceTest {
                 .hasMessage("해당 공연을 찾을 수 없습니다.");
 
         }
+    }
+
+    // 리플렉션
+    private void setCreatedAt(Show show, LocalDateTime createdAt) throws Exception {
+        ReflectionTestUtils.setField(show, "createdAt", createdAt);
     }
 
 }
