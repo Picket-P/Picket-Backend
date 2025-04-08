@@ -3,6 +3,9 @@ package com.example.picket.config;
 import com.example.picket.common.auth.AuthUserArgumentResolver;
 import com.example.picket.common.interceptor.AuthInterceptor;
 import java.util.List;
+
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +24,11 @@ public class WebConfig implements WebMvcConfigurer {
         return new PasswordEncoder();
     }
 
+    @Bean
+    public JPAQueryFactory jpaQueryFactory(EntityManager em) {
+        return new JPAQueryFactory(em);
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
@@ -31,4 +39,5 @@ public class WebConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new AuthUserArgumentResolver());
     }
+
 }

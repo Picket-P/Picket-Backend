@@ -7,13 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class SeatDetailResponse {
 
-    private Long id;
-    private int seatNumber;
-    private String formattedNumber;
-    private SeatStatus status;
+    private final Long id;
+    private final int seatNumber;
+    private final String formattedNumber;
+    private final SeatStatus status;
 
     private SeatDetailResponse(Seat seat) {
         this.id = seat.getId();

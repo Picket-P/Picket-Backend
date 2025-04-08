@@ -8,6 +8,7 @@ import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.dto.response.ShowDateResponse;
+import com.example.picket.domain.show.dto.response.ShowDetailResponse;
 import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -70,10 +71,8 @@ public class ShowController {
 
     // 공연 단건 조회
     @GetMapping("/shows/{showId}")
-    public ResponseEntity<ShowResponse> getShowDetail(@PathVariable Long showId) {
-        Show show = showQueryService.getShow(showId);
-        List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(showId);
-        ShowResponse response = showResponseMapper.toDto(show, showDates);
+    public ResponseEntity<ShowDetailResponse> getShowDetail(@PathVariable Long showId) {
+        ShowDetailResponse response = showQueryService.getShow(showId);
         return ResponseEntity.ok(response);
     }
 

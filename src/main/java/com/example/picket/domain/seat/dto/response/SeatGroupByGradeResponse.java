@@ -8,9 +8,9 @@ import lombok.Getter;
 
 @Getter
 public class SeatGroupByGradeResponse {
-    private Grade grade;
-    private BigDecimal price;
-    private List<SeatDetailResponse> seats;
+    private final Grade grade;
+    private final BigDecimal price;
+    private final List<SeatDetailResponse> seats;
 
     private SeatGroupByGradeResponse(Grade grade, BigDecimal price, List<SeatDetailResponse> seats) {
         this.grade = grade;

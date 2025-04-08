@@ -31,13 +31,11 @@ public class ShowResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime deletedAt;
 
     private ShowResponse(Long id, Long directorId, String title, String posterUrl, String category, String description,
                          String location, String reservationStart, String reservationEnd, Integer ticketsLimitPerUser,
-                         List<ShowDateResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt,
-                         LocalDateTime deletedAt) {
+                         List<ShowDateResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt
+                         ) {
         this.id = id;
         this.directorId = directorId;
         this.title = title;
@@ -51,7 +49,6 @@ public class ShowResponse {
         this.showDates = showDates;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-        this.deletedAt = deletedAt;
     }
 
     // 공연 + 날짜 리스트 기반 응답 객체 생성
@@ -69,8 +66,7 @@ public class ShowResponse {
                 show.getTicketsLimitPerUser(),
                 showDateResponses,
                 show.getCreatedAt(),
-                show.getModifiedAt(),
-                show.getDeletedAt()
+                show.getModifiedAt()
         );
     }
 }

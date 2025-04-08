@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ShowRepository extends JpaRepository<Show, Long> {
+public interface ShowRepository extends JpaRepository<Show, Long>, ShowQueryDslRepository {
 
     List<Show> findAllByCategoryAndDeletedAtIsNull(Category category);
+
 }
