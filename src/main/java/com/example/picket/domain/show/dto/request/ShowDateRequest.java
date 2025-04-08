@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import lombok.Getter;
 
 @Getter
 public class ShowDateRequest {
@@ -30,5 +31,19 @@ public class ShowDateRequest {
     private Integer totalSeatCount;
 
     private List<SeatCreateRequest> seatCreateRequests;
+
+    private ShowDateRequest(LocalDate date, LocalTime startTime, LocalTime endTime,
+                            Integer totalSeatCount, List<SeatCreateRequest> seatCreateRequests) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.totalSeatCount = totalSeatCount;
+        this.seatCreateRequests = seatCreateRequests;
+    }
+
+    public static ShowDateRequest toDto(LocalDate date, LocalTime startTime, LocalTime endTime,
+                                        Integer totalSeatCount, List<SeatCreateRequest> seatCreateRequests) {
+        return new ShowDateRequest(date, startTime, endTime, totalSeatCount, seatCreateRequests);
+    }
 }
 
