@@ -1,9 +1,13 @@
 package com.example.picket.domain.ticket.service;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.entity.Show;
@@ -59,7 +63,7 @@ public class TicketCommandService {
     public Ticket deleteTicket(Long ticketId, Long userId) {
 
         Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
-            () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
+                () -> new CustomException(NOT_FOUND, "존재하지 않는 Ticket입니다.")
         );
 
         validateUserInfo(userId, ticket);
@@ -91,7 +95,7 @@ public class TicketCommandService {
 
     private void validateSeat(Seat seat) {
         if (ticketRepository.existsBySeat(seat)) {
-            throw new CustomException(ErrorCode.SEAT_ALREADY_RESERVED);
+            throw new CustomException(CONFLICT, "이미 예매된 좌석입니다.");
         }
     }
 
@@ -99,11 +103,11 @@ public class TicketCommandService {
         LocalDateTime now = LocalDateTime.now();
 
         if (now.isBefore(show.getReservationStart())) {
-            throw new CustomException(ErrorCode.SHOW_RESERVATION_TIME_INVALID_BEFORE_SHOW);
+            throw new CustomException(BAD_REQUEST, "예매 시작 시간 전입니다.");
         }
 
         if (now.isAfter(show.getReservationEnd())) {
-            throw new CustomException(ErrorCode.SHOW_RESERVATION_TIME_INVALID_AFTER_SHOW);
+            throw new CustomException(BAD_REQUEST, "예매 종료 시간 이후 입니다.");
         }
     }
 
@@ -113,7 +117,7 @@ public class TicketCommandService {
 
     private void validateUserInfo(Long userId, Ticket ticket) {
         if (ticket.getUser().getId() != userId) {
-            throw new CustomException(ErrorCode.TICKET_CANCEL_FORBIDDEN);
+            throw new CustomException(FORBIDDEN, "예매자 본인만 취소할 수 있습니다.");
         }
     }
 

@@ -1,7 +1,7 @@
 package com.example.picket.domain.comment.service;
 
-import static com.example.picket.common.exception.ErrorCode.COMMENT_DELETE_NOT_ALLOWED;
-import static com.example.picket.common.exception.ErrorCode.COMMENT_NOT_FOUND_IN_SHOW;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.comment.dto.request.CommentRequest;
@@ -35,7 +35,7 @@ public class CommentCommandService {
     public Comment updateComment(Long userId, Long showId, Long commentId, CommentRequest commentRequest) {
 
         Comment comment = commentRepository.findByIdAndShowIdAndUserId(commentId, showId, userId)
-                .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 공연에 해당 사용자의 댓글이 없습니다."));
         comment.updateContent(commentRequest.getContent());
         return comment;
     }
@@ -43,14 +43,14 @@ public class CommentCommandService {
     @Transactional
     public void deleteComment(Long userId, Long showId, Long commentId) {
         Comment comment = commentRepository.findByIdAndShowId(commentId, showId)
-                .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND_IN_SHOW));
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 공연에 해당 사용자의 댓글이 없습니다."));
         validateDeletePermission(userId, comment);
         comment.updateDeletedAt(LocalDateTime.now());
     }
 
     private void validateDeletePermission(Long userId, Comment comment) {
         if (!userId.equals(comment.getUser().getId()) && !userId.equals(comment.getShow().getDirectorId())) {
-            throw new CustomException(COMMENT_DELETE_NOT_ALLOWED);
+            throw new CustomException(FORBIDDEN, "해당 댓글의 삭제 권한이 없습니다.");
         }
     }
 }

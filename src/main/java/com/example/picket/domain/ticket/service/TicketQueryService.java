@@ -1,10 +1,13 @@
 package com.example.picket.domain.ticket.service;
 
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,10 +35,10 @@ public class TicketQueryService {
     public Ticket getTicket(Long userId, Long ticketId) {
 
         Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
-                () -> new CustomException(ErrorCode.TICKET_NOT_FOUND)
+                () -> new CustomException(NOT_FOUND, "존재하지 않는 Ticket입니다.")
         );
 
-        validateUserInfo(userId,ticket);
+        validateUserInfo(userId, ticket);
 
         return ticket;
 
@@ -50,7 +51,7 @@ public class TicketQueryService {
 
     private void validateUserInfo(Long userId, Ticket ticket) {
         if (ticket.getUser().getId() != userId) {
-            throw new CustomException(ErrorCode.TICKET_ACCESS_DENIED);
+            throw new CustomException(FORBIDDEN, "본인이 예매한 티켓만 조회할 수 있습니다.");
         }
     }
 }

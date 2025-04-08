@@ -1,8 +1,9 @@
 package com.example.picket.domain.show.entity;
 
+import static org.springframework.http.HttpStatus.CONFLICT;
+
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -54,7 +55,7 @@ public class ShowDate extends BaseEntity {
 
     public void discountRemainCount() {
         if (this.availableSeatCount <= 0) {
-            throw new CustomException(ErrorCode.SEAT_NO_AVAILABLE);
+            throw new CustomException(CONFLICT, "남아있는 좌석이 없습니다.");
         } else {
             this.availableSeatCount -= 1;
         }

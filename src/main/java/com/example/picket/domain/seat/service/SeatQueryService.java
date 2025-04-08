@@ -1,7 +1,8 @@
 package com.example.picket.domain.seat.service;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
 import java.util.List;
@@ -16,7 +17,7 @@ public class SeatQueryService {
 
     public Seat findById(Long id) {
         return seatRepository.findByIdWithShowDateAndShow(id).orElseThrow(
-                () -> new CustomException(ErrorCode.SEAT_NOT_FOUND));
+                () -> new CustomException(NOT_FOUND, "존재하지 않는 Seat입니다."));
     }
 
     public List<Seat> getSeatsByShowDate(Long showDateId) {

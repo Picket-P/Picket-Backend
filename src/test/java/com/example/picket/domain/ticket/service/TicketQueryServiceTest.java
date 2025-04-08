@@ -1,10 +1,19 @@
 package com.example.picket.domain.ticket.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,15 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TicketQueryServiceTest {
@@ -89,7 +89,7 @@ class TicketQueryServiceTest {
         // when & then
         assertThatThrownBy(() -> ticketQueryService.getTicket(userId, ticketId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage(ErrorCode.TICKET_NOT_FOUND.getMessage());
+                .hasMessage("존재하지 않는 Ticket입니다.");
     }
 
     @Test
@@ -110,7 +110,7 @@ class TicketQueryServiceTest {
         // when & then
         assertThatThrownBy(() -> ticketQueryService.getTicket(userId, ticketId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage(ErrorCode.TICKET_ACCESS_DENIED.getMessage());
+                .hasMessage("본인이 예매한 티켓만 조회할 수 있습니다.");
 
     }
 }

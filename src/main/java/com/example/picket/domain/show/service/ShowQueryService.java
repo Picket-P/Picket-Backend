@@ -1,11 +1,13 @@
 package com.example.picket.domain.show.service;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,7 @@ public class ShowQueryService {
     //공연 단건 조회
     public Show getShow(Long showId) {
         return showRepository.findById(showId)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
     }
 
     // 공연 목록 조회, Show Ids
@@ -65,7 +67,7 @@ public class ShowQueryService {
         }
 
         if (!"asc".equalsIgnoreCase(order) && !"desc".equalsIgnoreCase(order) && order != null) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 방식입니다. (asc, desc만 허용)");
+            throw new CustomException(BAD_REQUEST, "유효하지 않은 정렬 방식입니다. (asc, desc만 허용)");
         }
 
         if ("desc".equalsIgnoreCase(order)) {
