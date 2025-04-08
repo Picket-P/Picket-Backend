@@ -1,7 +1,9 @@
 package com.example.picket.domain.ticket.controller;
 
 import com.example.picket.common.annotation.Auth;
+import com.example.picket.common.annotation.AuthPermission;
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
 import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
 import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
@@ -27,6 +29,7 @@ public class TicketController {
 
     @Operation(summary = "티켓 생성", description = "티켓을 생성할 수 있습니다.")
     @PostMapping("seats/{seatId}/tickets")
+    @AuthPermission(role = UserRole.USER)
     public ResponseEntity<CreateTicketResponse> createTicket(
             @PathVariable Long seatId,
             @Auth AuthUser authUser) {
