@@ -5,10 +5,10 @@ import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.seat.entity.Seat;
-import com.example.picket.domain.seat.repository.SeatRepository;
+import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
-import com.example.picket.domain.show.repository.ShowDateRepository;
+import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
@@ -26,14 +26,14 @@ public class TicketCommandService {
 
     private final TicketRepository ticketRepository;
     private final UserQueryService userQueryService;
-    private final SeatRepository seatRepository;
-    private final ShowDateRepository showDateRepository;
+    private final SeatQueryService seatQueryService;
+    private final ShowDateQueryService showDateQueryService;
 
     @Transactional
     public Ticket createTicket(Long userId, UserRole userRole, Long seatId) {
 
         Seat foundSeat = getSeat(seatId);
-        Show foundShow = foundSeat.getShow();
+        Show foundShow = foundSeat.getShowDate().getShow();
 
         validateTicketCreationTime(foundShow);
 
@@ -80,13 +80,11 @@ public class TicketCommandService {
     }
 
     private Seat getSeat(Long seatId) {
-        return seatRepository.findById(seatId).orElseThrow(
-                () -> new CustomException(ErrorCode.SEAT_NOT_FOUND));
+        return seatQueryService.findById(seatId);
     }
 
     private ShowDate getShowDate(Show show) {
-        return showDateRepository.findByShow(show).orElseThrow(
-                () -> new CustomException(ErrorCode.SHOW_DATE_NOT_FOUND));
+        return showDateQueryService.findByShow(show);
     }
 
     private void validateSeat(Seat seat) {

@@ -5,7 +5,7 @@ import com.example.picket.common.exception.ErrorCode;
 import com.example.picket.domain.like.entity.Like;
 import com.example.picket.domain.like.repository.LikeRepository;
 import com.example.picket.domain.show.entity.Show;
-import com.example.picket.domain.show.repository.ShowRepository;
+import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
 import java.util.Objects;
@@ -20,12 +20,12 @@ public class LikeCommandService {
 
     private final LikeRepository likeRepository;
     private final UserQueryService userQueryService;
-    private final ShowRepository showRepository;
-    
+    private final ShowQueryService showQueryService;
+
     public void createLike(Long userId, Long showId) {
         User user = userQueryService.findById(userId);
 
-        Show show = showRepository.findById(showId).orElseThrow(() -> new CustomException(ErrorCode.SHOW_NOT_FOUND));
+        Show show = showQueryService.findById(showId);
 
         if (likeRepository.existsByUserIdAndShowId(user.getId(), show.getId())) {
             throw new CustomException(ErrorCode.LIKE_ALREADY_EXIST);

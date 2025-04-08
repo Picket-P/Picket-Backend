@@ -9,7 +9,7 @@ import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
-import com.example.picket.domain.show.repository.ShowDateRepository;
+import com.example.picket.domain.show.service.ShowDateQueryService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,13 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class SeatCommandService {
 
     private final SeatRepository seatRepository;
-    private final ShowDateRepository showDateRepository;
+    private final ShowDateQueryService showDateQueryService;
 
     // 좌석 수정
     @Transactional
     public List<Seat> updateSeats(AuthUser authUser, Long showDateId, List<SeatUpdateRequest> requests) {
-        ShowDate showDate = showDateRepository.findById(showDateId)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "공연 날짜를 찾을 수 없습니다."));
+        ShowDate showDate = showDateQueryService.findById(showDateId);
 
         Show show = showDate.getShow();
         boolean isReservationStarted = show.getReservationStart().isBefore(LocalDateTime.now());
@@ -144,5 +143,9 @@ public class SeatCommandService {
         for (Seat seat : seats) {
             seat.updatePrice(newPrice);
         }
+    }
+
+    public void saveAll(List<Seat> seats) {
+        seatRepository.saveAll(seats);
     }
 }

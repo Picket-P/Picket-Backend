@@ -6,12 +6,12 @@ import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
 import com.example.picket.domain.seat.entity.Seat;
-import com.example.picket.domain.seat.repository.SeatRepository;
+import com.example.picket.domain.seat.service.SeatCommandService;
+import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
-import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.repository.ShowRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,8 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShowCommandService {
 
     private final ShowRepository showRepository;
-    private final ShowDateRepository showDateRepository;
-    private final SeatRepository seatRepository;
+    private final ShowDateCommandService showDateCommandService;
+    private final ShowDateQueryService showDateQueryService;
+    private final SeatQueryService seatQueryService;
+    private final SeatCommandService seatCommandService;
 
     // 공연 생성
     @Transactional
@@ -62,7 +64,7 @@ public class ShowCommandService {
                     0, // 예약 수 초기값
                     show
             );
-            showDateRepository.save(showDate);
+            showDateCommandService.save(showDate);
             createSeatsForShowDate(showDate, dateRequest.getSeatCreateRequests());
         }
 
@@ -118,7 +120,7 @@ public class ShowCommandService {
         }
 
         // 공연 종료 여부 확인
-        boolean hasEnded = showDateRepository.findAllByShowId(show.getId()).stream()
+        boolean hasEnded = showDateQueryService.findAllByShowId(show.getId()).stream()
                 .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
 
         if (hasEnded) {
@@ -164,6 +166,6 @@ public class ShowCommandService {
             }
         }
 
-        seatRepository.saveAll(seats);
+        seatCommandService.saveAll(seats);
     }
 }
