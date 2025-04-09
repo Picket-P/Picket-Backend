@@ -11,16 +11,15 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.picket.domain.seat.entity.QSeat.seat;
 import static com.example.picket.domain.show.entity.QShowDate.showDate;
 
 @RequiredArgsConstructor
-public class ShowDateQueryDslImpl implements ShowDateQueryDslRepository {
+public class ShowDateQueryDslRepositoryImpl implements ShowDateQueryDslRepository {
 
-    private JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public List<ShowDateDetailResponse> getShowDateDetailResponseById(Long showId) {

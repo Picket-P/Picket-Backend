@@ -9,6 +9,8 @@ public interface Const {
     //TODO : 추후 로그인 없이도 방문가능한 페이지의 경우 해당 화이트 리스트에 URL 추가
     Map<String, String[]> WHITE_LIST = Map.of(
             "GET", new String[]{
+                    "/api/v1/shows",
+                    "/api/v1/shows/*",
                     "/api/v1/shows/*/comments",
                     "/swagger-ui/*",
                     "/v3/api-docs/**"

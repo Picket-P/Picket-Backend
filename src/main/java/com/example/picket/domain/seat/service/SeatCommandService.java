@@ -145,4 +145,5 @@ public class SeatCommandService {
     public void saveAll(List<Seat> seats) {
         seatRepository.saveAll(seats);
     }
+
 }
