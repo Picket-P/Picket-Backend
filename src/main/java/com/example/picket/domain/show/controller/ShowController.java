@@ -15,6 +15,8 @@ import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.service.ShowCommandService;
 import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Tag(name = "공연 관리 API", description = "공연 생성, 다건 조회, 단건 조회, 업데이트, 삭제 기능 API입니다.")
 public class ShowController {
 
     private final ShowCommandService showCommandService;
@@ -33,6 +36,7 @@ public class ShowController {
     private final ShowDateQueryService showDateQueryService;
 
     // 공연 생성
+    @Operation(summary = "공연 생성", description = "공연을 생성할 수 있습니다.")
     @PostMapping("/admin/shows")
     @AuthPermission(role = UserRole.ADMIN)
     public ResponseEntity<ShowDetailResponse> createShow(
@@ -45,6 +49,7 @@ public class ShowController {
     }
 
     // 공연 목록 조회 API (카테고리, 정렬 지원)
+    @Operation(summary = "공연 다건 조회", description = "공연을 다건으로 조회할 수 있습니다.")
     @GetMapping("/shows")
     public ResponseEntity<PageResponse<ShowResponse>> getShows(
         @RequestParam(required = false) Category category,
@@ -58,6 +63,7 @@ public class ShowController {
     }
 
     // 공연 단건 조회
+    @Operation(summary = "공연 단건 조회", description = "공연을 단건으로 조회할 수 있습니다.")
     @GetMapping("/shows/{showId}")
     public ResponseEntity<ShowDetailResponse> getShowDetail(@PathVariable Long showId) {
         ShowDetailResponse response = showQueryService.getShowQueryDsl(showId);
@@ -65,6 +71,7 @@ public class ShowController {
 }
 
     // 공연 수정 API (부분 수정 지원)
+    @Operation(summary = "공연 업데이트", description = "공연을 업데이트 할 수 있습니다.")
     @PutMapping("/shows/{showId}")
     public ResponseEntity<ShowDetailResponse> updateShow(
         @Auth AuthUser authUser,
@@ -77,6 +84,7 @@ public class ShowController {
     }
 
     // 공연 삭제 API (소프트 삭제 방식)
+    @Operation(summary = "공연 삭제", description = "공연을 삭제할 수 있습니다.")
     @DeleteMapping("/shows/{showId}")
     public ResponseEntity<Void> deleteShow(
         @Auth AuthUser authUser,

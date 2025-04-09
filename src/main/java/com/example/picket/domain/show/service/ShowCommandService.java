@@ -80,9 +80,8 @@ public class ShowCommandService {
             throw new CustomException(FORBIDDEN, "삭제된 공연은 수정할 수 없습니다.");
         }
 
-        validateOwnership(authUser, show); // 소유자 확인
-        validateUpdatable(show);           // 수정 가능 상태 확인
-//        validateCategory(request.getCategory()); // 카테고리 유효성 검사   valid 레벨에서 검증되기에 빼겠습니다.
+        validateOwnership(authUser, show);  // 소유자 확인
+        validateUpdatable(show);            // 수정 가능 상태 확인
 
         show.update(request); // Entity 내 update 로직 실행
         return show;
