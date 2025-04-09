@@ -1,6 +1,7 @@
 package com.example.picket.domain.show.dto.response;
 
 import com.example.picket.common.enums.Category;
+import com.example.picket.domain.show.entity.Show;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
@@ -63,6 +64,24 @@ public class ShowDetailResponse {
             showDates,
             createdAt,
             modifiedAt
+        );
+    }
+
+    public static ShowDetailResponse toDto(Show show, List<ShowDateDetailResponse> showDateDetailResponse) {
+        return new ShowDetailResponse(
+            show.getId(),
+            show.getDirectorId(),
+            show.getTitle(),
+            show.getPosterUrl(),
+            show.getCategory(),
+            show.getDescription(),
+            show.getLocation(),
+            show.getReservationStart(),
+            show.getReservationEnd(),
+            show.getTicketsLimitPerUser(),
+            showDateDetailResponse,
+            show.getCreatedAt(),
+            show.getModifiedAt()
         );
     }
 }

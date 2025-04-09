@@ -1,4 +1,4 @@
-package com.example.picket.domain.show.repository;
+package com.example.picket.domain.show.repository.querydsl;
 
 import com.example.picket.domain.show.dto.response.ShowDetailResponse;
 

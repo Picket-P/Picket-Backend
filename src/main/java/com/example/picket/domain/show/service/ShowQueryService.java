@@ -9,6 +9,7 @@ import com.example.picket.domain.show.dto.response.ShowDetailResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +27,17 @@ public class ShowQueryService {
     public List<Show> getShows(Category category, String sortBy, String order) {
         List<Show> shows = showRepository.findAllByCategoryAndDeletedAtIsNull(category); // 카테고리 필터링
         sortShows(shows, sortBy, order); // 정렬 처리
-
         return shows;
     }
 
     //공연 단건 조회
-    public ShowDetailResponse getShow(Long showId) {
+    public ShowDetailResponse getShowQueryDsl(Long showId) {
         return showRepository.getShowDetailResponseById(showId)
+            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
+    }
+
+    public Show getShow(Long showId) {
+        return showRepository.findById(showId)
             .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
     }
 

@@ -1,15 +1,17 @@
 package com.example.picket.domain.show.service;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.exception.CustomException;
+import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowDateRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,10 @@ public class ShowDateQueryService {
 
     public List<ShowDate> getShowDatesByShowId(Long showId) {
         return showDateRepository.findAllByShowId(showId);
+    }
+
+    public List<ShowDateDetailResponse> getShowDateDetailResponsesByShowId(Long showId) {
+        return showDateRepository.getShowDateDetailResponseById(showId);
     }
 
 }
