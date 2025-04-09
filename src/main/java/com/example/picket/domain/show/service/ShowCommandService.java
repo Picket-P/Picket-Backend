@@ -1,26 +1,26 @@
 package com.example.picket.domain.show.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatCommandService;
+import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +30,13 @@ public class ShowCommandService {
     private final ShowDateCommandService showDateCommandService;
     private final ShowDateQueryService showDateQueryService;
     private final SeatCommandService seatCommandService;
+    private final SeatQueryService seatQueryService;
 
     // 공연 생성
     @Transactional
     public Show createShow(@Auth AuthUser authUser, ShowCreateRequest request) {
-
+        // TODO: bulk Insert 필요
+        
         // 시작/종료 시간 유효성 검사
         validateShowTimes(request);
 
@@ -108,6 +110,9 @@ public class ShowCommandService {
         show.updateDeletedAt(deleteTime);
         for (ShowDate showDate : showDates) {
             showDate.updateDeletedAt(deleteTime);
+
+            List<Seat> seats = seatQueryService.getSeatsByShowDate(showDate.getId());
+            seatCommandService.deleteAll(seats);
         }
 
     }

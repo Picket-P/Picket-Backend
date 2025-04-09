@@ -1,9 +1,5 @@
 package com.example.picket.domain.seat.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
@@ -14,6 +10,10 @@ import com.example.picket.domain.seat.repository.SeatRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.service.ShowDateQueryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,10 +21,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,13 +35,12 @@ public class SeatCommandService {
     @Transactional
     public List<Seat> updateSeats(AuthUser authUser, Long showDateId, List<SeatUpdateRequest> requests) {
         ShowDate showDate = showDateQueryService.getShowDate(showDateId);
-
         Show show = showDate.getShow();
 
         validateOwnership(authUser, show);
-        validateUpdatable(show);
+        validateEndShow(show);
 
-        boolean isReservationStarted = isReservationStarted(show, LocalDateTime.now());
+        boolean isReservationStarted = validateReservationStarted(show, LocalDateTime.now());
 
         // 기존 좌석들을 Grade별로 그룹화하여 가져오기
         Map<Grade, List<Seat>> existingSeatsByGrade = seatRepository.findAllByShowDateId(showDateId).stream()
@@ -75,12 +72,13 @@ public class SeatCommandService {
                 .orElseThrow(() -> new CustomException(NOT_FOUND, "좌석을 찾을 수 없습니다."));
         ShowDate showDate = seat.getShowDate();
         Show show = showDate.getShow();
-        if (isReservationStarted(show, LocalDateTime.now())) {
-            throw new CustomException(BAD_REQUEST, "예매 시작 이후에는 좌석 수 감소가 불가능합니다. 삭제 API를 사용해주세요.");
-        }
 
         validateOwnership(authUser, show);
-        validateUpdatable(show);
+        validateEndShow(show);
+
+        if (validateReservationStarted(show, LocalDateTime.now())) {
+            throw new CustomException(BAD_REQUEST, "예매 시작 이후에는 좌석 삭제가 불가능합니다.");
+        }
 
         if (seat.getSeatStatus() == SeatStatus.RESERVED) {
             throw new CustomException(FORBIDDEN, "이미 예약된 좌석은 삭제할 수 없습니다.");
@@ -112,7 +110,7 @@ public class SeatCommandService {
     // 좌석 수 줄이기
     private void reduceSeats(List<Seat> currentSeats, int requestedCount, boolean isReservationStarted) {
         if (isReservationStarted) {
-            throw new CustomException(BAD_REQUEST, "예매 시작 이후에는 좌석 수 감소가 불가능합니다. 삭제 API를 사용해주세요.");
+            throw new CustomException(BAD_REQUEST, "예매 시작 이후에는 좌석 수 감소가 불가능합니다.");
         }
 
         int toRemove = currentSeats.size() - requestedCount;
@@ -159,12 +157,12 @@ public class SeatCommandService {
     }
 
     // 예매 시작 판단 메서드
-    private boolean isReservationStarted(Show show, LocalDateTime now) {
+    private boolean validateReservationStarted(Show show, LocalDateTime now) {
         return show.getReservationStart().isBefore(now);
     }
 
     // 종료된 공연 검증
-    private void validateUpdatable(Show show) {
+    private void validateEndShow(Show show) {
         boolean hasEnded = showDateQueryService.getShowDatesByShowId(show.getId()).stream()
             .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
 
@@ -182,6 +180,10 @@ public class SeatCommandService {
 
     public void saveAll(List<Seat> seats) {
         seatRepository.saveAll(seats);
+    }
+
+    public void deleteAll(List<Seat> seats) {
+        seatRepository.deleteAll(seats);
     }
 
 }
