@@ -84,6 +84,14 @@ public class ShowDate extends BaseEntity {
         this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
     }
 
+    public void increaseTotalSeatCount(int count) {
+        this.totalSeatCount += count;
+    }
+
+    public void decreaseTotalSeatCount(int count) {
+        this.totalSeatCount -= count;
+    }
+
     public void reserveSeats(int count) {
         if (this.reservedSeatCount + count > this.totalSeatCount) {
             throw new IllegalStateException("예약 가능한 좌석 수를 초과했습니다.");

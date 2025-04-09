@@ -1,7 +1,9 @@
 package com.example.picket.domain.seat.controller;
 
 import com.example.picket.common.annotation.Auth;
+import com.example.picket.common.annotation.AuthPermission;
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.seat.dto.request.SeatUpdateRequest;
 import com.example.picket.domain.seat.dto.response.SeatGroupByGradeResponse;
 import com.example.picket.domain.seat.entity.Seat;
@@ -41,6 +43,7 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
+    @AuthPermission(role = UserRole.DIRECTOR)
     @Operation(summary = "좌석 수정", description = "좌석을 수정할 수 있습니다.")
     @PutMapping("/dates/{showDateId}/seats")
     public ResponseEntity<List<SeatGroupByGradeResponse>> updateSeats(
@@ -53,6 +56,7 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
+    @AuthPermission(role = UserRole.DIRECTOR)
     @Operation(summary = "좌석 삭제", description = "좌석을 삭제할 수 있습니다.")
     @DeleteMapping("/seats/{seatId}")
     public ResponseEntity<Void> deleteSeat(
