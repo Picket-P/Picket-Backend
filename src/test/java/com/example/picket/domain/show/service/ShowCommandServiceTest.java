@@ -5,9 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
@@ -15,7 +13,9 @@ import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
+import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatCommandService;
+import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowDateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
@@ -52,6 +52,9 @@ class ShowCommandServiceTest {
 
     @Mock
     SeatCommandService seatCommandService;
+
+    @Mock
+    SeatQueryService seatQueryService;
 
     @InjectMocks
     ShowCommandService showCommandService;
@@ -254,10 +257,13 @@ class ShowCommandServiceTest {
         void 공연_삭제_성공() throws Exception {
             // given
             Long showId = 1L;
-            LocalDateTime now = LocalDateTime.now();
-            LocalDate dateNow = LocalDate.now();
+            Long showDateId = 1L;
+            LocalDateTime now = LocalDateTime.of(2025, 4, 9, 12, 0);
+            LocalDate dateNow = LocalDate.of(2025, 4, 10);
             Show show = createShow(now);
             setShowId(show, showId);
+            ReflectionTestUtils.setField(show, "reservationStart", LocalDateTime.of(2025, 4, 10, 10, 0));
+            ReflectionTestUtils.setField(show, "directorId", authUser.getId());
 
             ShowDate showDate = createShowDate(
                 dateNow,
@@ -265,9 +271,14 @@ class ShowCommandServiceTest {
                 LocalTime.of(14, 0),
                 show
             );
+            ReflectionTestUtils.setField(showDate, "id", showDateId);
+
+            List<Seat> seats = List.of(mock(Seat.class));
 
             given(showRepository.findById(showId)).willReturn(Optional.of(show));
             given(showDateQueryService.getShowDatesByShowId(showId)).willReturn(List.of(showDate));
+            given(seatQueryService.getSeatsByShowDate(showDateId)).willReturn(seats);
+            doNothing().when(seatCommandService).deleteAll(seats);
 
             // when
             showCommandService.deleteShow(authUser, showId);
@@ -277,6 +288,8 @@ class ShowCommandServiceTest {
             assertThat(showDate.getDeletedAt()).isNotNull();
             verify(showRepository, times(1)).findById(showId);
             verify(showDateQueryService, times(1)).getShowDatesByShowId(showId);
+            verify(seatQueryService, times(1)).getSeatsByShowDate(showDateId);
+            verify(seatCommandService, times(1)).deleteAll(seats);
         }
 
         @Test
