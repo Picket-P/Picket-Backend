@@ -1,13 +1,11 @@
-package com.example.picket.domain.show.repository;
+package com.example.picket.domain.show.repository.querydsl;
 
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.seat.dto.response.SeatSummaryResponse;
-import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
 import com.example.picket.domain.show.dto.response.ShowDetailResponse;
 import com.example.picket.domain.show.entity.Show;
-import com.example.picket.domain.show.entity.ShowDate;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ import static com.example.picket.domain.show.entity.QShowDate.showDate;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
+public class ShowQueryDslImpl implements ShowQueryDslRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -57,8 +55,6 @@ public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
             return Optional.empty();
         }
 
-        log.info("tuples size={}", tuples.size());
-
         // Show 정보는 첫 번째 튜플에서 추출
         Show showEntity = tuples.get(0).get(show);
         ShowDetailResponse detailResponse = ShowDetailResponse.toDto(
@@ -82,7 +78,6 @@ public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
             .filter(tuple -> tuple.get(showDate.id) != null)
             .collect(Collectors.groupingBy(tuple -> tuple.get(showDate.id)));
 
-        log.info("showDateGroups={}", showDateGroups.keySet());
         List<ShowDateDetailResponse> showDateDetails = showDateGroups.entrySet().stream()
             .map(entry -> {
                 Long dateId = entry.getKey();

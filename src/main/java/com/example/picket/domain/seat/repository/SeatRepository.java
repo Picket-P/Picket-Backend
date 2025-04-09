@@ -13,4 +13,5 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     @Query("SELECT s FROM Seat s JOIN FETCH s.showDate sd JOIN FETCH sd.show WHERE s.id = :seatId")
     Optional<Seat> findByIdWithShowDateAndShow(@Param("seatId") Long seatId);
+
 }
