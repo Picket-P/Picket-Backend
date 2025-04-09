@@ -3,6 +3,7 @@ package com.example.picket.domain.show.controller;
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.annotation.AuthPermission;
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.dto.PageResponse;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
@@ -16,6 +17,7 @@ import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,13 +46,15 @@ public class ShowController {
 
     // 공연 목록 조회 API (카테고리, 정렬 지원)
     @GetMapping("/shows")
-    public ResponseEntity<List<ShowResponse>> getShows(
+    public ResponseEntity<PageResponse<ShowResponse>> getShows(
         @RequestParam(required = false) Category category,
         @RequestParam(defaultValue = "createdAt") String sortBy,
-        @RequestParam(defaultValue = "desc") String order
+        @RequestParam(defaultValue = "desc") String order,
+        @RequestParam(name = "page", defaultValue = "1") int page,
+        @RequestParam(name = "size", defaultValue = "10") int size
     ) {
-        List<ShowResponse> response = showQueryService.getShowsQueryDsl(category, sortBy, order);
-        return ResponseEntity.ok(response);
+        Page<ShowResponse> response = showQueryService.getShowsQueryDsl(category, sortBy, order, page, size);
+        return ResponseEntity.ok(PageResponse.toDto(response));
     }
 
     // 공연 단건 조회

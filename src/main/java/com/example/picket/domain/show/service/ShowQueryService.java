@@ -10,6 +10,9 @@ import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +28,9 @@ public class ShowQueryService {
     private final ShowRepository showRepository;
 
     // 공연 목록 조회
-    public List<ShowResponse> getShowsQueryDsl(Category category, String sortBy, String order) {
-        return showRepository.getShowsResponse(category, sortBy, order);
+    public Page<ShowResponse> getShowsQueryDsl(Category category, String sortBy, String order, int page, int size) {
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
+        return showRepository.getShowsResponse(category, sortBy, order, pageable);
     }
 
     public List<Show> getShows(Category category, String sortBy, String order) {
