@@ -30,7 +30,7 @@ public class ShowQueryService {
     }
 
     public List<Show> getShows(Category category, String sortBy, String order) {
-        List<Show> shows = showRepository.findAllByCategoryAndDeletedAtIsNull(category); // 카테고리 필터링
+        List<Show> shows = fetchShowsByCategory(category); // 카테고리 필터링
         sortShows(shows, sortBy, order); // 정렬 처리
         return shows;
     }

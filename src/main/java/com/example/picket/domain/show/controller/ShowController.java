@@ -11,11 +11,9 @@ import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
 import com.example.picket.domain.show.dto.response.ShowDetailResponse;
 import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
-import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.service.ShowCommandService;
 import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
-import com.example.picket.domain.show.service.ShowResponseMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +29,6 @@ public class ShowController {
     private final ShowCommandService showCommandService;
     private final ShowQueryService showQueryService;
     private final ShowDateQueryService showDateQueryService;
-
-    private final ShowResponseMapper showResponseMapper;
 
     // 공연 생성
     @PostMapping("/admin/shows")
@@ -65,7 +61,7 @@ public class ShowController {
 }
 
     // 공연 수정 API (부분 수정 지원)
-    @PatchMapping("/shows/{showId}")
+    @PutMapping("/shows/{showId}")
     public ResponseEntity<ShowDetailResponse> updateShow(
         @Auth AuthUser authUser,
         @PathVariable Long showId,
