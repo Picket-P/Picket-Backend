@@ -13,16 +13,17 @@ import com.example.picket.domain.show.entity.ShowDate;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.picket.domain.seat.entity.QSeat.seat;
@@ -36,28 +37,65 @@ public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<ShowResponse> getShowsResponse(Category category, String sortBy, String order) {
+    public Page<ShowResponse> getShowsResponse(Category category, String sortBy, String order, Pageable pageable) {
 
+        // 1. 전체 카운트 조회
+        Long totalCount = queryFactory
+            .select(show.count())
+            .from(show)
+            .where(
+                category != null ? show.category.eq(category) : null,
+                show.deletedAt.isNull()
+            )
+            .fetchOne();
+
+        if (totalCount == null || totalCount == 0) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
+
+        // 2. Show ID만 페이징하여 조회
+        List<Long> showIds = queryFactory
+            .select(show.id)
+            .from(show)
+            .where(
+                category != null ? show.category.eq(category) : null,
+                show.deletedAt.isNull()
+            )
+            .orderBy(getOrderSpecifier(sortBy, order))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+        if (showIds.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, totalCount);
+        }
+
+        // 3. Show와 ShowDate 조회
         List<Tuple> tuples = queryFactory
             .select(show, showDate)
             .from(show)
             .leftJoin(showDate).on(showDate.show.eq(show))
             .where(
-                category != null ? show.category.eq(category) : null,
+                show.id.in(showIds),
                 show.deletedAt.isNull()
             )
             .orderBy(getOrderSpecifier(sortBy, order))
             .fetch();
 
         if (tuples.isEmpty()) {
-            return List.of();
+            return new PageImpl<>(List.of(), pageable, totalCount);
         }
 
+        // 4. Show 그룹핑
         Map<Long, List<Show>> showGroups = tuples.stream()
             .map(tuple -> tuple.get(show))
-            .distinct()
-            .collect(Collectors.groupingBy(Show::getId));
+            .collect(Collectors.groupingBy(
+                Show::getId,
+                LinkedHashMap::new,     // 정렬 순서 보장
+                Collectors.toList()
+            ));
 
+        // 5. ShowDate 그룹핑
         Map<Long, List<ShowDate>> showDateGroups = tuples.stream()
             .filter(tuple -> tuple.get(showDate) != null)
             .collect(Collectors.groupingBy(
@@ -65,7 +103,8 @@ public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
                 Collectors.mapping(tuple -> tuple.get(showDate), Collectors.toList())
             ));
 
-        return showGroups.entrySet().stream()
+        // 6. ShowResponse 생성
+        List<ShowResponse> result = showGroups.entrySet().stream()
             .map(entry -> {
                 Long showId = entry.getKey();
                 Show showEntity = entry.getValue().get(0);
@@ -84,6 +123,10 @@ public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
                 return response;
             })
             .toList();
+
+        // 7. Page 객체 반환
+        Page<ShowResponse> page = new PageImpl<>(result, pageable, totalCount);
+        return page;
     }
 
     @Override
