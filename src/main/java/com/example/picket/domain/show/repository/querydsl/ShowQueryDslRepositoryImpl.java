@@ -1,12 +1,18 @@
 package com.example.picket.domain.show.repository.querydsl;
 
+import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.seat.dto.response.SeatSummaryResponse;
 import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
+import com.example.picket.domain.show.dto.response.ShowDateResponse;
 import com.example.picket.domain.show.dto.response.ShowDetailResponse;
+import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
+import com.example.picket.domain.show.entity.ShowDate;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +31,60 @@ import static com.example.picket.domain.show.entity.QShowDate.showDate;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ShowQueryDslImpl implements ShowQueryDslRepository {
+public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
 
     private final JPAQueryFactory queryFactory;
+
+    @Override
+    public List<ShowResponse> getShowsResponse(Category category, String sortBy, String order) {
+
+        List<Tuple> tuples = queryFactory
+            .select(show, showDate)
+            .from(show)
+            .leftJoin(showDate).on(showDate.show.eq(show))
+            .where(
+                category != null ? show.category.eq(category) : null,
+                show.deletedAt.isNull()
+            )
+            .orderBy(getOrderSpecifier(sortBy, order))
+            .fetch();
+
+        if (tuples.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, List<Show>> showGroups = tuples.stream()
+            .map(tuple -> tuple.get(show))
+            .distinct()
+            .collect(Collectors.groupingBy(Show::getId));
+
+        Map<Long, List<ShowDate>> showDateGroups = tuples.stream()
+            .filter(tuple -> tuple.get(showDate) != null)
+            .collect(Collectors.groupingBy(
+                tuple -> tuple.get(showDate).getShow().getId(),
+                Collectors.mapping(tuple -> tuple.get(showDate), Collectors.toList())
+            ));
+
+        return showGroups.entrySet().stream()
+            .map(entry -> {
+                Long showId = entry.getKey();
+                Show showEntity = entry.getValue().get(0);
+
+                ShowResponse response = ShowResponse.toDto(
+                    showEntity,
+                    new ArrayList<>()
+                );
+
+                List<ShowDate> showDates = showDateGroups.getOrDefault(showId, List.of());
+                List<ShowDateResponse> showDateResponses = showDates.stream()
+                    .map(ShowDateResponse::toDto)
+                    .toList();
+
+                response.getShowDates().addAll(showDateResponses);
+                return response;
+            })
+            .toList();
+    }
 
     @Override
     public Optional<ShowDetailResponse> getShowDetailResponseById(Long showId) {
@@ -134,4 +191,17 @@ public class ShowQueryDslImpl implements ShowQueryDslRepository {
         detailResponse.getShowDates().addAll(showDateDetails);
         return Optional.of(detailResponse);
     }
+
+    private OrderSpecifier<?> getOrderSpecifier(String sortBy, String order) {
+        boolean isDesc = "desc".equalsIgnoreCase(order);
+        Order orderDirection = isDesc ? Order.DESC : Order.ASC;
+
+        if ("reservationStart".equalsIgnoreCase(sortBy)) {
+            return new OrderSpecifier<>(orderDirection, show.reservationStart);
+        } else {
+            return new OrderSpecifier<>(orderDirection, show.createdAt);
+        }
+    }
+
+
 }

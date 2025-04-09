@@ -53,15 +53,7 @@ public class ShowController {
         @RequestParam(defaultValue = "createdAt") String sortBy,
         @RequestParam(defaultValue = "desc") String order
     ) {
-        List<Show> shows = showQueryService.getShows(category, sortBy, order);
-
-        List<ShowResponse> response = shows.stream()
-            .map(show -> {
-                List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(show.getId());
-                return showResponseMapper.toDto(show, showDates);
-            })
-            .toList();
-
+        List<ShowResponse> response = showQueryService.getShowsQueryDsl(category, sortBy, order);
         return ResponseEntity.ok(response);
     }
 
@@ -70,20 +62,18 @@ public class ShowController {
     public ResponseEntity<ShowDetailResponse> getShowDetail(@PathVariable Long showId) {
         ShowDetailResponse response = showQueryService.getShowQueryDsl(showId);
         return ResponseEntity.ok(response);
-    }
+}
 
     // 공연 수정 API (부분 수정 지원)
-    @PutMapping("/shows/{showId}")
-    public ResponseEntity<ShowResponse> updateShow(
+    @PatchMapping("/shows/{showId}")
+    public ResponseEntity<ShowDetailResponse> updateShow(
         @Auth AuthUser authUser,
         @PathVariable Long showId,
         @Valid @RequestBody ShowUpdateRequest request
     ) {
         Show show = showCommandService.updateShow(authUser, showId, request);
-        List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(showId);
-
-        ShowResponse response = showResponseMapper.toDto(show, showDates);
-        return ResponseEntity.ok(response);
+        List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(show.getId());
+        return ResponseEntity.ok(ShowDetailResponse.toDto(show, showDateDetail));
     }
 
     // 공연 삭제 API (소프트 삭제 방식)

@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.dto.response.ShowDetailResponse;
+import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,10 @@ public class ShowQueryService {
     private final ShowRepository showRepository;
 
     // 공연 목록 조회
+    public List<ShowResponse> getShowsQueryDsl(Category category, String sortBy, String order) {
+        return showRepository.getShowsResponse(category, sortBy, order);
+    }
+
     public List<Show> getShows(Category category, String sortBy, String order) {
         List<Show> shows = showRepository.findAllByCategoryAndDeletedAtIsNull(category); // 카테고리 필터링
         sortShows(shows, sortBy, order); // 정렬 처리
@@ -46,19 +51,18 @@ public class ShowQueryService {
         return showRepository.findAllById(showIds);
     }
 
-//    // 카테고리 필터링 및 유효성 검사
-//    private List<Show> fetchShowsByCategory(Category category) {
-//        if (category == null || category.isBlank()) {
-//            return showRepository.findAll();
-//        }
-//
-//        try {
-//            Category categoryEnum = Category.valueOf(category.toUpperCase());
-//            return showRepository.findAllByCategoryAndDeletedAtIsNull(categoryEnum);
-//        } catch (IllegalArgumentException e) {
-//            throw new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리입니다.");
-//        }
-//    }
+    // 카테고리 필터링 및 유효성 검사
+    private List<Show> fetchShowsByCategory(Category category) {
+        if (category == null) {
+            return showRepository.findAll();
+        }
+
+        try {
+            return showRepository.findAllByCategoryAndDeletedAtIsNull(category);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리입니다.");
+        }
+    }
 
     // 정렬 조건에 따라 공연 정렬
     private void sortShows(List<Show> shows, String sortBy, String order) {

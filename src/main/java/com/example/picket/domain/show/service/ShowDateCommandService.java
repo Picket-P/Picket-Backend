@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -15,6 +17,10 @@ public class ShowDateCommandService {
 
     public void createShowDate(ShowDate showDate) {
         showDateRepository.save(showDate);
+    }
+
+    public void createShowDates(List<ShowDate> showDates) {
+        showDateRepository.saveAll(showDates);
     }
 
 }
