@@ -258,11 +258,11 @@ class ShowCommandServiceTest {
             // given
             Long showId = 1L;
             Long showDateId = 1L;
-            LocalDateTime now = LocalDateTime.of(2025, 4, 9, 12, 0);
-            LocalDate dateNow = LocalDate.of(2025, 4, 10);
+            LocalDateTime now = LocalDateTime.now();
+            LocalDate dateNow = LocalDate.now();
             Show show = createShow(now);
             setShowId(show, showId);
-            ReflectionTestUtils.setField(show, "reservationStart", LocalDateTime.of(2025, 4, 10, 10, 0));
+            ReflectionTestUtils.setField(show, "reservationStart", now.plusDays(1));
             ReflectionTestUtils.setField(show, "directorId", authUser.getId());
 
             ShowDate showDate = createShowDate(
