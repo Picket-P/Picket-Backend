@@ -15,16 +15,15 @@ import com.example.picket.domain.show.service.ShowCommandService;
 import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.show.service.ShowResponseMapper;
-import java.util.List;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,7 +78,7 @@ public class ShowController {
     }
 
     // 공연 수정 API (부분 수정 지원)
-    @PatchMapping("/shows/{showId}")
+    @PutMapping("/shows/{showId}")
     public ResponseEntity<ShowResponse> updateShow(
             @Auth AuthUser authUser,
             @PathVariable Long showId,
