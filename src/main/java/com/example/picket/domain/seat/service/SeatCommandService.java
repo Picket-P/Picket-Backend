@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,11 @@ public class SeatCommandService {
         ShowDate showDate = showDateQueryService.getShowDate(showDateId);
 
         Show show = showDate.getShow();
-        boolean isReservationStarted = show.getReservationStart().isBefore(LocalDateTime.now());
+
+        validateOwnership(authUser, show);
+        validateUpdatable(show);
+
+        boolean isReservationStarted = isReservationStarted(show, LocalDateTime.now());
 
         // 기존 좌석들을 Grade별로 그룹화하여 가져오기
         Map<Grade, List<Seat>> existingSeatsByGrade = seatRepository.findAllByShowDateId(showDateId).stream()
@@ -68,12 +73,21 @@ public class SeatCommandService {
     public void deleteSeat(AuthUser authUser, Long seatId) {
         Seat seat = seatRepository.findById(seatId)
                 .orElseThrow(() -> new CustomException(NOT_FOUND, "좌석을 찾을 수 없습니다."));
+        ShowDate showDate = seat.getShowDate();
+        Show show = showDate.getShow();
+        if (isReservationStarted(show, LocalDateTime.now())) {
+            throw new CustomException(BAD_REQUEST, "예매 시작 이후에는 좌석 수 감소가 불가능합니다. 삭제 API를 사용해주세요.");
+        }
+
+        validateOwnership(authUser, show);
+        validateUpdatable(show);
 
         if (seat.getSeatStatus() == SeatStatus.RESERVED) {
             throw new CustomException(FORBIDDEN, "이미 예약된 좌석은 삭제할 수 없습니다.");
         }
 
         seatRepository.delete(seat);
+        showDate.decreaseTotalSeatCount(1);
     }
 
     // 좌석 수 변경 처리
@@ -85,11 +99,13 @@ public class SeatCommandService {
         // 요청된 수가 현재 수보다 적으면 좌석 수 줄이기
         if (requestedCount < currentCount) {
             reduceSeats(currentSeats, requestedCount, isReservationStarted);
+            showDate.decreaseTotalSeatCount(currentCount - requestedCount);
         }
 
         // 요청된 수가 현재 수보다 많으면 좌석 추가
         if (requestedCount > currentCount) {
             addSeats(grade, showDate, price, currentCount, requestedCount, result, currentSeats);
+            showDate.increaseTotalSeatCount(requestedCount - currentCount);
         }
     }
 
@@ -139,6 +155,28 @@ public class SeatCommandService {
     private void updateSeatPrices(List<Seat> seats, BigDecimal newPrice) {
         for (Seat seat : seats) {
             seat.updatePrice(newPrice);
+        }
+    }
+
+    // 예매 시작 판단 메서드
+    private boolean isReservationStarted(Show show, LocalDateTime now) {
+        return show.getReservationStart().isBefore(now);
+    }
+
+    // 종료된 공연 검증
+    private void validateUpdatable(Show show) {
+        boolean hasEnded = showDateQueryService.getShowDatesByShowId(show.getId()).stream()
+            .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
+
+        if (hasEnded) {
+            throw new CustomException(BAD_REQUEST, "종료된 공연은 수정할 수 없습니다.");
+        }
+    }
+
+    // 공연 작성자 검증
+    private void validateOwnership(AuthUser user, Show show) {
+        if (!show.getDirectorId().equals(user.getId())) {
+            throw new CustomException(FORBIDDEN, "해당 작업을 수행할 권한이 없습니다.");
         }
     }
 

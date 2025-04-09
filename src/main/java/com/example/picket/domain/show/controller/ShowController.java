@@ -36,9 +36,9 @@ public class ShowController {
     private final ShowDateQueryService showDateQueryService;
 
     // 공연 생성
+    @AuthPermission(role = UserRole.DIRECTOR)
     @Operation(summary = "공연 생성", description = "공연을 생성할 수 있습니다.")
     @PostMapping("/admin/shows")
-    @AuthPermission(role = UserRole.ADMIN)
     public ResponseEntity<ShowDetailResponse> createShow(
         @Auth AuthUser user,
         @Valid @RequestBody ShowCreateRequest request
@@ -71,6 +71,7 @@ public class ShowController {
 }
 
     // 공연 수정 API (부분 수정 지원)
+    @AuthPermission(role = UserRole.DIRECTOR)
     @Operation(summary = "공연 업데이트", description = "공연을 업데이트 할 수 있습니다.")
     @PutMapping("/shows/{showId}")
     public ResponseEntity<ShowDetailResponse> updateShow(
@@ -84,6 +85,7 @@ public class ShowController {
     }
 
     // 공연 삭제 API (소프트 삭제 방식)
+    @AuthPermission(role = UserRole.DIRECTOR)
     @Operation(summary = "공연 삭제", description = "공연을 삭제할 수 있습니다.")
     @DeleteMapping("/shows/{showId}")
     public ResponseEntity<Void> deleteShow(

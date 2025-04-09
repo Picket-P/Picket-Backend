@@ -1,5 +1,6 @@
 package com.example.picket.domain.seat.entity;
 
+import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
 @Table(name = "seats")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Seat {
+public class Seat extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
