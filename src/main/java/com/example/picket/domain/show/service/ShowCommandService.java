@@ -100,8 +100,16 @@ public class ShowCommandService {
             throw new CustomException(BAD_REQUEST, "예매 시작 이후에는 공연을 삭제할 수 없습니다.");
         }
 
+        List<ShowDate> showDates = showDateQueryService.getShowDatesByShowId(showId);
+
         // SofeDelete 처리
-        show.softDelete();
+        LocalDateTime deleteTime = LocalDateTime.now();
+
+        show.updateDeletedAt(deleteTime);
+        for (ShowDate showDate : showDates) {
+            showDate.updateDeletedAt(deleteTime);
+        }
+
     }
 
     // 공연 작성자 검증

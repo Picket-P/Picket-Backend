@@ -255,17 +255,28 @@ class ShowCommandServiceTest {
             // given
             Long showId = 1L;
             LocalDateTime now = LocalDateTime.now();
+            LocalDate dateNow = LocalDate.now();
             Show show = createShow(now);
             setShowId(show, showId);
 
+            ShowDate showDate = createShowDate(
+                dateNow,
+                LocalTime.of(10, 0),
+                LocalTime.of(14, 0),
+                show
+            );
+
             given(showRepository.findById(showId)).willReturn(Optional.of(show));
+            given(showDateQueryService.getShowDatesByShowId(showId)).willReturn(List.of(showDate));
 
             // when
             showCommandService.deleteShow(authUser, showId);
 
             // then
             assertThat(show.getDeletedAt()).isNotNull();
+            assertThat(showDate.getDeletedAt()).isNotNull();
             verify(showRepository, times(1)).findById(showId);
+            verify(showDateQueryService, times(1)).getShowDatesByShowId(showId);
         }
 
         @Test
@@ -366,6 +377,22 @@ class ShowCommandServiceTest {
                 request.getReservationStart(),
                 request.getReservationEnd(),
                 request.getTicketsLimitPerUser()
+        );
+    }
+
+    private ShowDate createShowDate(
+        LocalDate now,
+        LocalTime startTime,
+        LocalTime endTime,
+        Show show
+    ) {
+        return ShowDate.toEntity(
+            now,
+            startTime,
+            endTime,
+            100,
+            0,
+            show
         );
     }
 
