@@ -1,5 +1,7 @@
 package com.example.picket.domain.ticket.service;
 
+import com.example.picket.common.enums.Grade;
+import com.example.picket.common.enums.SeatStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,7 +30,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TicketCommandServiceTest {
@@ -105,6 +120,30 @@ class TicketCommandServiceTest {
         // then
         verify(showDate, times(1)).discountRemainCount();
     }
+
+    @Test
+    void 티켓_생성에_성공하면_해당_좌석의_상태를_RESERVED로_업데이트_한다(){
+        // given
+        Show show = mock(Show.class);
+        ShowDate showDate = mock(ShowDate.class);
+        User user = mock(User.class);
+
+        when(showDate.getShow()).thenReturn(show);
+        when(show.getReservationStart()).thenReturn(LocalDateTime.now().minusHours(1));
+        when(show.getReservationEnd()).thenReturn(LocalDateTime.now().plusHours(1));
+
+        Seat seat = Seat.toEntity(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
+        ReflectionTestUtils.setField(seat, "id", seatId);
+
+        when(seatQueryService.findById(seatId)).thenReturn(seat);
+        when(userQueryService.findById(userId)).thenReturn(user);
+
+        // when
+        ticketCommandService.createTicket(userId, UserRole.USER, seatId);
+
+        // then
+        assertEquals(SeatStatus.RESERVED, seat.getSeatStatus(), "좌석 상태가 RESERVED로 변경되어야 합니다.");
+}
 
     @Test
     void 이미_예매된_좌석으로_티켓을_생성할_시_예외를_던진다() {

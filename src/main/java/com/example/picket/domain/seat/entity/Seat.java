@@ -53,4 +53,8 @@ public class Seat {
     public void updatePrice(BigDecimal price) {
         this.price = price;
     }
+
+    public void updateSeatStatus(SeatStatus seatStatus) {
+        this.seatStatus = seatStatus;
+    }
 }

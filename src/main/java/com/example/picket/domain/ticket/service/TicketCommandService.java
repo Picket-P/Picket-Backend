@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
@@ -53,6 +54,7 @@ public class TicketCommandService {
 
         Ticket ticket = Ticket.toEntity(foundUser, foundShow, foundSeat, foundPrice, TicketStatus.TICKET_CREATED);
 
+        foundSeat.updateSeatStatus(SeatStatus.RESERVED);
         ticketRepository.save(ticket);
 
         return ticket;
