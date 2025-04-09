@@ -8,16 +8,15 @@ import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatCommandService;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.seat.service.SeatResponseMapper;
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +42,7 @@ public class SeatController {
     }
 
     @Operation(summary = "좌석 수정", description = "좌석을 수정할 수 있습니다.")
-    @PatchMapping("/dates/{showDateId}/seats")
+    @PutMapping("/dates/{showDateId}/seats")
     public ResponseEntity<List<SeatGroupByGradeResponse>> updateSeats(
             @Auth AuthUser authUser,
             @PathVariable Long showDateId,

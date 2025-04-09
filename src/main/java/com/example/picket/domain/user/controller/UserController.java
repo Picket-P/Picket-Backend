@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @Operation(summary = "유저 프로필 수정", description = "유저 프로필 수정 API입니다")
-    @PatchMapping("/users")
+    @PutMapping("/users")
     public ResponseEntity<UserResponse> updateUser(@Auth AuthUser authUser,
                                                    @RequestBody UpdateUserRequest request) {
         User updatedUser = userService.updateUser(authUser, request);
@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @Operation(summary = "유저 비밀번호 수정", description = "유저 비밀번호 수정 API입니다")
-    @PatchMapping("/users/password")
+    @PutMapping("/users/password")
     public void updatePassword(@Auth AuthUser authUser,
                                @RequestBody UpdatePasswordRequest request) {
         userService.updatePassword(authUser, request);

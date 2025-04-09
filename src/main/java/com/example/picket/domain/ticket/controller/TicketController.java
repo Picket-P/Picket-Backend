@@ -16,7 +16,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -44,7 +49,8 @@ public class TicketController {
             @RequestParam(defaultValue = "1") int page,
             @Auth AuthUser authUser
     ) {
-        Page<GetTicketResponse> getTicketResponsePage = ticketQueryService.getTickets(authUser.getId(), size, page).map(GetTicketResponse::toDto);
+        Page<GetTicketResponse> getTicketResponsePage = ticketQueryService.getTickets(authUser.getId(), size, page)
+                .map(GetTicketResponse::toDto);
         return ResponseEntity.ok(getTicketResponsePage);
     }
 
@@ -59,7 +65,7 @@ public class TicketController {
     }
 
     @Operation(summary = "티켓 삭제", description = "티켓을 삭제할 수 있습니다.")
-    @PatchMapping("tickets/{ticketId}")
+    @PutMapping("tickets/{ticketId}")
     public ResponseEntity<DeleteTicketResponse> deleteTicket(
             @PathVariable Long ticketId,
             @Auth AuthUser authUser) {
