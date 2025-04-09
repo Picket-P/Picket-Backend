@@ -2,14 +2,6 @@ package com.example.picket.domain.ticket.service;
 
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
@@ -22,15 +14,10 @@ import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -135,8 +122,8 @@ class TicketCommandServiceTest {
         Seat seat = Seat.toEntity(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
         ReflectionTestUtils.setField(seat, "id", seatId);
 
-        when(seatQueryService.findById(seatId)).thenReturn(seat);
-        when(userQueryService.findById(userId)).thenReturn(user);
+        when(seatQueryService.getSeat(seatId)).thenReturn(seat);
+        when(userQueryService.getUser(userId)).thenReturn(user);
 
         // when
         ticketCommandService.createTicket(userId, UserRole.USER, seatId);
