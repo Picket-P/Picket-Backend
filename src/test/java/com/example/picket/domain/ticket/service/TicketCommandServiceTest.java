@@ -65,7 +65,8 @@ class TicketCommandServiceTest {
         when(showDate.getShow()).thenReturn(show);
         when(show.getReservationStart()).thenReturn(LocalDateTime.now().minusHours(1));
         when(show.getReservationEnd()).thenReturn(LocalDateTime.now().plusHours(1));
-        when(ticketRepository.existsBySeat(seat)).thenReturn(false);
+        when(show.getTicketsLimitPerUser()).thenReturn(2);
+        when(ticketRepository.countTicketByUserAndShowWithTicketStatus(user, show, TicketStatus.TICKET_CREATED)).thenReturn(0);
         when(userQueryService.getUser(userId)).thenReturn(user);
         when(seat.getPrice()).thenReturn(BigDecimal.valueOf(10000));
         when(seat.getShowDate()).thenReturn(showDate);
@@ -105,7 +106,7 @@ class TicketCommandServiceTest {
         ticketCommandService.createTicket(userId, UserRole.USER, seatId);
 
         // then
-        verify(showDate, times(1)).reserveSeat();
+        verify(showDate, times(1)).updateCountOnBooking();
     }
 
     @Test
@@ -142,7 +143,7 @@ class TicketCommandServiceTest {
         when(seat.getShowDate().getShow()).thenReturn(mock(Show.class));
         when(seat.getShowDate().getShow().getReservationStart()).thenReturn(LocalDateTime.now().minusDays(1));
         when(seat.getShowDate().getShow().getReservationEnd()).thenReturn(LocalDateTime.now().plusDays(1));
-        when(ticketRepository.existsBySeat(seat)).thenReturn(true);
+        when(seat.getSeatStatus()).thenReturn(SeatStatus.RESERVED);
 
         // when / then
         assertThatThrownBy(() -> ticketCommandService.createTicket(userId, UserRole.USER, seatId))

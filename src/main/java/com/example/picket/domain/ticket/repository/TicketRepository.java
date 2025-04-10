@@ -2,7 +2,9 @@ package com.example.picket.domain.ticket.repository;
 
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.domain.seat.entity.Seat;
+import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.ticket.entity.Ticket;
+import com.example.picket.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -30,4 +32,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Long> findUserIdsWithValidTicket(@Param("userIds") List<Long> userIds,
                                           @Param("showId") Long showId,
                                           @Param("status") TicketStatus status);
+
+    @Query("select count(t) from Ticket t where t.user = :user and t.show = :show and t.status = :ticketStatus")
+    int countTicketByUserAndShowWithTicketStatus(
+            @Param("user") User user,
+            @Param("show") Show show,
+            @Param("ticketStatus") TicketStatus status);
 }
