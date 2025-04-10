@@ -36,7 +36,6 @@ public class ShowCommandService {
     // 공연 생성
     @Transactional
     public Show createShow(@Auth AuthUser authUser, ShowCreateRequest request) {
-        // TODO: bulk Insert 필요
         // 시작/종료 시간 유효성 검사
         validateShowTimes(request);
 
@@ -81,6 +80,45 @@ public class ShowCommandService {
         }
 
         seatCommandService.createSeatsJdbc(seats);
+        return show;
+    }
+
+    // 공연 생성
+    @Transactional
+    public Show createShowBefore(@Auth AuthUser authUser, ShowCreateRequest request) {
+        // 시작/종료 시간 유효성 검사
+        validateShowTimes(request);
+
+        // 공연 생성 및 저장
+        Show show = Show.toEntity(
+            authUser.getId(),
+            request.getTitle(),
+            request.getPosterUrl(),
+            request.getCategory(),
+            request.getDescription(),
+            request.getLocation(),
+            request.getReservationStart(),
+            request.getReservationEnd(),
+            request.getTicketsLimitPerUser()
+        );
+        showRepository.save(show);
+
+        // 날짜별 공연 정보 및 좌석 생성
+        List<ShowDate> showDates = new ArrayList<>();
+        for (var dateRequest : request.getDates()) {
+            ShowDate showDate = ShowDate.toEntity(
+                dateRequest.getDate(),
+                dateRequest.getStartTime(),
+                dateRequest.getEndTime(),
+                dateRequest.getTotalSeatCount(),
+                0, // 예약 수 초기값
+                show
+            );
+
+            showDateCommandService.createShowDate(showDate);
+            createSeatsForShowDateBefore(showDate, dateRequest.getSeatCreateRequests());
+        }
+
         return show;
     }
 
@@ -185,5 +223,21 @@ public class ShowCommandService {
                 ));
             }
         }
+    }
+
+    private void createSeatsForShowDateBefore(ShowDate showDate, List<SeatCreateRequest> seatRequests) {
+        List<Seat> seats = new ArrayList<>();
+        for (SeatCreateRequest seatRequest : seatRequests) {
+            for (int i = 1; i <= seatRequest.getSeatCount(); i++) {
+                seats.add(Seat.toEntity(
+                    seatRequest.getGrade(),
+                    i,
+                    seatRequest.getPrice(),
+                    showDate
+                ));
+            }
+        }
+
+        seatCommandService.saveAll(seats);
     }
 }
