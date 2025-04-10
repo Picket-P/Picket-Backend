@@ -82,7 +82,7 @@ class TicketCommandServiceTest {
     }
 
     @Test
-    void 티켓_생성에_성공하면_남은_좌석_수를_discount_한다() {
+    void 티켓_생성에_성공하면_availableSeatCount를_감소시키고_reservedSeatCount를_증가시킨다() {
         // given
         Seat seat = mock(Seat.class);
         Show show = mock(Show.class);
@@ -105,7 +105,7 @@ class TicketCommandServiceTest {
         ticketCommandService.createTicket(userId, UserRole.USER, seatId);
 
         // then
-        verify(showDate, times(1)).discountRemainCount();
+        verify(showDate, times(1)).reserveSeat();
     }
 
     @Test
