@@ -139,14 +139,14 @@ public class TicketCommandService {
 
     private void validateTicketStatus(Ticket ticket) {
         if (ticket.getStatus() == TicketStatus.TICKET_EXPIRED) {
-            throw new CustomException(FORBIDDEN, "이미 취소된 티켓입니다.");
+            throw new CustomException(CONFLICT, "이미 취소된 티켓입니다.");
         }
     }
 
     private void validateAvailableTicketCount(User user, Show show) {
         int reservedTicketCount = ticketRepository.countTicketByUserAndShowWithTicketStatus(user, show, TicketStatus.TICKET_CREATED);
         if (reservedTicketCount >= show.getTicketsLimitPerUser()) {
-            throw new CustomException(FORBIDDEN, "예매 가능한 티켓 수를 초과합니다.");
+            throw new CustomException(CONFLICT, "예매 가능한 티켓 수를 초과합니다.");
         }
     }
 
