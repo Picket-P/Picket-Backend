@@ -8,6 +8,7 @@ import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatCommandService;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
+import com.example.picket.domain.show.dto.request.ShowDateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -36,7 +37,6 @@ public class ShowCommandService {
     @Transactional
     public Show createShow(@Auth AuthUser authUser, ShowCreateRequest request) {
         // TODO: bulk Insert 필요
-        
         // 시작/종료 시간 유효성 검사
         validateShowTimes(request);
 
@@ -55,7 +55,10 @@ public class ShowCommandService {
         showRepository.save(show);
 
         // 날짜별 공연 정보 및 좌석 생성
+        List<ShowDate> showDates = new ArrayList<>();
         for (var dateRequest : request.getDates()) {
+            validateSeatCount(dateRequest); // 좌석 수 검증
+            
             ShowDate showDate = ShowDate.toEntity(
                     dateRequest.getDate(),
                     dateRequest.getStartTime(),
@@ -65,10 +68,19 @@ public class ShowCommandService {
                     show
             );
 
-            showDateCommandService.createShowDate(showDate);
-            createSeatsForShowDate(showDate, dateRequest.getSeatCreateRequests());
+            showDates.add(showDate);
+        }
+        showDateCommandService.createShowDatesJdbc(showDates);
+
+        List<ShowDate> persistedShowDates = showDateQueryService.getShowDatesByShowId(show.getId());
+        List<Seat> seats = new ArrayList<>();
+        for (int i = 0; i < persistedShowDates.size(); i++) {
+            ShowDate showDate = persistedShowDates.get(i);
+            List<SeatCreateRequest> seatCreateRequests = request.getDates().get(i).getSeatCreateRequests();
+            createSeatsForShowDate(showDate, seatCreateRequests, seats);
         }
 
+        seatCommandService.createSeatsJdbc(seats);
         return show;
     }
 
@@ -117,6 +129,18 @@ public class ShowCommandService {
 
     }
 
+    // 공연 좌석 수 검증
+    private void validateSeatCount(ShowDateRequest dateRequest) {
+        int seatCount = 0;
+        for (SeatCreateRequest seatCreateRequest : dateRequest.getSeatCreateRequests()) {
+            seatCount += seatCreateRequest.getSeatCount();
+        }
+
+        if (!dateRequest.getTotalSeatCount().equals(seatCount)) {
+            throw new CustomException(BAD_REQUEST, "총 좌석 수와 좌석 등급의 좌석 총합이 일치하지 않습니다.");
+        }
+    }
+
     // 공연 작성자 검증
     private void validateOwnership(AuthUser user, Show show) {
         if (!show.getDirectorId().equals(user.getId())) {
@@ -150,9 +174,7 @@ public class ShowCommandService {
     }
 
     // 날짜별 좌석 생성
-    private void createSeatsForShowDate(ShowDate showDate, List<SeatCreateRequest> seatRequests) {
-        List<Seat> seats = new ArrayList<>();
-
+    private void createSeatsForShowDate(ShowDate showDate, List<SeatCreateRequest> seatRequests, List<Seat> seats) {
         for (SeatCreateRequest seatRequest : seatRequests) {
             for (int i = 1; i <= seatRequest.getSeatCount(); i++) {
                 seats.add(Seat.toEntity(
@@ -163,7 +185,5 @@ public class ShowCommandService {
                 ));
             }
         }
-
-        seatCommandService.saveAll(seats);
     }
 }
