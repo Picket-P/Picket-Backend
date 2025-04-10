@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +73,7 @@ class ShowCommandServiceTest {
         @Test
         void 공연_생성_성공() throws Exception {
             // given
+            Long showId = 1L;
             LocalDateTime now = LocalDateTime.now();
             ShowCreateRequest request = createShowCreateRequest(
                     now.plusDays(1),
@@ -81,7 +83,19 @@ class ShowCommandServiceTest {
             );
 
             Show show = createShow(request);
-            given(showRepository.save(any(Show.class))).willReturn(show);
+            setShowId(show, showId);
+            given(showRepository.save(any(Show.class))).willAnswer(invocation -> {
+                Show savedShow = invocation.getArgument(0);
+                setShowId(savedShow, showId);
+                return savedShow;
+            });
+
+            List<ShowDate> persistedShowDates =  createShowDates(show, request.getDates());
+            given(showDateQueryService.getShowDatesByShowId(showId))
+                .willReturn(persistedShowDates);
+
+            doNothing().when(showDateCommandService).createShowDatesJdbc(anyList());
+            doNothing().when(seatCommandService).createSeatsJdbc(anyList());
 
             // when
             Show result = showCommandService.createShow(authUser, request);
@@ -97,8 +111,33 @@ class ShowCommandServiceTest {
                             now.plusDays(1), now.plusDays(2), 2
                     );
             verify(showRepository, times(1)).save(any(Show.class));
-            verify(showDateCommandService, times(1)).createShowDate(any(ShowDate.class));
-            verify(seatCommandService, times(1)).saveAll(argThat(seats -> seats.size() == 5));
+            verify(showDateCommandService, times(1)).createShowDatesJdbc(anyList());
+            verify(seatCommandService, times(1)).createSeatsJdbc(anyList());
+        }
+
+        @Test
+        void 공연_생성_좌석_총합_불일치_예외() throws Exception {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+            ShowCreateRequest request = createShowCreateRequest(
+                now.plusDays(1),
+                now.plusDays(2),
+                new ShowDateRequest(
+                    LocalDate.now().plusDays(1),
+                    LocalTime.of(14, 0),
+                    LocalTime.of(16, 0),
+                    50,
+                    List.of(new SeatCreateRequest(Grade.A, 100, BigDecimal.valueOf(50000)))
+                )
+            );
+
+            Show show = createShow(request);
+            given(showRepository.save(any(Show.class))).willReturn(show);
+
+            // when & then
+            assertThatThrownBy(() -> showCommandService.createShow(authUser, request))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("총 좌석 수와 좌석 등급의 좌석 총합이 일치하지 않습니다.");
         }
 
         @Test
@@ -409,6 +448,23 @@ class ShowCommandServiceTest {
         );
     }
 
+    private List<ShowDate> createShowDates(Show show, List<ShowDateRequest> dateRequests) {
+        List<ShowDate> showDates = new ArrayList<>();
+        for (int i = 0; i < dateRequests.size(); i++) {
+            ShowDate showDate = ShowDate.toEntity(
+                dateRequests.get(i).getDate(),
+                dateRequests.get(i).getStartTime(),
+                dateRequests.get(i).getEndTime(),
+                dateRequests.get(i).getTotalSeatCount(),
+                0,
+                show
+            );
+            ReflectionTestUtils.setField(showDate, "id", ((long) i + 1));
+            showDates.add(showDate);
+        }
+        return showDates;
+    }
+
     private ShowCreateRequest createShowCreateRequest(
             LocalDateTime reservationStart,
             LocalDateTime reservationEnd,
@@ -429,10 +485,30 @@ class ShowCommandServiceTest {
                                 LocalDate.now().plusDays(1),
                                 dateStartTime,
                                 dateEndTime,
-                                10,
-                                List.of(new SeatCreateRequest(Grade.A, 5, BigDecimal.valueOf(50000)))
+                                100,
+                                List.of(new SeatCreateRequest(Grade.A, 100, BigDecimal.valueOf(50000)))
                         )
                 )
+        );
+    }
+
+    private ShowCreateRequest createShowCreateRequest(
+        LocalDateTime reservationStart,
+        LocalDateTime reservationEnd,
+        ShowDateRequest showDateRequest
+    ) {
+        return new ShowCreateRequest(
+            "테스트 공연",
+            "poster.jpg",
+            Category.MUSICAL,
+            "공연 설명",
+            "서울",
+            reservationStart,
+            reservationEnd,
+            2,
+            List.of(
+                showDateRequest
+            )
         );
     }
 
