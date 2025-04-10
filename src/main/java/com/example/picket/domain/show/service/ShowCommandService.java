@@ -177,10 +177,10 @@ public class ShowCommandService {
         for (SeatCreateRequest seatRequest : seatRequests) {
             for (int i = 1; i <= seatRequest.getSeatCount(); i++) {
                 seats.add(Seat.toEntity(
-                        seatRequest.getGrade(),
-                        i,
-                        seatRequest.getPrice(),
-                        showDate
+                    seatRequest.getGrade(),
+                    i,
+                    seatRequest.getPrice(),
+                    showDate
                 ));
             }
         }
