@@ -53,11 +53,12 @@ public class ShowDate extends BaseEntity {
     @JoinColumn(name = "show_id", nullable = false)
     private Show show;
 
-    public void discountRemainCount() {
+    public void reserveSeat() {
         if (this.availableSeatCount <= 0) {
             throw new CustomException(CONFLICT, "남아있는 좌석이 없습니다.");
         } else {
             this.availableSeatCount -= 1;
+            this.reservedSeatCount += 1;
         }
     }
 

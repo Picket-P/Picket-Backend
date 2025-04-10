@@ -50,7 +50,7 @@ public class TicketCommandService {
         BigDecimal foundPrice = foundSeat.getPrice();
         ShowDate foundShowDate = foundSeat.getShowDate();
 
-        discountShowDateRemainCount(foundShowDate);
+        discountRemainCountIncreaseReserveCount(foundShowDate);
 
         Ticket ticket = Ticket.toEntity(foundUser, foundShow, foundSeat, foundPrice, TicketStatus.TICKET_CREATED);
 
@@ -113,8 +113,8 @@ public class TicketCommandService {
         }
     }
 
-    private void discountShowDateRemainCount(ShowDate showDate) {
-        showDate.discountRemainCount();
+    private void discountRemainCountIncreaseReserveCount(ShowDate showDate) {
+        showDate.reserveSeat();
     }
 
     private void validateUserInfo(Long userId, Ticket ticket) {
