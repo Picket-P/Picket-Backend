@@ -3,6 +3,7 @@ package com.example.picket.domain.ticket.controller;
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.annotation.AuthPermission;
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.dto.PageResponse;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
 import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
@@ -44,14 +45,14 @@ public class TicketController {
 
     @Operation(summary = "티켓 다건 조회", description = "티켓을 다건 조회할 수 있습니다.")
     @GetMapping("tickets")
-    public ResponseEntity<Page<GetTicketResponse>> getTickets(
+    public ResponseEntity<PageResponse<GetTicketResponse>> getTickets(
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "1") int page,
             @Auth AuthUser authUser
     ) {
         Page<GetTicketResponse> getTicketResponsePage = ticketQueryService.getTickets(authUser.getId(), size, page)
                 .map(GetTicketResponse::toDto);
-        return ResponseEntity.ok(getTicketResponsePage);
+        return ResponseEntity.ok(PageResponse.toDto(getTicketResponsePage));
     }
 
     @Operation(summary = "티켓 단건 조회", description = "티켓을 단건 조회할 수 있습니다.")

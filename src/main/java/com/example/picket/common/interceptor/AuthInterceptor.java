@@ -25,7 +25,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        if (session == null) {
+        if (session == null || session.getAttribute("authUser") == null) {
             throw new CustomException(UNAUTHORIZED, "로그인 이후 이용 가능합니다.");
         }
 

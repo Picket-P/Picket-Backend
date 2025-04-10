@@ -2,6 +2,7 @@ package com.example.picket.domain.like.controller;
 
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.dto.PageResponse;
 import com.example.picket.domain.like.dto.response.LikeResponse;
 import com.example.picket.domain.like.service.LikeCommandService;
 import com.example.picket.domain.like.service.LikeQueryService;
@@ -35,9 +36,9 @@ public class LikeController {
 
     @Operation(summary = "좋아요한 공연 목록 조회", description = "사용자가 좋아요한 공연 목록조회를 할 수 있습니다.")
     @GetMapping("/likes")
-    public ResponseEntity<Page<LikeResponse>> getLikes(@RequestParam(defaultValue = "0") int page,
-                                                       @RequestParam(defaultValue = "10") int size,
-                                                       @Auth AuthUser authUser) {
+    public ResponseEntity<PageResponse<LikeResponse>> getLikes(@RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size,
+                                                               @Auth AuthUser authUser) {
         List<Show> shows = likeQueryService.getLikes(authUser.getId(), page, size);
         Pageable pageable = PageRequest.of(page, size);
         List<LikeResponse> likeResponses = shows.stream().map(
@@ -49,7 +50,7 @@ public class LikeController {
                 )
         ).toList();
         Page<LikeResponse> responses = new PageImpl<>(likeResponses, pageable, likeResponses.size());
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(PageResponse.toDto(responses));
     }
 
     @Operation(summary = "좋아요 추가", description = "특정 공연에 좋아요를 추가할 수 있습니다.")
