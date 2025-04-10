@@ -11,6 +11,8 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.config.PasswordEncoder;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,7 @@ public class AuthService {
         userRepository.save(newUser);
     }
 
-    public User signin(HttpSession session, String email, String password) {
+    public User signin(HttpSession session, HttpServletResponse response, String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
 
@@ -48,10 +50,20 @@ public class AuthService {
         AuthUser authUser = AuthUser.toEntity(user.getId(), user.getUserRole());
         session.setAttribute("authUser", authUser);
 
+        Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
+        sessionCookie.setPath("/");
+        sessionCookie.setMaxAge(24 * 60 * 60);
+        sessionCookie.setHttpOnly(true);
+        response.addCookie(sessionCookie);
+
         return user;
     }
 
-    public void signout(HttpSession session) {
+    public void signout(HttpSession session, HttpServletResponse response) {
+        Cookie sessionCookie = new Cookie("JSESSIONID", null);
+        sessionCookie.setPath("/");
+        sessionCookie.setMaxAge(0);
+        response.addCookie(sessionCookie);
         session.invalidate();
     }
 }

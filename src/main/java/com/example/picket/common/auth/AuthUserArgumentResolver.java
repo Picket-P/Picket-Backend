@@ -1,6 +1,7 @@
 package com.example.picket.common.auth;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
@@ -38,9 +39,18 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
             WebDataBinderFactory binderFactory
     ) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
 
-        return session == null ? false : (AuthUser) session.getAttribute("authUser");
+        if (session == null) {
+            throw new CustomException(UNAUTHORIZED, "세션이 유효하지 않습니다.");
+        }
+
+        AuthUser authUser = (AuthUser) session.getAttribute("authUser");
+        if (authUser == null) {
+            throw new CustomException(UNAUTHORIZED, "인증 정보가 없습니다.");
+        }
+
+        return authUser;
     }
 
 }

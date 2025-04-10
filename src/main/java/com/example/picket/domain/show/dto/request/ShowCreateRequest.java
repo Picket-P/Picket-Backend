@@ -1,7 +1,6 @@
 package com.example.picket.domain.show.dto.request;
 
 import com.example.picket.common.enums.Category;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -36,11 +35,11 @@ public class ShowCreateRequest {
     @NotBlank(message = "공연 장소는 필수 입력 값입니다.")
     private String location;
 
-    @Schema(description = "예매 시작일 (형식: yyyy-MM-dd'T'HH:mm:ss)", example = "2025-05-01T00:00:00")
+    @Schema(description = "예매 시작일 (형식: yyyy-MM-dd'T'HH:mm:ss)", example = "2025-05-01T00:00:00.000Z")
     @NotNull(message = "예매 시작일은 필수 입력 값입니다.")
     private LocalDateTime reservationStart;
 
-    @Schema(description = "예매 종료일 (형식: yyyy-MM-dd'T'HH:mm:ss, null이면 공연시작 전날 자정으로 설정)", example = "2025-05-10T00:00:00")
+    @Schema(description = "예매 종료일 (형식: yyyy-MM-dd'T'HH:mm:ss, null이면 공연시작 전날 자정으로 설정)", example = "2025-05-10T00:00:00.000Z")
     private LocalDateTime reservationEnd;
 
     @Schema(description = "인당 최대 구매 가능 티켓수", example = "2")

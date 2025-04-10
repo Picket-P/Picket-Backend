@@ -8,6 +8,7 @@ import com.example.picket.domain.auth.service.AuthService;
 import com.example.picket.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,16 +53,17 @@ public class AuthController {
 
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
     @PostMapping("/auth/signin")
-    public ResponseEntity<SigninResponse> signin(HttpSession session, @Valid @RequestBody SigninRequest request) {
-        User user = authService.signin(session, request.getEmail(), request.getPassword());
-        SigninResponse response = SigninResponse.toDto(user.getNickname());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<SigninResponse> signin(HttpSession session, HttpServletResponse response,
+                                                 @Valid @RequestBody SigninRequest request) {
+        User user = authService.signin(session, response, request.getEmail(), request.getPassword());
+        SigninResponse signinResponse = SigninResponse.toDto(user.getNickname());
+        return ResponseEntity.ok(signinResponse);
     }
 
     @Operation(summary = "로그아웃", description = "로그인 되어있는 상태의 경우, 로그아웃을 할 수 있습니다.")
     @PostMapping("/auth/signout")
-    public ResponseEntity<Void> signout(HttpSession session) {
-        authService.signout(session);
+    public ResponseEntity<Void> signout(HttpSession session, HttpServletResponse response) {
+        authService.signout(session, response);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
