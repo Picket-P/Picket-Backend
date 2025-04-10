@@ -44,6 +44,7 @@ public class ShowController {
         @Valid @RequestBody ShowCreateRequest request
     ) {
         Show show = showCommandService.createShow(user, request);
+//        Show show = showCommandService.createShowBefore(user, request);
         List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(show.getId());
         return ResponseEntity.ok(ShowDetailResponse.toDto(show, showDateDetail));
     }
