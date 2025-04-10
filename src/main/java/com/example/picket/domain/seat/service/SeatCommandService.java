@@ -7,6 +7,7 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatUpdateRequest;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.repository.SeatRepository;
+import com.example.picket.domain.seat.repository.jdbc.SeatJdbcRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.service.ShowDateQueryService;
@@ -29,6 +30,7 @@ import static org.springframework.http.HttpStatus.*;
 public class SeatCommandService {
 
     private final SeatRepository seatRepository;
+    private final SeatJdbcRepository seatJdbcRepository;
     private final ShowDateQueryService showDateQueryService;
 
     // 좌석 수정
@@ -180,6 +182,11 @@ public class SeatCommandService {
 
     public void saveAll(List<Seat> seats) {
         seatRepository.saveAll(seats);
+    }
+
+    // 좌석 Bulk Insert
+    public void createSeatsJdbc(List<Seat> seats) {
+        seatJdbcRepository.saveAllJdbc(seats);
     }
 
     public void deleteAll(List<Seat> seats) {

@@ -13,10 +13,8 @@ import com.example.picket.domain.show.entity.ShowDate;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +28,6 @@ import static com.example.picket.domain.seat.entity.QSeat.seat;
 import static com.example.picket.domain.show.entity.QShow.show;
 import static com.example.picket.domain.show.entity.QShowDate.showDate;
 
-@Slf4j
 @RequiredArgsConstructor
 public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
 
