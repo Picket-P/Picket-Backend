@@ -16,6 +16,7 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.config.PasswordEncoder;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -38,6 +39,9 @@ class AuthServiceTest {
 
     @Mock
     private HttpSession session;
+
+    @Mock
+    private HttpServletResponse response;
 
     @InjectMocks
     private AuthService authService;
@@ -94,7 +98,7 @@ class AuthServiceTest {
             given(userRepository.findByEmail(any())).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> authService.signin(session, notExistEmail, password))
+            assertThatThrownBy(() -> authService.signin(session, response, notExistEmail, password))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("해당 유저를 찾을 수 없습니다.");
         }
@@ -112,7 +116,7 @@ class AuthServiceTest {
             given(userRepository.findByEmail(any())).willReturn(Optional.of(user));
             given(passwordEncoder.matches(any(), any())).willReturn(false);
             // when & then
-            assertThatThrownBy(() -> authService.signin(session, email, notMatchPassword))
+            assertThatThrownBy(() -> authService.signin(session, response, email, notMatchPassword))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("비밀번호가 일치하지 않습니다.");
 
@@ -132,7 +136,7 @@ class AuthServiceTest {
             given(passwordEncoder.matches(any(), any())).willReturn(true);
 
             // when
-            User signinUser = authService.signin(session, email, password);
+            User signinUser = authService.signin(session, response, email, password);
             // then
             ArgumentCaptor<AuthUser> authUserCaptor = ArgumentCaptor.forClass(AuthUser.class);
             verify(session, times(1)).setAttribute(eq("authUser"), authUserCaptor.capture());
@@ -158,7 +162,7 @@ class AuthServiceTest {
             // given
 
             // when
-            authService.signout(session);
+            authService.signout(session, response);
             // then
             verify(session, times(1)).invalidate();
         }
