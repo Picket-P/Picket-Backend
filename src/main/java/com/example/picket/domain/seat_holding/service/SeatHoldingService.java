@@ -1,8 +1,7 @@
-package com.example.picket.domain.booking.service;
+package com.example.picket.domain.seat_holding.service;
 
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.exception.CustomException;
-import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.service.ShowQueryService;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
