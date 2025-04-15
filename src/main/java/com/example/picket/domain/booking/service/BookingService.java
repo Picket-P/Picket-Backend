@@ -21,6 +21,7 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -47,7 +48,7 @@ public class BookingService {
     private final OrderCommandService orderCommandService;
     private final TicketCommandService ticketCommandService;
 
-
+    @Transactional
     public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds) throws InterruptedException {
 
         Show foundShow = showQueryService.getShow(showId);
@@ -58,19 +59,12 @@ public class BookingService {
         User foundUser = userQueryService.getUser(userId);
         ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
 
-        List<Ticket> tickets = new ArrayList<>();
-
-        for (Long seatId : seatIds) {
-            Seat foundSeat = seatQueryService.getSeat(seatId);
-            Ticket ticket = ticketCommandService.createTicketVer2(foundUser, foundShow, foundSeat, TicketStatus.TICKET_CREATED);
-            tickets.add(ticket);
-        }
+        List<Ticket> tickets = createTickets(foundUser, foundShow, seatIds);
 
         Order order = orderCommandService.createOrder(foundUser, tickets);
 
         String lockKey = KEY_PREFIX + showDateId;
         RLock lock = redissonClient.getFairLock(lockKey);
-
 
         if (lock.tryLock(10, TimeUnit.SECONDS)) {
             try {
@@ -95,5 +89,15 @@ public class BookingService {
         if (now.isAfter(show.getReservationEnd())) {
             throw new CustomException(BAD_REQUEST, "예매 종료 시간 이후 입니다.");
         }
+    }
+
+    private List<Ticket> createTickets(User user, Show show, List<Long> seatIds) {
+        return seatIds.stream()
+                .map(seatId -> {
+                    Seat seat = seatQueryService.getSeat(seatId);
+                    seat.updateSeatStatus(SeatStatus.RESERVED);
+                    return ticketCommandService.createTicketVer2(user, show, seat, TicketStatus.TICKET_CREATED);
+                })
+                .toList();
     }
 }

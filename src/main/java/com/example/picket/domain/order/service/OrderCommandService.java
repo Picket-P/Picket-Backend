@@ -22,6 +22,8 @@ public class OrderCommandService {
         BigDecimal totalPrice = tickets.stream()
                 .map(Ticket::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return Order.toEntity(user, totalPrice, tickets);
+        Order order = Order.toEntity(user, totalPrice, tickets);
+        orderRepository.save(order);
+        return order;
     }
 }
