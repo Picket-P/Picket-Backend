@@ -13,6 +13,7 @@ import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.service.TicketCommandService;
+import com.example.picket.domain.ticket.service.TicketQueryService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class BookingService {
 
     private final OrderCommandService orderCommandService;
     private final TicketCommandService ticketCommandService;
+    private final TicketQueryService ticketQueryService;
 
     @Transactional
     public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds) throws InterruptedException {
@@ -50,10 +52,12 @@ public class BookingService {
         Show foundShow = showQueryService.getShow(showId);
         checkBookingTime(foundShow);
 
-        seatHoldingService.seatHoldingCheck(userId, seatIds);
-
         User foundUser = userQueryService.getUser(userId);
         ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+
+        seatHoldingService.seatHoldingCheck(userId, seatIds);
+
+        ticketQueryService.checkTicketLimit(foundUser, foundShow);
 
         List<Ticket> tickets = createTickets(foundUser, foundShow, seatIds);
 
@@ -71,6 +75,8 @@ public class BookingService {
         } else {
             throw new IllegalStateException("락 획득 실패: " + lockKey);
         }
+
+        seatHoldingService.seatHoldingUnLock(seatIds);
 
         return order;
     }

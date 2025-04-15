@@ -24,7 +24,6 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    // 예매 API
     @Operation(summary = "예매", description = "좌석을 예매하여 티켓, 주문을 생성할 수 있습니다.")
     @PostMapping("show/{showId}/show-date/{showDateId}/booking")
     public ResponseEntity<OrderResponse> booking(
