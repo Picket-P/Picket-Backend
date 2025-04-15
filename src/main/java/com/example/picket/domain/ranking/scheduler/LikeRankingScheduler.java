@@ -23,7 +23,7 @@ public class LikeRankingScheduler {
     private final RedissonClient redissonClient;
     private static final String LIKE_RANKING_KEY = "ranking:like_shows";
 
-    @Scheduled(cron = "0 0/1 * * * ?") // 30분마다
+    @Scheduled(cron = "0 0/30 * * * ?") // 30분마다
     @Transactional(readOnly = true)
     public void updateLikeRanking() {
         RLock lock = redissonClient.getLock("lock:like_show_ranking");
