@@ -1,5 +1,6 @@
 package com.example.picket.domain.show.repository.querydsl;
 
+import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
@@ -127,7 +128,15 @@ public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
     }
 
     @Override
-    public Optional<ShowDetailResponse> getShowDetailResponseById(Long showId) {
+    public Optional<ShowDetailResponse> getShowDetailResponseById(Long showId, boolean isLogin) {
+
+        if (isLogin) {
+            queryFactory
+                .update(show)
+                .set(show.viewCount, show.viewCount.add(1))
+                .where(show.id.eq(showId))
+                .execute();
+        }
 
         List<Tuple> tuples = queryFactory
             .select(
