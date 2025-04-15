@@ -25,3 +25,56 @@ services:
       interval: 5s
       retries: 10
     restart: on-failure
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    configs:
+      - source: grafana_datasource
+        target: /etc/grafana/provisioning/datasources/datasource.yml
+
+configs:
+  prometheus_config:
+    content: |
+      global:
+        scrape_interval: 10s  # 모든 타겟에서 10초 주기로 메트릭을 수집합니다.
+        # 주기 단위: s(초), m(분), h(시간)
+      scrape_configs:
+        - job_name: 'prometheus'                            # Prometheus 자체를 모니터링
+          static_configs:
+            - targets: [ 'prometheus:9090' ]                # Prometheus 컨테이너 주소
+        - job_name: 'spring-actuator'                       # Spring Boot 앱 모니터링
+          metrics_path: '/actuator/prometheus'              # Spring Boot 메트릭 엔드포인트
+          static_configs:
+            - targets: [ 'host.docker.internal:8080' ]      # 로컬 Spring Boot 앱 주소
+  grafana_datasource:
+    content: |
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus                 # 데이터 소스의 유형
+          url: http://prometheus:9090      # 데이터 소스가 있는 위치
+          access: proxy                    # Grafana가 데이터 소스에 접근하는 방식
+          isDefault: true                  # 이 데이터 소스를 기본값으로 설정할지 여부
+volumes:
+  prometheus_data:
+  grafana_data:
