@@ -64,72 +64,102 @@ public class TicketCommandService {
 //
 //    }
 
+//    @Transactional
+//    public Ticket deleteTicket(Long ticketId, Long userId) {
+//
+//        Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
+//                () -> new CustomException(NOT_FOUND, "존재하지 않는 Ticket입니다.")
+//        );
+//
+//        ShowDate foundshowDate = getShowDate(ticket.getShow());
+//        Seat foundSeat = getSeat(ticket.getSeat().getId());
+//
+//        validateTicketDeletionTime(foundshowDate); // 취소 시간 검증
+//
+//        validateTicketStatus(ticket); // 티켓 상태 검증
+//
+//        validateUserInfo(userId, ticket); // 티켓의 유저 정보 검증
+//
+//        ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
+//
+//        //foundshowDate.updateCountOnCancellation(); // showDate 필드 업데이트
+//
+//        foundSeat.updateSeatStatus(SeatStatus.AVAILABLE); // 좌석 상태 업데이트
+//
+//        // TODO : 환불 처리 로직 구현 ?
+//        // 환불이 성공적으로 끝났다면, TicketStatus와 deletedAt 업데이트
+//
+//        ticket.updateTicketStatus(TicketStatus.TICKET_EXPIRED); // 티켓 상태 업데이트
+//
+//        ticket.updateDeletedAt(LocalDateTime.now()); // 티켓 소프트 딜리트
+//
+//        return ticket;
+//    }
+
+//    private User getUser(Long userId) {
+//        return userQueryService.getUser(userId);
+//    }
+//
+//    private Seat getSeat(Long seatId) {
+//        return seatQueryService.getSeat(seatId);
+//    }
+//
+//    private ShowDate getShowDate(Show show) {
+//        return showDateQueryService.getShowDateByShow(show);
+//    }
+//
+//    private void validateSeat(Seat seat) {
+//        if (seat.getSeatStatus() == SeatStatus.RESERVED) {
+//            throw new CustomException(CONFLICT, "이미 예매된 좌석입니다.");
+//        }
+//    }
+//
+//    private void validateTicketCreationTime(Show show) {
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        if (now.isBefore(show.getReservationStart())) {
+//            throw new CustomException(BAD_REQUEST, "예매 시작 시간 전입니다.");
+//        }
+//
+//        if (now.isAfter(show.getReservationEnd())) {
+//            throw new CustomException(BAD_REQUEST, "예매 종료 시간 이후 입니다.");
+//        }
+//    }
+//
+//    private void validateTicketDeletionTime(ShowDate showDate) {
+//        if (LocalDate.now().isAfter(showDate.getDate())) {
+//            throw new CustomException(FORBIDDEN, "공연 시작 날짜 이전에만 취소 가능합니다.");
+//        }
+//    }
+//
+//    private void validateAvailableTicketCount(User user, Show show) {
+//        int reservedTicketCount = ticketRepository.countTicketByUserAndShowWithTicketStatus(user, show, TicketStatus.TICKET_CREATED);
+//        if (reservedTicketCount >= show.getTicketsLimitPerUser()) {
+//            throw new CustomException(CONFLICT, "예매 가능한 티켓 수를 초과합니다.");
+//        }
+//    }
+
     @Transactional
-    public Ticket deleteTicket(Long ticketId, Long userId) {
-
-        Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(
-                () -> new CustomException(NOT_FOUND, "존재하지 않는 Ticket입니다.")
-        );
-
-        ShowDate foundshowDate = getShowDate(ticket.getShow());
-        Seat foundSeat = getSeat(ticket.getSeat().getId());
-
-        validateTicketDeletionTime(foundshowDate); // 취소 시간 검증
-
-        validateTicketStatus(ticket); // 티켓 상태 검증
-
-        validateUserInfo(userId, ticket); // 티켓의 유저 정보 검증
-
-        ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
-
-        //foundshowDate.updateCountOnCancellation(); // showDate 필드 업데이트
-
-        foundSeat.updateSeatStatus(SeatStatus.AVAILABLE); // 좌석 상태 업데이트
-
-        // TODO : 환불 처리 로직 구현 ?
-        // 환불이 성공적으로 끝났다면, TicketStatus와 deletedAt 업데이트
-
-        ticket.updateTicketStatus(TicketStatus.TICKET_EXPIRED); // 티켓 상태 업데이트
-
-        ticket.updateDeletedAt(LocalDateTime.now()); // 티켓 소프트 딜리트
-
-        return ticket;
+    public List<Ticket> createTicket(User user, Show show, List<Long> seatIds) {
+        return seatIds.stream().map(seatId -> {
+            Seat foundSeat = seatQueryService.getSeat(seatId);
+            foundSeat.updateSeatStatus(SeatStatus.RESERVED);
+            Ticket ticket = Ticket.toEntity(user, show, foundSeat, foundSeat.getPrice(), TicketStatus.TICKET_CREATED);
+            ticketRepository.save(ticket);
+            return ticket;
+        }).toList();
     }
 
-    private User getUser(Long userId) {
-        return userQueryService.getUser(userId);
-    }
+    @Transactional
+    public List<Ticket> deleteTicket(User user, List<Long> ticketIds) {
+        return ticketIds.stream().map(ticketId -> {
+            Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow(() -> new CustomException(NOT_FOUND, "존재하지 않는 티켓입니다."));
+            validateTicketStatus(ticket); // 티켓 상태 검증
+            validateUserInfo(user.getId(), ticket); // 티켓의 유저 정보 검증
+            ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
+            return ticket;
+        }).toList();
 
-    private Seat getSeat(Long seatId) {
-        return seatQueryService.getSeat(seatId);
-    }
-
-    private ShowDate getShowDate(Show show) {
-        return showDateQueryService.getShowDateByShow(show);
-    }
-
-    private void validateSeat(Seat seat) {
-        if (seat.getSeatStatus() == SeatStatus.RESERVED) {
-            throw new CustomException(CONFLICT, "이미 예매된 좌석입니다.");
-        }
-    }
-
-    private void validateTicketCreationTime(Show show) {
-        LocalDateTime now = LocalDateTime.now();
-
-        if (now.isBefore(show.getReservationStart())) {
-            throw new CustomException(BAD_REQUEST, "예매 시작 시간 전입니다.");
-        }
-
-        if (now.isAfter(show.getReservationEnd())) {
-            throw new CustomException(BAD_REQUEST, "예매 종료 시간 이후 입니다.");
-        }
-    }
-
-    private void validateTicketDeletionTime(ShowDate showDate) {
-        if (LocalDate.now().isAfter(showDate.getDate())) {
-            throw new CustomException(FORBIDDEN, "공연 시작 날짜 이전에만 취소 가능합니다.");
-        }
     }
 
     private void validateUserInfo(Long userId, Ticket ticket) {
@@ -143,35 +173,4 @@ public class TicketCommandService {
             throw new CustomException(CONFLICT, "이미 취소된 티켓입니다.");
         }
     }
-
-    private void validateAvailableTicketCount(User user, Show show) {
-        int reservedTicketCount = ticketRepository.countTicketByUserAndShowWithTicketStatus(user, show, TicketStatus.TICKET_CREATED);
-        if (reservedTicketCount >= show.getTicketsLimitPerUser()) {
-            throw new CustomException(CONFLICT, "예매 가능한 티켓 수를 초과합니다.");
-        }
-    }
-
-
-    @Transactional
-    public Ticket createTicket(User user, Show show, Seat seat, TicketStatus ticketStatus) {
-        Ticket ticket = Ticket.toEntity(user, show, seat, seat.getPrice(), ticketStatus);
-        seat.updateSeatStatus(SeatStatus.RESERVED);
-        ticketRepository.save(ticket);
-        return ticket;
-    }
-
-    @Transactional
-    public List<Ticket> deleteTicket(User user, List<Long> ticketIds) {
-        return ticketIds.stream().map(ticketId -> {
-            Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow();
-            validateTicketStatus(ticket); // 티켓 상태 검증
-            validateUserInfo(user.getId(), ticket); // 티켓의 유저 정보 검증
-            ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
-            return ticket;
-        }).toList();
-
-    }
-
-
-
 }

@@ -10,13 +10,13 @@ import java.util.List;
 @Getter
 public class CancelBookingResponse {
 
-    private List<Ticket> cancelledTickets;
+    private final List<GetTicketResponse> cancelledTickets;
 
-    private CancelBookingResponse(List<Ticket> cancelledTickets) {
+    private CancelBookingResponse(List<GetTicketResponse> cancelledTickets) {
         this.cancelledTickets = cancelledTickets;
     }
 
-    public static CancelBookingResponse toDto(List<Ticket> cancelledTickets) {
+    public static CancelBookingResponse toDto(List<GetTicketResponse> cancelledTickets) {
         return new CancelBookingResponse(cancelledTickets);
     }
 }
