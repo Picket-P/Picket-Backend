@@ -32,3 +32,14 @@ oauth:
       admin: http://localhost:8080/api/v2/auth/callback/admin
     token-uri: https://oauth2.googleapis.com/token
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+
+# monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
