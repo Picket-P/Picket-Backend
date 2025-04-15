@@ -14,6 +14,7 @@ import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +58,7 @@ public class ShowCommandService {
         List<ShowDate> showDates = new ArrayList<>();
         for (var dateRequest : request.getDates()) {
             validateSeatCount(dateRequest); // 좌석 수 검증
-            
+
             ShowDate showDate = ShowDate.toEntity(
                     dateRequest.getDate(),
                     dateRequest.getStartTime(),
@@ -186,4 +187,12 @@ public class ShowCommandService {
         }
     }
 
+    // 조회수 증가
+    @Transactional
+    public void incrementViewCount(Long showId) {
+        int updated = showRepository.incrementViewCount(showId);
+        if (updated == 0) {
+            throw new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다.");
+        }
+    }
 }
