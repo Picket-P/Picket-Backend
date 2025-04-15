@@ -53,14 +53,14 @@ public class ShowDate extends BaseEntity {
     @JoinColumn(name = "show_id", nullable = false)
     private Show show;
 
-    public void updateCountOnBooking() {
-        this.availableSeatCount -= 1;
-        this.reservedSeatCount += 1;
+    public void updateCountOnBooking(int count) {
+        this.availableSeatCount -= count;
+        this.reservedSeatCount += count;
     }
 
-    public void updateCountOnCancellation() {
-        this.reservedSeatCount -= 1;
-        this.availableSeatCount += 1;
+    public void updateCountOnCancellation(int count) {
+        this.reservedSeatCount -= count;
+        this.availableSeatCount += count;
     }
 
     private ShowDate(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
@@ -102,11 +102,11 @@ public class ShowDate extends BaseEntity {
         this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
     }
 
-    public void updateCountOnCancellation(int count) {
-        if (this.reservedSeatCount - count < 0) {
-            throw new IllegalStateException("취소할 수 있는 좌석 수가 부족합니다.");
-        }
-        this.reservedSeatCount -= count;
-        this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
-    }
+//    public void updateCountOnCancellation(int count) {
+//        if (this.reservedSeatCount - count < 0) {
+//            throw new IllegalStateException("취소할 수 있는 좌석 수가 부족합니다.");
+//        }
+//        this.reservedSeatCount -= count;
+//        this.availableSeatCount = this.totalSeatCount - this.reservedSeatCount;
+//    }
 }
