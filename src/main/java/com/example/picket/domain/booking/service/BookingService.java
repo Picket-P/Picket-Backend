@@ -22,11 +22,13 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +95,12 @@ public class BookingService {
         }
     }
 
+    private void checkCancelBookingTime(ShowDate showDate) {
+        if (LocalDate.now().isAfter(showDate.getDate())) {
+            throw new CustomException(FORBIDDEN, "공연 시작 날짜 이전에만 취소 가능합니다.");
+        }
+    }
+
     private List<Ticket> createTickets(User user, Show show, List<Long> seatIds) {
         return seatIds.stream()
                 .map(seatId -> {
@@ -100,5 +108,30 @@ public class BookingService {
                     return ticketCommandService.createTicket(user, show, seat, TicketStatus.TICKET_CREATED);
                 })
                 .toList();
+    }
+
+    public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, List<Long> ticketIds) throws InterruptedException {
+
+        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+        checkCancelBookingTime(foundShowDate);
+
+        User foundUser = userQueryService.getUser(userId);
+        List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
+
+        String lockKey = KEY_PREFIX + showDateId;
+        RLock lock = redissonClient.getFairLock(lockKey);
+
+        if (lock.tryLock(10, TimeUnit.SECONDS)) {
+            try {
+                foundShowDate.updateCountOnBooking(ticketIds.size());
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            throw new IllegalStateException("락 획득 실패: " + lockKey);
+        }
+
+        return canceledTickets;
+
     }
 }

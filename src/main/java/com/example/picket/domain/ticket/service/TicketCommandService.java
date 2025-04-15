@@ -21,6 +21,7 @@ import com.example.picket.domain.user.service.UserQueryService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -158,6 +159,19 @@ public class TicketCommandService {
         ticketRepository.save(ticket);
         return ticket;
     }
+
+    @Transactional
+    public List<Ticket> deleteTicket(User user, List<Long> ticketIds) {
+        return ticketIds.stream().map(ticketId -> {
+            Ticket ticket = ticketRepository.findByTicketId(ticketId).orElseThrow();
+            validateTicketStatus(ticket); // 티켓 상태 검증
+            validateUserInfo(user.getId(), ticket); // 티켓의 유저 정보 검증
+            ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
+            return ticket;
+        }).toList();
+
+    }
+
 
 
 }
