@@ -14,6 +14,7 @@ import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.service.ShowDateQueryService;
+import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
@@ -35,6 +36,7 @@ public class TicketCommandService {
     private final UserQueryService userQueryService;
     private final SeatQueryService seatQueryService;
     private final ShowDateQueryService showDateQueryService;
+    private final ShowQueryService showQueryService;
 
     @Transactional
     public Ticket createTicket(Long userId, UserRole userRole, Long seatId) {
@@ -51,7 +53,7 @@ public class TicketCommandService {
 
         validateSeat(foundSeat); // 좌석 검증
 
-        foundShowDate.updateCountOnBooking(); //showDate 필드 업데이트
+        //foundShowDate.updateCountOnBooking(); //showDate 필드 업데이트
 
         Ticket ticket = Ticket.toEntity(foundUser, foundShow, foundSeat, foundPrice, TicketStatus.TICKET_CREATED);
 
@@ -81,7 +83,7 @@ public class TicketCommandService {
 
         ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
 
-        foundshowDate.updateCountOnCancellation(); // showDate 필드 업데이트
+        //foundshowDate.updateCountOnCancellation(); // showDate 필드 업데이트
 
         foundSeat.updateSeatStatus(SeatStatus.AVAILABLE); // 좌석 상태 업데이트
 
@@ -148,6 +150,13 @@ public class TicketCommandService {
         if (reservedTicketCount >= show.getTicketsLimitPerUser()) {
             throw new CustomException(CONFLICT, "예매 가능한 티켓 수를 초과합니다.");
         }
+    }
+
+
+    public Ticket createTicketVer2 (User user, Show show, Seat seat, TicketStatus ticketStatus) {
+        Ticket ticket = Ticket.toEntity(user, show, seat, seat.getPrice(), ticketStatus);
+        ticketRepository.save(ticket);
+        return ticket;
     }
 
 
