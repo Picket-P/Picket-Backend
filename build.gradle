@@ -19,6 +19,10 @@ configurations {
 	}
 }
 
+bootRun {
+    systemProperty 'spring.profiles.active', 'local'
+}
+
 repositories {
 	mavenCentral()
 }
