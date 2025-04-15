@@ -157,6 +157,7 @@ public class TicketCommandService {
             validateTicketStatus(ticket); // 티켓 상태 검증
             validateUserInfo(user.getId(), ticket); // 티켓의 유저 정보 검증
             ticket.updateTicketStatus(TicketStatus.TICKET_CANCELED);
+            ticket.getSeat().updateSeatStatus(SeatStatus.AVAILABLE);
             return ticket;
         }).toList();
 
