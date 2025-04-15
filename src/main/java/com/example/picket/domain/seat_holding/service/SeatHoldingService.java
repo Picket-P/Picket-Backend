@@ -29,7 +29,7 @@ public class SeatHoldingService {
     private final SeatQueryService seatQueryService;
     private final ShowQueryService showQueryService;
 
-    private final String KEY_PREFIX = "seat-holding-lock:seat:";
+    private final String KEY_PREFIX = "SEAT-HOLDING-LOCK:SEAT:";
     private final Duration HOLDING_DURATION = Duration.ofMinutes(30);
 
     @Transactional
