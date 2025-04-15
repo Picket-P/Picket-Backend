@@ -21,6 +21,7 @@ public class ShowDetailResponse {
     private final LocalDateTime reservationStart;
     private final LocalDateTime reservationEnd;
     private final Integer ticketsLimitPerUser;
+    private final int viewCount;
     private final List<ShowDateDetailResponse> showDates;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -30,7 +31,8 @@ public class ShowDetailResponse {
     private final LocalDateTime modifiedAt;
 
     private ShowDetailResponse(Long id, Long directorId, String title, String posterUrl, Category category,
-                               String description, String location, LocalDateTime reservationStart, LocalDateTime reservationEnd, Integer ticketsLimitPerUser,
+                               String description, String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
+                               Integer ticketsLimitPerUser, int viewCount,
                                List<ShowDateDetailResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.directorId = directorId;
@@ -42,13 +44,15 @@ public class ShowDetailResponse {
         this.reservationStart = reservationStart;
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
+        this.viewCount = viewCount;
         this.showDates = showDates;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
     public static ShowDetailResponse toDto(Long id, Long directorId, String title, String posterUrl, Category category,
-                                           String description, String location, LocalDateTime reservationStart, LocalDateTime reservationEnd, Integer ticketsLimitPerUser,
+                                           String description, String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
+                                           Integer ticketsLimitPerUser, int viewCount,
                                            List<ShowDateDetailResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         return new ShowDetailResponse(
             id,
@@ -61,6 +65,7 @@ public class ShowDetailResponse {
             reservationStart,
             reservationEnd,
             ticketsLimitPerUser,
+            viewCount,
             showDates,
             createdAt,
             modifiedAt
@@ -79,6 +84,7 @@ public class ShowDetailResponse {
             show.getReservationStart(),
             show.getReservationEnd(),
             show.getTicketsLimitPerUser(),
+            show.getViewCount(),
             showDateDetailResponse,
             show.getCreatedAt(),
             show.getModifiedAt()

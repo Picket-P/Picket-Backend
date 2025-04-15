@@ -9,13 +9,16 @@ import com.example.picket.common.exception.CustomException;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+@Slf4j
 @Component
 public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -41,7 +44,13 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         HttpSession session = request.getSession(false);
 
+        String requestURI = request.getRequestURI();
+
         if (session == null) {
+            if (PatternMatchUtils.simpleMatch("/api/v*/shows/*", requestURI)) {
+                return null;
+            }
+
             throw new CustomException(UNAUTHORIZED, "세션이 유효하지 않습니다.");
         }
 
