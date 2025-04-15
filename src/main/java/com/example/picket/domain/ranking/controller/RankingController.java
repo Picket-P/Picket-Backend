@@ -1,6 +1,5 @@
 package com.example.picket.domain.ranking.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
+@RequestMapping("/api/v1/rankings")
 @RequestMapping("/api/v2/rankings")
 @RequiredArgsConstructor
 public class RankingController {
