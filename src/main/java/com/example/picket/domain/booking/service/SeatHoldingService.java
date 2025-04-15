@@ -65,9 +65,9 @@ public class SeatHoldingService {
     public void seatHoldingCheck(Long userId, List<Long> seatIds) {
         for (Long seatId : seatIds) {
             RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
-            String string = seatLock.get();
+            String strUserId = seatLock.get();
 
-            if (!string.equals(userId.toString())) {
+            if (!strUserId.equals(userId.toString())) {
                 throw new CustomException(FORBIDDEN, "좌석 선점이 만료되었습니다. 좌석을 선점한 사용자가 아닙니다.");
             }
         }
