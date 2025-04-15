@@ -33,15 +33,15 @@ public class TicketController {
     private final TicketCommandService ticketCommandService;
     private final TicketQueryService ticketQueryService;
 
-    @Operation(summary = "티켓 생성", description = "티켓을 생성할 수 있습니다.")
-    @PostMapping("seats/{seatId}/tickets")
-    @AuthPermission(role = UserRole.USER)
-    public ResponseEntity<CreateTicketResponse> createTicket(
-            @PathVariable Long seatId,
-            @Auth AuthUser authUser) {
-        Ticket ticket = ticketCommandService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
-        return ResponseEntity.ok(CreateTicketResponse.toDto(ticket));
-    }
+//    @Operation(summary = "티켓 생성", description = "티켓을 생성할 수 있습니다.")
+//    @PostMapping("seats/{seatId}/tickets")
+//    @AuthPermission(role = UserRole.USER)
+//    public ResponseEntity<CreateTicketResponse> createTicket(
+//            @PathVariable Long seatId,
+//            @Auth AuthUser authUser) {
+//        Ticket ticket = ticketCommandService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
+//        return ResponseEntity.ok(CreateTicketResponse.toDto(ticket));
+//    }
 
     @Operation(summary = "티켓 다건 조회", description = "티켓을 다건 조회할 수 있습니다.")
     @GetMapping("tickets")

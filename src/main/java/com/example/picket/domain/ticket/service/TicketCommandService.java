@@ -7,7 +7,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.enums.TicketStatus;
-import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatQueryService;
@@ -20,7 +19,6 @@ import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -38,32 +36,32 @@ public class TicketCommandService {
     private final ShowDateQueryService showDateQueryService;
     private final ShowQueryService showQueryService;
 
-    @Transactional
-    public Ticket createTicket(Long userId, UserRole userRole, Long seatId) {
-
-        Seat foundSeat = getSeat(seatId);
-        Show foundShow = foundSeat.getShowDate().getShow();
-        User foundUser = getUser(userId);
-        BigDecimal foundPrice = foundSeat.getPrice();
-        ShowDate foundShowDate = foundSeat.getShowDate();
-
-        validateTicketCreationTime(foundShow); // 예매 시간 검증
-
-        validateAvailableTicketCount(foundUser, foundShow); // 예매 가능 티켓 개수 검증
-
-        validateSeat(foundSeat); // 좌석 검증
-
-        //foundShowDate.updateCountOnBooking(); //showDate 필드 업데이트
-
-        Ticket ticket = Ticket.toEntity(foundUser, foundShow, foundSeat, foundPrice, TicketStatus.TICKET_CREATED);
-
-        foundSeat.updateSeatStatus(SeatStatus.RESERVED); // 좌석 상태 업데이트
-
-        ticketRepository.save(ticket);
-
-        return ticket;
-
-    }
+//    @Transactional
+//    public Ticket createTicket(Long userId, UserRole userRole, Long seatId) {
+//
+//        Seat foundSeat = getSeat(seatId);
+//        Show foundShow = foundSeat.getShowDate().getShow();
+//        User foundUser = getUser(userId);
+//        BigDecimal foundPrice = foundSeat.getPrice();
+//        ShowDate foundShowDate = foundSeat.getShowDate();
+//
+//        validateTicketCreationTime(foundShow); // 예매 시간 검증
+//
+//        validateAvailableTicketCount(foundUser, foundShow); // 예매 가능 티켓 개수 검증
+//
+//        validateSeat(foundSeat); // 좌석 검증
+//
+//        //foundShowDate.updateCountOnBooking(); //showDate 필드 업데이트
+//
+//        Ticket ticket = Ticket.toEntity(foundUser, foundShow, foundSeat, foundPrice, TicketStatus.TICKET_CREATED);
+//
+//        foundSeat.updateSeatStatus(SeatStatus.RESERVED); // 좌석 상태 업데이트
+//
+//        ticketRepository.save(ticket);
+//
+//        return ticket;
+//
+//    }
 
     @Transactional
     public Ticket deleteTicket(Long ticketId, Long userId) {
@@ -153,8 +151,10 @@ public class TicketCommandService {
     }
 
 
-    public Ticket createTicketVer2 (User user, Show show, Seat seat, TicketStatus ticketStatus) {
+    @Transactional
+    public Ticket createTicket(User user, Show show, Seat seat, TicketStatus ticketStatus) {
         Ticket ticket = Ticket.toEntity(user, show, seat, seat.getPrice(), ticketStatus);
+        seat.updateSeatStatus(SeatStatus.RESERVED);
         ticketRepository.save(ticket);
         return ticket;
     }
