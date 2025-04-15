@@ -1,6 +1,5 @@
 package com.example.picket.domain.booking.service;
 
-import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.order.entity.Order;
@@ -17,15 +16,12 @@ import com.example.picket.domain.ticket.service.TicketCommandService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -95,8 +91,7 @@ public class BookingService {
         return seatIds.stream()
                 .map(seatId -> {
                     Seat seat = seatQueryService.getSeat(seatId);
-                    seat.updateSeatStatus(SeatStatus.RESERVED);
-                    return ticketCommandService.createTicketVer2(user, show, seat, TicketStatus.TICKET_CREATED);
+                    return ticketCommandService.createTicket(user, show, seat, TicketStatus.TICKET_CREATED);
                 })
                 .toList();
     }
