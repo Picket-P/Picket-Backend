@@ -5,6 +5,9 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.service.ShowQueryService;
+import com.example.picket.domain.ticket.service.TicketQueryService;
+import com.example.picket.domain.user.entity.User;
+import com.example.picket.domain.user.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -32,7 +35,7 @@ public class SeatHoldingService {
     @Transactional
     public void seatHoldingLock(Long userId, Long showId, List<Long> seatIds) {
 
-        checkLimit(showId, seatIds);
+        checkSeatLimit(showId, seatIds);
 
         List<Long> successfullyLockedSeats = new ArrayList<>();
 
@@ -80,7 +83,7 @@ public class SeatHoldingService {
         }
     }
 
-    private void checkLimit(Long showId, List<Long> seatIds) {
+    private void checkSeatLimit(Long showId, List<Long> seatIds) {
         Show foundShow = showQueryService.getShow(showId);
         if (foundShow.getTicketsLimitPerUser() < seatIds.size()) {
             throw new CustomException(CONFLICT, "선택 가능한 좌석 개수를 초과하였습니다.");
