@@ -88,10 +88,6 @@ public class Show extends BaseEntity {
                 ticketsLimitPerUser);
     }
 
-    public void increaseViewCount() {
-        this.viewCount++;
-    }
-
     public void update(ShowUpdateRequest request) {
         if (request.getTitle() != null) {
             this.title = request.getTitle();

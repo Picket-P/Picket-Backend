@@ -44,11 +44,12 @@ public class ShowQueryService {
 
     //공연 단건 조회
     public ShowDetailResponse getShowQueryDsl(AuthUser authUser, Long showId) {
-        if (authUser != null) {
-            // TODO: 조회수 증가 로직 필요        
+        boolean isLogin = authUser != null;
+        if (isLogin) {
+            // TODO: 조회수 증가 로직 필요 Redis 키 저장, 키 존재시 isLogin false 처리
         }
     
-        return showRepository.getShowDetailResponseById(showId)
+        return showRepository.getShowDetailResponseById(showId, isLogin)
             .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
     }
 
