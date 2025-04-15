@@ -55,32 +55,52 @@ public class BookingService {
         checkBookingTime(foundShow);
 
         User foundUser = userQueryService.getUser(userId);
-        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
 
         seatHoldingService.seatHoldingCheck(userId, seatIds);
 
         ticketQueryService.checkTicketLimit(foundUser, foundShow);
 
-        List<Ticket> tickets = createTickets(foundUser, foundShow, seatIds);
+        List<Ticket> tickets = ticketCommandService.createTicket(foundUser, foundShow, seatIds);
 
         Order order = orderCommandService.createOrder(foundUser, tickets);
 
+        showDateUpdate(showDateId, seatIds.size());
+
+        seatHoldingService.seatHoldingUnLock(seatIds);
+
+        return order;
+    }
+
+    @Transactional
+    public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, List<Long> ticketIds) throws InterruptedException {
+
+        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+        checkCancelBookingTime(foundShowDate);
+
+        User foundUser = userQueryService.getUser(userId);
+        List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
+
+        showDateUpdate(showDateId, ticketIds.size());
+
+        return canceledTickets;
+
+    }
+
+    private void showDateUpdate(Long showDateId, int count) throws InterruptedException {
         String lockKey = KEY_PREFIX + showDateId;
         RLock lock = redissonClient.getFairLock(lockKey);
 
+        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+
         if (lock.tryLock(10, TimeUnit.SECONDS)) {
             try {
-                foundShowDate.updateCountOnBooking(seatIds.size());
+                foundShowDate.updateCountOnBooking(count);
             } finally {
                 lock.unlock();
             }
         } else {
             throw new IllegalStateException("락 획득 실패: " + lockKey);
         }
-
-        seatHoldingService.seatHoldingUnLock(seatIds);
-
-        return order;
     }
 
     private void checkBookingTime(Show show) {
@@ -99,39 +119,5 @@ public class BookingService {
         if (LocalDate.now().isAfter(showDate.getDate())) {
             throw new CustomException(FORBIDDEN, "공연 시작 날짜 이전에만 취소 가능합니다.");
         }
-    }
-
-    private List<Ticket> createTickets(User user, Show show, List<Long> seatIds) {
-        return seatIds.stream()
-                .map(seatId -> {
-                    Seat seat = seatQueryService.getSeat(seatId);
-                    return ticketCommandService.createTicket(user, show, seat, TicketStatus.TICKET_CREATED);
-                })
-                .toList();
-    }
-
-    public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, List<Long> ticketIds) throws InterruptedException {
-
-        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
-        checkCancelBookingTime(foundShowDate);
-
-        User foundUser = userQueryService.getUser(userId);
-        List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
-
-        String lockKey = KEY_PREFIX + showDateId;
-        RLock lock = redissonClient.getFairLock(lockKey);
-
-        if (lock.tryLock(10, TimeUnit.SECONDS)) {
-            try {
-                foundShowDate.updateCountOnBooking(ticketIds.size());
-            } finally {
-                lock.unlock();
-            }
-        } else {
-            throw new IllegalStateException("락 획득 실패: " + lockKey);
-        }
-
-        return canceledTickets;
-
     }
 }

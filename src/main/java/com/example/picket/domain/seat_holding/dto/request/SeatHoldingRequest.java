@@ -12,5 +12,5 @@ public class SeatHoldingRequest {
 
     @Schema(description = "선점할 좌석 ID", example = "[1]")
     @NotNull(message = "좌석 ID는 필수 입력값입니다.")
-    private List<Long> seatIds = new ArrayList<>();
+    private final List<Long> seatIds = new ArrayList<>();
 }

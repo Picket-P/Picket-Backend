@@ -50,7 +50,8 @@ public class BookingController {
             @RequestBody CancelBookingRequest dto
     ) throws InterruptedException {
         List<Ticket> canceledTickets = bookingService.cancelBooking(showId, showDateId, authUser.getId(), dto.getTicketIds());
-        CancelBookingResponse cancelBookingResponse = CancelBookingResponse.toDto(canceledTickets);
+        List<GetTicketResponse> getTicketResponses = canceledTickets.stream().map(GetTicketResponse::toDto).toList();
+        CancelBookingResponse cancelBookingResponse = CancelBookingResponse.toDto(getTicketResponses);
         return ResponseEntity.ok(cancelBookingResponse);
     }
 }

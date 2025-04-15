@@ -65,12 +65,12 @@ public class TicketController {
         return ResponseEntity.ok(GetTicketResponse.toDto(ticket));
     }
 
-    @Operation(summary = "티켓 삭제", description = "티켓을 삭제할 수 있습니다.")
-    @PutMapping("tickets/{ticketId}")
-    public ResponseEntity<DeleteTicketResponse> deleteTicket(
-            @PathVariable Long ticketId,
-            @Auth AuthUser authUser) {
-        Ticket ticket = ticketCommandService.deleteTicket(ticketId, authUser.getId());
-        return ResponseEntity.ok(DeleteTicketResponse.toDto(ticket));
-    }
+//    @Operation(summary = "티켓 삭제", description = "티켓을 삭제할 수 있습니다.")
+//    @PutMapping("tickets/{ticketId}")
+//    public ResponseEntity<DeleteTicketResponse> deleteTicket(
+//            @PathVariable Long ticketId,
+//            @Auth AuthUser authUser) {
+//        Ticket ticket = ticketCommandService.deleteTicket(ticketId, authUser.getId());
+//        return ResponseEntity.ok(DeleteTicketResponse.toDto(ticket));
+//    }
 }
