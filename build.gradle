@@ -66,6 +66,11 @@ dependencies {
     // shedlock
     implementation 'net.javacrumbs.shedlock:shedlock-spring:6.2.0'
     implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:6.2.0'
+
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
 }
 
 tasks.named('test') {
