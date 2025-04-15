@@ -165,6 +165,7 @@ public class ShowQueryDslRepositoryImpl implements ShowQueryDslRepository {
             showEntity.getReservationStart(),
             showEntity.getReservationEnd(),
             showEntity.getTicketsLimitPerUser(),
+            showEntity.getViewCount(),
             new ArrayList<>(),
             showEntity.getCreatedAt(),
             showEntity.getModifiedAt()

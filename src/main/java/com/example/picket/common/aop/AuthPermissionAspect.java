@@ -20,7 +20,7 @@ public class AuthPermissionAspect {
     private final HttpServletRequest request;
 
     @Before("@annotation(authPermission)")
-    public void checkPermission(org.aspectj.lang.JoinPoint joinPoint, AuthPermission authPermission) {
+    public void checkPermission(AuthPermission authPermission) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             throw new CustomException(HttpStatus.FORBIDDEN, "이 작업을 수행할 권한이 없습니다.");

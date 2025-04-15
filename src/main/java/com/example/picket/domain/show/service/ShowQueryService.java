@@ -3,6 +3,7 @@ package com.example.picket.domain.show.service;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.dto.response.ShowDetailResponse;
@@ -10,6 +11,7 @@ import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,7 +43,11 @@ public class ShowQueryService {
     }
 
     //공연 단건 조회
-    public ShowDetailResponse getShowQueryDsl(Long showId) {
+    public ShowDetailResponse getShowQueryDsl(AuthUser authUser, Long showId) {
+        if (authUser != null) {
+            // TODO: 조회수 증가 로직 필요        
+        }
+    
         return showRepository.getShowDetailResponseById(showId)
             .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
     }

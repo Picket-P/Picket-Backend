@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v2")
 @RequiredArgsConstructor
 @Tag(name = "공연 관리 API", description = "공연 생성, 다건 조회, 단건 조회, 업데이트, 삭제 기능 API입니다.")
 public class ShowController {
@@ -65,10 +65,13 @@ public class ShowController {
     // 공연 단건 조회
     @Operation(summary = "공연 단건 조회", description = "공연을 단건으로 조회할 수 있습니다.")
     @GetMapping("/shows/{showId}")
-    public ResponseEntity<ShowDetailResponse> getShowDetail(@PathVariable Long showId) {
-        ShowDetailResponse response = showQueryService.getShowQueryDsl(showId);
+    public ResponseEntity<ShowDetailResponse> getShowDetail(
+        @Auth AuthUser authUser,
+        @PathVariable Long showId
+    ) {
+        ShowDetailResponse response = showQueryService.getShowQueryDsl(authUser, showId);
         return ResponseEntity.ok(response);
-}
+    }
 
     // 공연 수정 API (부분 수정 지원)
     @AuthPermission(role = UserRole.DIRECTOR)
