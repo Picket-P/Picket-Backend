@@ -31,7 +31,7 @@ public class PopularKeywordScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0/1 * * * ?") // 30분마다
+    @Scheduled(cron = "0 0/30 * * * ?") // 30분마다
     public void updatePopularKeywords() {
         RLock lock = redissonClient.getLock("lock:popular_keywords");
         try {
