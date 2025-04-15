@@ -60,6 +60,9 @@ public class ShowController {
         @RequestParam(name = "page", defaultValue = "1") int page,
         @RequestParam(name = "size", defaultValue = "10") int size
     ) {
+        // 카테고리 인기검색어 추가
+        popularKeywordScheduler.incrementSearchKeyword(category);
+
         Page<ShowResponse> response = showQueryService.getShows(category, sortBy, order, page, size);
         return ResponseEntity.ok(PageResponse.toDto(response));
     }
@@ -71,6 +74,7 @@ public class ShowController {
         @Auth(isRequire = false) AuthUser authUser,
         @PathVariable Long showId
     ) {
+        showCommandService.incrementViewCount(showId); // 조회수 증가
         ShowDetailResponse response = showQueryService.getShow(authUser, showId);
         return ResponseEntity.ok(response);
     }
