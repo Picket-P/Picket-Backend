@@ -1,9 +1,9 @@
-package com.example.picket.domain.booking.controller;
+package com.example.picket.domain.seat_holding.controller;
 
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
-import com.example.picket.domain.booking.dto.request.SeatHoldingRequest;
-import com.example.picket.domain.booking.service.SeatHoldingService;
+import com.example.picket.domain.seat_holding.dto.request.SeatHoldingRequest;
+import com.example.picket.domain.seat_holding.service.SeatHoldingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
