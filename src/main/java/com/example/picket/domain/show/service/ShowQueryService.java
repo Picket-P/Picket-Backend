@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -53,7 +52,7 @@ public class ShowQueryService {
             .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
         try {
             Integer updateViewCount = showViewCountService.incrementViewCount(authUser, showId)
-                .get(50, TimeUnit.MILLISECONDS);
+                .get(3, TimeUnit.SECONDS);
 
             if (updateViewCount != null) {
                 response.updateViewCount(updateViewCount);
