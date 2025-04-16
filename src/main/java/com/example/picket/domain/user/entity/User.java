@@ -99,9 +99,7 @@ public class User extends BaseEntity {
         this.profileUrl = profileUrl;
     }
 
-    public void oAuthSignup(UserRole userRole, String profileUrl, String nickname, LocalDate birth, Gender gender) {
-        this.userRole = userRole;
-        this.profileUrl = profileUrl;
+    public void oAuthSignup(String nickname, LocalDate birth, Gender gender) {
         this.nickname = nickname;
         this.birth = birth;
         this.gender = gender;
