@@ -11,7 +11,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
@@ -22,3 +22,14 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+oauth:
+  google:
+    client-id: ${CLIENT_ID}
+    client-secret: ${CLIENT_SECRET_KEY}
+    redirect-uris :
+      director: http://localhost:8080/api/v2/auth/callback/director
+      user: http://localhost:8080/api/v2/auth/callback/user
+      admin: http://localhost:8080/api/v2/auth/callback/admin
+    token-uri: https://oauth2.googleapis.com/token
+    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
