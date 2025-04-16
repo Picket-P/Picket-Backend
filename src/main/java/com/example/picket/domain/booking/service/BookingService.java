@@ -1,5 +1,6 @@
 package com.example.picket.domain.booking.service;
 
+import com.example.picket.common.enums.OrderStatus;
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.order.entity.Order;
@@ -64,6 +65,10 @@ public class BookingService {
 
         Order order = orderCommandService.createOrder(foundUser, tickets);
 
+        // TODO : 사이에 결제 로직
+
+        order.updateOrderStatus(OrderStatus.ORDER_COMPLETE);
+
         showDateUpdate(showDateId, seatIds.size());
 
         seatHoldingService.seatHoldingUnLock(seatIds);
@@ -117,7 +122,7 @@ public class BookingService {
 
     private void checkCancelBookingTime(ShowDate showDate) {
         if (LocalDate.now().isAfter(showDate.getDate())) {
-            throw new CustomException(FORBIDDEN, "공연 시작 날짜 이전에만 취소 가능합니다.");
+            throw new CustomException(BAD_REQUEST, "공연 시작 날짜 이전에만 취소 가능합니다.");
         }
     }
 }
