@@ -3,19 +3,18 @@ package com.example.picket.domain.auth.controller;
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.UserRole;
+import com.example.picket.domain.auth.dto.request.OAuthSignupRequest;
 import com.example.picket.domain.auth.dto.response.OAuthSigninResponse;
 import com.example.picket.domain.auth.dto.response.SessionResponse;
 import com.example.picket.domain.auth.service.OAuthService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,6 +53,12 @@ public class OAuthController {
 
         User user = oAuthService.getOrCreateUser(session, code, UserRole.DIRECTOR);
         return ResponseEntity.ok(OAuthSigninResponse.toDto(user.getNickname(), user.getNickname() == null));
+    }
+
+    @PostMapping("/auth/signup")
+    public ResponseEntity<Void> googleSignup(@Auth AuthUser authUser, @Valid @RequestBody OAuthSignupRequest request) {
+        oAuthService.signup(authUser.getId(), request.getNickname(), request.getBirth(), request.getGender(), UserRole.USER);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

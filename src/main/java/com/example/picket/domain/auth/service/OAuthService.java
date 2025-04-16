@@ -2,6 +2,7 @@ package com.example.picket.domain.auth.service;
 
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.dto.OauthUser;
+import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.OAuth;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.config.GoogleOAuthProperties;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -75,4 +77,11 @@ public class OAuthService {
         session.setAttribute("authUser", authUser);
         return user;
     }
+
+    @Transactional
+    public void signup(Long id, String nickname, LocalDate birth, Gender gender, UserRole userRole) {
+        User user = userQueryService.getUser(id);
+        user.oAuthSignup(userRole, null, nickname, birth, gender);
+    }
+
 }
