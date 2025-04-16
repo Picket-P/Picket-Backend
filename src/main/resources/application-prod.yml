@@ -1,24 +1,22 @@
 spring:
-
   application:
     name: Picket
 
   datasource:
-    url: jdbc:mysql://localhost:3306/picket-mysql
-    username: test
-    password: test
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${AWS_RDS_URL}
+    username: ${AWS_RDS_USERNAME}
+    password: ${AWS_RDS_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${AWS_REDIS_URL}
+      port: ${AWS_REDIS_PORT}

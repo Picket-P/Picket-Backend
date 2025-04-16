@@ -1,0 +1,99 @@
+name: 🚀 Build & Deploy to Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: 🏗️ Build JAR & Deploy to AWS
+
+    steps:
+      # 1. 최신 코드 체크아웃
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. gradlew 실행 권한 부여
+      - name: 🔐 Grant Execute Permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 3. Java/Gradle 환경 설정
+      - name: ☕ Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 4. Gradle 캐시 설정
+      - name: ⚡ Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 5. Gradle 빌드
+      - name: 🏗️ Build with Gradle
+        env:
+          AWS_RDS_URL: ${{ secrets.AWS_RDS_URL }}
+          AWS_RDS_USERNAME: ${{ secrets.AWS_RDS_USERNAME }}
+          AWS_RDS_PASSWORD: ${{ secrets.AWS_RDS_PASSWORD }}
+          AWS_REDIS_URL: ${{ secrets.AWS_REDIS_URL }}
+          AWS_REDIS_PORT: ${{ secrets.AWS_REDIS_PORT }}
+        run: ./gradlew clean build --no-daemon -Dspring.profiles.active=prod
+
+      # 6. JAR 파일 검증
+      - name: ✅ Verify JAR File
+        run: |
+          if [ ! -f ./build/libs/picket.jar ]; then
+            echo "Error: No JAR file found in build/libs/"
+            exit 1
+          fi
+          echo "JAR file found: $(ls ./build/libs/*.jar)"
+
+      # 7. ZIP 파일 생성
+      - name: 📦 Create ZIP for CodeDeploy
+        run: |
+          echo "AWS_RDS_URL=${{ secrets.AWS_RDS_URL }}" > .env
+          echo "AWS_RDS_USERNAME=${{ secrets.AWS_RDS_USERNAME }}" >> .env
+          echo "AWS_RDS_PASSWORD=${{ secrets.AWS_RDS_PASSWORD }}" >> .env
+          echo "AWS_REDIS_URL=${{ secrets.AWS_REDIS_URL }}" >> .env
+          echo "AWS_REDIS_PORT=${{ secrets.AWS_REDIS_PORT }}" >> .env
+          zip -j ./$GITHUB_SHA.zip build/libs/picket.jar appspec.yml scripts/deploy.sh .env
+        shell: bash
+
+      # 8. AWS CLI 설정
+      - name: 🔑 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 9. S3에 아티팩트 업로드
+      - name: 📤 Upload ZIP Artifact to S3
+        run: |
+          VERSION_TAG="${{ github.sha }}"
+          echo "Uploading to: s3://${{ secrets.S3_BUCKET_NAME }}/applications/${{ secrets.APPLICATION_NAME }}-${VERSION_TAG}.zip"
+          aws s3api put-object \
+            --bucket ${{ secrets.S3_BUCKET_NAME }} \
+            --key applications/${{ secrets.APPLICATION_NAME }}-${VERSION_TAG}.zip \
+            --body ./$GITHUB_SHA.zip
+
+      # 10. CodeDeploy 배포
+      - name: 🚀 Deploy to CodeDeploy
+        run: |
+          VERSION_TAG="${{ github.sha }}"
+          DEPLOYMENT_ID=$(aws deploy create-deployment \
+            --application-name ${{ secrets.APPLICATION_NAME }} \
+            --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP_NAME }} \
+            --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},key=applications/${{ secrets.APPLICATION_NAME }}-${VERSION_TAG}.zip,bundleType=zip \
+            --file-exists-behavior OVERWRITE \
+            --query 'deploymentId' --output text)
+          echo "Deployment ID: $DEPLOYMENT_ID"
+          aws deploy wait deployment-successful --deployment-id $DEPLOYMENT_ID

@@ -1,0 +1,42 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /home/ec2-user/
+
+permissions:
+  - object: /home/ec2-user
+    pattern: '**/*.jar'
+    owner: ec2-user
+    group: ec2-user
+    mode: '644'
+    type:
+      - file
+  - object: /home/ec2-user
+    pattern: '*.sh'
+    owner: ec2-user
+    group: ec2-user
+    mode: '755'
+    type:
+      - file
+  - object: /home/ec2-user
+    pattern: '.env'
+    owner: ec2-user
+    group: ec2-user
+    mode: '600'
+    type:
+      - file
+  - object: /home/ec2-user
+    pattern: '**'
+    owner: ec2-user
+    group: ec2-user
+    mode: '755'
+    type:
+      - directory
+
+hooks:
+  AfterInstall:
+    - location: deploy.sh
+      timeout: 300
+      runas: ec2-user
