@@ -57,7 +57,7 @@ public class OAuthController {
 
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> googleSignup(@Auth AuthUser authUser, @Valid @RequestBody OAuthSignupRequest request) {
-        oAuthService.signup(authUser.getId(), request.getNickname(), request.getBirth(), request.getGender(), UserRole.USER);
+        oAuthService.signup(authUser.getId(), request.getNickname(), request.getBirth(), request.getGender());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
