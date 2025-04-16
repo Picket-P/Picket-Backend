@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,5 +33,9 @@ public class UserQueryService {
     public User getUser(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmailAndDeletedAtNull(email);
     }
 }
