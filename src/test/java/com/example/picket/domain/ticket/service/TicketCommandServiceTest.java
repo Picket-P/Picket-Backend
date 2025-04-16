@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -62,7 +63,7 @@ class TicketCommandServiceTest {
     }
 
     @Test
-    void createTicket_정상_생성() {
+    void 티켓을_정상적으로_생성할_수_있다() {
         Long seatId = 1L;
 
         when(seatQueryService.getSeat(seatId)).thenReturn(seat);
@@ -76,7 +77,7 @@ class TicketCommandServiceTest {
     }
 
     @Test
-    void deleteTicket_정상_취소() {
+    void 티켓을_정상적으로_삭제할_수_있다() {
         Ticket ticket = mock(Ticket.class);
         when(ticket.getUser()).thenReturn(user);
         when(ticket.getStatus()).thenReturn(TicketStatus.TICKET_CREATED);
@@ -91,7 +92,7 @@ class TicketCommandServiceTest {
     }
 
     @Test
-    void deleteTicket_존재하지_않는_티켓() {
+    void 티켓_삭제_시_존재하지_않는_티켓을_삭제하려_할_경우_예외가_발생한다() {
         when(ticketRepository.findByTicketId(anyLong())).thenReturn(Optional.empty());
 
         CustomException exception = assertThrows(CustomException.class,
@@ -102,7 +103,7 @@ class TicketCommandServiceTest {
     }
 
     @Test
-    void deleteTicket_다른_유저_티켓_취소_시도() {
+    void 티켓_삭제_시_본인이_예매하지_않은_티켓을_삭제하려_할_경우_예외가_발생한다() {
         User anotherUser = User.toEntity(
                 "other@example.com", "pw", UserRole.USER, null, "other",
                 LocalDate.of(1991, 2, 2), Gender.FEMALE
@@ -110,9 +111,11 @@ class TicketCommandServiceTest {
         Ticket ticket = mock(Ticket.class);
         Seat seat = mock(Seat.class);
 
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(anotherUser, "id", 2L);
+
         when(ticket.getUser()).thenReturn(anotherUser);
         when(ticket.getStatus()).thenReturn(TicketStatus.TICKET_CREATED);
-        when(ticket.getSeat()).thenReturn(seat);  // 👈 추가된 부분
         when(ticketRepository.findByTicketId(anyLong())).thenReturn(Optional.of(ticket));
 
         CustomException exception = assertThrows(CustomException.class,
@@ -123,7 +126,7 @@ class TicketCommandServiceTest {
     }
 
     @Test
-    void deleteTicket_취소된_티켓_취소_시도() {
+    void 티켓_삭제_시_이미_삭제된_티켓을_삭제하려_할_경우_예외가_발생한다() {
         Ticket ticket = mock(Ticket.class);
         when(ticket.getStatus()).thenReturn(TicketStatus.TICKET_CANCELED);
         when(ticketRepository.findByTicketId(anyLong())).thenReturn(Optional.of(ticket));
