@@ -1,10 +1,9 @@
 spring:
-
   application:
     name: Picket
 
   datasource:
-    url: jdbc:mysql://localhost:3306/picket-mysql
+    url: jdbc:mysql://localhost:3306/picket-mysql?rewriteBatchedStatements=true
     username: test
     password: test
     driver-class-name: com.mysql.cj.jdbc.Driver
