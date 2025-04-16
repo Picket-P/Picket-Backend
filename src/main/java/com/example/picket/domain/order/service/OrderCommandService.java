@@ -1,5 +1,6 @@
 package com.example.picket.domain.order.service;
 
+import com.example.picket.common.enums.OrderStatus;
 import com.example.picket.domain.order.entity.Order;
 import com.example.picket.domain.order.repository.OrderRepository;
 import com.example.picket.domain.ticket.entity.Ticket;
@@ -22,7 +23,7 @@ public class OrderCommandService {
         BigDecimal totalPrice = tickets.stream()
                 .map(Ticket::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        Order order = Order.toEntity(user, totalPrice, tickets);
+        Order order = Order.toEntity(user, totalPrice, OrderStatus.ORDER_PENDING, tickets);
         orderRepository.save(order);
         return order;
     }
