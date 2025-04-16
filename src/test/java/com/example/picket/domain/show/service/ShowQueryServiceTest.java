@@ -158,7 +158,7 @@ class ShowQueryServiceTest {
                 .willReturn(mockPage);
 
             // when
-            Page<ShowResponse> result = showQueryService.getShowsQueryDsl(Category.MUSICAL, "createdAt", "desc", 1, 10);
+            Page<ShowResponse> result = showQueryService.getShows(Category.MUSICAL, "createdAt", "desc", 1, 10);
 
             // then
             assertThat(result.getContent()).hasSize(1);
@@ -200,7 +200,7 @@ class ShowQueryServiceTest {
                 .willReturn(mockPage);
 
             // when
-            Page<ShowResponse> result = showQueryService.getShowsQueryDsl(Category.MUSICAL, "reservationStart", "desc", 1, 10);
+            Page<ShowResponse> result = showQueryService.getShows(Category.MUSICAL, "reservationStart", "desc", 1, 10);
 
             // then
             assertThat(result.getContent()).hasSize(1);
@@ -225,7 +225,7 @@ class ShowQueryServiceTest {
                 .willThrow(new CustomException(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 방식입니다. (asc, desc만 허용)"));
 
             // when & then
-            assertThatThrownBy(() -> showQueryService.getShowsQueryDsl(Category.MUSICAL, "createdAt", "invalidOrder", 1, 10))
+            assertThatThrownBy(() -> showQueryService.getShows(Category.MUSICAL, "createdAt", "invalidOrder", 1, 10))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("유효하지 않은 정렬 방식입니다. (asc, desc만 허용)");
         }
@@ -254,7 +254,7 @@ class ShowQueryServiceTest {
                 .willReturn(mockPage);
 
             // when
-            Page<ShowResponse> result = showQueryService.getShowsQueryDsl(Category.MUSICAL, "createdAt", "desc", -1, 10);
+            Page<ShowResponse> result = showQueryService.getShows(Category.MUSICAL, "createdAt", "desc", -1, 10);
 
             // then
             assertThat(result.getContent()).hasSize(1);
@@ -331,15 +331,15 @@ class ShowQueryServiceTest {
 
             given(redisTemplate.opsForValue()).willReturn(valueOperations);
             given(valueOperations.get(redisKey)).willReturn(null);
-            given(showRepository.getShowDetailResponseById(showId, true)).willReturn(Optional.of(response));
+            given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.of(response));
 
             // when
-            ShowDetailResponse result = showQueryService.getShowQueryDsl(authUser, showId);
+            ShowDetailResponse result = showQueryService.getShow(authUser, showId);
 
             // then
             assertThat(result).isEqualTo(response);
             assertThat(result.getViewCount()).isEqualTo(1);
-            verify(showRepository, times(1)).getShowDetailResponseById(showId, true);
+            verify(showRepository, times(1)).getShowDetailResponseById(showId);
         }
 
         @Test
@@ -359,15 +359,15 @@ class ShowQueryServiceTest {
 
             given(redisTemplate.opsForValue()).willReturn(valueOperations);
             given(valueOperations.get(redisKey)).willReturn("viewed");
-            given(showRepository.getShowDetailResponseById(showId, false)).willReturn(Optional.of(response));
+            given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.of(response));
 
             // when
-            ShowDetailResponse result = showQueryService.getShowQueryDsl(authUser, showId);
+            ShowDetailResponse result = showQueryService.getShow(authUser, showId);
 
             // then
             assertThat(result).isEqualTo(response);
             assertThat(result.getViewCount()).isEqualTo(1);
-            verify(showRepository, times(1)).getShowDetailResponseById(showId, false);
+            verify(showRepository, times(1)).getShowDetailResponseById(showId);
         }
 
         @Test
@@ -383,16 +383,16 @@ class ShowQueryServiceTest {
                 now, now.plusDays(1), 2, 0, showDates, now, now
             );
 
-            given(showRepository.getShowDetailResponseById(showId, false)).willReturn(Optional.of(response));
+            given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.of(response));
 
             // when
-            ShowDetailResponse result = showQueryService.getShowQueryDsl(authUser, showId);
+            ShowDetailResponse result = showQueryService.getShow(authUser, showId);
 
             // then
             assertThat(result).isEqualTo(response);
             assertThat(result.getViewCount()).isEqualTo(0);
             verify(redisTemplate, times(0)).opsForValue();
-            verify(showRepository, times(1)).getShowDetailResponseById(showId, false);
+            verify(showRepository, times(1)).getShowDetailResponseById(showId);
         }
 
         @Test
@@ -404,14 +404,14 @@ class ShowQueryServiceTest {
 
             given(redisTemplate.opsForValue()).willReturn(valueOperations);
             given(valueOperations.get(redisKey)).willReturn(null);
-            given(showRepository.getShowDetailResponseById(showId, true)).willReturn(Optional.empty());
+            given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> showQueryService.getShowQueryDsl(authUser, showId))
+            assertThatThrownBy(() -> showQueryService.getShow(authUser, showId))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("해당 공연을 찾을 수 없습니다.")
                 .satisfies(e -> assertThat(((CustomException) e).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
-            verify(showRepository, times(1)).getShowDetailResponseById(showId, true);
+            verify(showRepository, times(1)).getShowDetailResponseById(showId);
         }
     }
 

@@ -58,7 +58,7 @@ public class ShowController {
         @RequestParam(name = "page", defaultValue = "1") int page,
         @RequestParam(name = "size", defaultValue = "10") int size
     ) {
-        Page<ShowResponse> response = showQueryService.getShowsQueryDsl(category, sortBy, order, page, size);
+        Page<ShowResponse> response = showQueryService.getShows(category, sortBy, order, page, size);
         return ResponseEntity.ok(PageResponse.toDto(response));
     }
 
@@ -69,7 +69,7 @@ public class ShowController {
         @Auth(isRequire = false) AuthUser authUser,
         @PathVariable Long showId
     ) {
-        ShowDetailResponse response = showQueryService.getShowQueryDsl(authUser, showId);
+        ShowDetailResponse response = showQueryService.getShow(authUser, showId);
         return ResponseEntity.ok(response);
     }
 
