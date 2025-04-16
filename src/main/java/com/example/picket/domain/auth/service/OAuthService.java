@@ -5,7 +5,6 @@ import com.example.picket.common.dto.OauthUser;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.OAuth;
 import com.example.picket.common.enums.UserRole;
-import com.example.picket.config.GoogleOAuthProperties;
 import com.example.picket.domain.auth.client.GoogleOauthClient;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
