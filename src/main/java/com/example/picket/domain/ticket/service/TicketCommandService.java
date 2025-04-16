@@ -170,7 +170,7 @@ public class TicketCommandService {
     }
 
     private void validateTicketStatus(Ticket ticket) {
-        if (ticket.getStatus() == TicketStatus.TICKET_EXPIRED) {
+        if (ticket.getStatus() == TicketStatus.TICKET_CANCELED) {
             throw new CustomException(CONFLICT, "이미 취소된 티켓입니다.");
         }
     }
