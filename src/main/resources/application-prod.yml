@@ -26,8 +26,8 @@ oauth:
     client-id: ${CLIENT_ID}
     client-secret: ${CLIENT_SECRET_KEY}
     redirect-uris :
-      director: http://localhost:8080/api/v2/auth/callback/director
-      user: http://localhost:8080/api/v2/auth/callback/user
-      admin: http://localhost:8080/api/v2/auth/callback/admin
+      director: https://www.thepickets.com/api/v2/auth/callback/director
+      user: https://www.thepickets.com/api/v2/auth/callback/user
+      admin: https://www.thepickets.com/api/v2/auth/callback/admin
     token-uri: https://oauth2.googleapis.com/token
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
