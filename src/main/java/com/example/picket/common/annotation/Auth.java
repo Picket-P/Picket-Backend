@@ -11,4 +11,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Parameter(hidden = true)
 public @interface Auth {
+    boolean isRequire() default true;
 }

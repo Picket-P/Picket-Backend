@@ -66,7 +66,7 @@ public class ShowController {
     @Operation(summary = "공연 단건 조회", description = "공연을 단건으로 조회할 수 있습니다.")
     @GetMapping("/shows/{showId}")
     public ResponseEntity<ShowDetailResponse> getShowDetail(
-        @Auth AuthUser authUser,
+        @Auth(isRequire = false) AuthUser authUser,
         @PathVariable Long showId
     ) {
         ShowDetailResponse response = showQueryService.getShowQueryDsl(authUser, showId);
