@@ -13,7 +13,10 @@ public interface Const {
                     "/api/v*/shows/*",
                     "/api/v*/shows/*/comments",
                     "/swagger-ui/*",
-                    "/v3/api-docs/**"
+                    "/v3/api-docs/**",
+                    "/api/v2/auth/session",
+                    "/api/v2/auth/callback/*",
+                    "/api/v2/auth/signup",
             },
             "POST", new String[]{
                     "/api/v*/auth/signup/*",
