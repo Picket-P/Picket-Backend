@@ -8,7 +8,6 @@ import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ import java.util.concurrent.TimeoutException;
 
 import static org.springframework.http.HttpStatus.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
