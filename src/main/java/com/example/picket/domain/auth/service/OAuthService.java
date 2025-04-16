@@ -1,7 +1,7 @@
 package com.example.picket.domain.auth.service;
 
 import com.example.picket.common.dto.AuthUser;
-import com.example.picket.common.dto.OauthUser;
+import com.example.picket.common.dto.OAuthUser;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.OAuth;
 import com.example.picket.common.enums.UserRole;
@@ -27,7 +27,7 @@ public class OAuthService {
     @Transactional
     public User getOrCreateUser(HttpSession session, String code, UserRole userRole) {
         String accessToken = googleOauthClient.getAccessToken(code, userRole);
-        OauthUser oauthUser = googleOauthClient.getUser(accessToken);
+        OAuthUser oauthUser = googleOauthClient.getUser(accessToken);
         User user = userQueryService.getUserByEmail(oauthUser.getEmail())
                 .orElseGet( () -> userRepository.save(
                         User.toOAuthEntity(oauthUser.getEmail(),

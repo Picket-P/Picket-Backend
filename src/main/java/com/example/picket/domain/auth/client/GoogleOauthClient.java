@@ -1,6 +1,6 @@
 package com.example.picket.domain.auth.client;
 
-import com.example.picket.common.dto.OauthUser;
+import com.example.picket.common.dto.OAuthUser;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.config.GoogleOAuthProperties;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +33,12 @@ public class GoogleOauthClient {
                 .block();
     }
 
-    public OauthUser getUser(String accessToken){
+    public OAuthUser getUser(String accessToken){
         return webClient.get()
                 .uri(googleOAuthProperties.getUserInfoUri())
                 .headers(headers -> headers.setBearerAuth(accessToken))
                 .retrieve()
-                .bodyToMono(OauthUser.class)
+                .bodyToMono(OAuthUser.class)
                 .block();
     }
 }
