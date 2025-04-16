@@ -31,17 +31,10 @@ public class OAuthService {
         User user = userQueryService.getUserByEmail(oauthUser.getEmail())
                 .orElseGet( () -> userRepository.save(
                         User.toOAuthEntity(oauthUser.getEmail(),
-                                "",
                                 userRole,
-                                null,
-                                null,
-                                null,
-                                null,
                                 oauthUser.getId(),
                                 OAuth.GOOGLE
                                 )));
-
-
 
         AuthUser authUser = AuthUser.toEntity(user.getId(), user.getUserRole());
         session.setAttribute("authUser", authUser);

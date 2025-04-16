@@ -70,15 +70,9 @@ public class User extends BaseEntity {
         this.gender = gender;
     }
 
-    private User(String email, String password, UserRole userRole, String profileUrl, String nickname,
-                 LocalDate birth, Gender gender, String oauthId, OAuth oauthProvider) {
+    private User(String email, UserRole userRole, String oauthId, OAuth oauthProvider) {
         this.email = email;
-        this.password = password;
         this.userRole = userRole;
-        this.profileUrl = profileUrl;
-        this.nickname = nickname;
-        this.birth = birth;
-        this.gender = gender;
         this.oauthId = oauthId;
         this.oauthProvider = oauthProvider;
 
@@ -89,9 +83,8 @@ public class User extends BaseEntity {
         return new User(email, password, userRole, profileUrl, nickname, birth, gender);
     }
 
-    public static User toOAuthEntity(String email, String password, UserRole userRole, String profileUrl, String nickname,
-                                LocalDate birth, Gender gender, String oauthId, OAuth oauthProvider) {
-        return new User(email, password, userRole, profileUrl, nickname, birth, gender, oauthId, oauthProvider);
+    public static User toOAuthEntity(String email, UserRole userRole, String oauthId, OAuth oauthProvider) {
+        return new User(email, userRole, oauthId, oauthProvider);
     }
 
     public void update(String nickname, String profileUrl) {
