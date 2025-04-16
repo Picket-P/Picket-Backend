@@ -45,11 +45,11 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
         HttpSession session = request.getSession(false);
 
         Auth auth = parameter.getParameterAnnotation(Auth.class);
-        if (!auth.isRequire()) {
-            return null;
-        }
-
         if (session == null) {
+            if (!auth.isRequire()) {
+                return null;
+            }
+
             throw new CustomException(UNAUTHORIZED, "세션이 유효하지 않습니다.");
         }
 

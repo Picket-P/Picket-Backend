@@ -12,6 +12,6 @@ public interface ShowQueryDslRepository {
 
     Page<ShowResponse> getShowsResponse(Category category, String sortBy, String order, Pageable pageable);
 
-    Optional<ShowDetailResponse> getShowDetailResponseById(Long showId, boolean isLogin);
+    Optional<ShowDetailResponse> getShowDetailResponseById(Long showId);
 
 }
