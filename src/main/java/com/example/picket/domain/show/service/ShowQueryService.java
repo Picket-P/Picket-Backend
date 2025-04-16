@@ -18,9 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @Service
@@ -48,7 +51,18 @@ public class ShowQueryService {
     public ShowDetailResponse getShow(AuthUser authUser, Long showId) {
         ShowDetailResponse response = showRepository.getShowDetailResponseById(showId)
             .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
-        showViewCountService.incrementViewCount(authUser, showId);
+        try {
+            Integer updateViewCount = showViewCountService.incrementViewCount(authUser, showId)
+                .get(50, TimeUnit.MILLISECONDS);
+
+            if (updateViewCount != null) {
+                response.updateViewCount(updateViewCount);
+            }
+
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new CustomException(INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
         return response;
     }
 

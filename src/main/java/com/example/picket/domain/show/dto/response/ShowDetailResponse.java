@@ -21,7 +21,7 @@ public class ShowDetailResponse {
     private final LocalDateTime reservationStart;
     private final LocalDateTime reservationEnd;
     private final Integer ticketsLimitPerUser;
-    private final int viewCount;
+    private int viewCount;
     private final List<ShowDateDetailResponse> showDates;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -90,4 +90,9 @@ public class ShowDetailResponse {
             show.getModifiedAt()
         );
     }
+
+    public void updateViewCount(int viewCount) {
+        this.viewCount = viewCount;
+    }
+
 }
