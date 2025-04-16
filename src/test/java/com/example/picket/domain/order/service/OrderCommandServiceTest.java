@@ -2,7 +2,6 @@ package com.example.picket.domain.order.service;
 
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.OrderStatus;
-import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.order.entity.Order;
 import com.example.picket.domain.order.repository.OrderRepository;
@@ -21,7 +20,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -41,13 +41,11 @@ class OrderCommandServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 사용자 생성
         user = User.toEntity(
                 "user@example.com", "encodedPw", UserRole.USER, null, "nickname",
                 LocalDate.of(1990, 1, 1), Gender.MALE
         );
 
-        // 티켓 목업 생성
         ticket1 = mock(Ticket.class);
         when(ticket1.getPrice()).thenReturn(BigDecimal.valueOf(10000));
 
@@ -58,17 +56,16 @@ class OrderCommandServiceTest {
     }
 
     @Test
-    void createOrder_정상_생성() {
-        // Given
+    void 티켓을_성공적으로_생성할_수_있다() {
+        // given
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // When
+        // when
         Order result = orderCommandService.createOrder(user, tickets);
 
-        // Then
+        // then
         assertNotNull(result);
 
-        // Order 엔티티 생성 검증
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderRepository).save(orderCaptor.capture());
 
