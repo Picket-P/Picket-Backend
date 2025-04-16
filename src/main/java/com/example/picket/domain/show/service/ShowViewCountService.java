@@ -33,7 +33,7 @@ public class ShowViewCountService {
     @Transactional
     public CompletableFuture<Integer> incrementViewCount(AuthUser authUser, Long showId) {
         if (authUser == null) {
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
 
         String key = String.format(VIEW_KEY_FORMAT, showId, authUser.getId());
@@ -51,7 +51,7 @@ public class ShowViewCountService {
                 return CompletableFuture.completedFuture(show.getViewCount());
             }
 
-            return null;
+            return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             rollBackRedis(key);
             throw new CustomException(INTERNAL_SERVER_ERROR, e.getMessage());
