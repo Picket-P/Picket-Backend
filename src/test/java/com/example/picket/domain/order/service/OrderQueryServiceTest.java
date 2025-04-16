@@ -47,13 +47,11 @@ class OrderQueryServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 사용자 생성
         user = User.toEntity(
                 "user@example.com", "encodedPw", UserRole.USER, null, "nickname",
                 LocalDate.of(1990, 1, 1), Gender.MALE
         );
 
-        // 주문 생성
         order1 = mock(Order.class);
         lenient().when(order1.getId()).thenReturn(1L);
         lenient().when(order1.getUser()).thenReturn(user);
