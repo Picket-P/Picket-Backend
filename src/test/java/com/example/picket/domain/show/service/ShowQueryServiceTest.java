@@ -19,8 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -28,13 +26,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ShowQueryServiceTest {
@@ -43,10 +41,7 @@ class ShowQueryServiceTest {
     ShowRepository showRepository;
 
     @Mock
-    StringRedisTemplate redisTemplate;
-
-    @Mock
-    ValueOperations<String, String> valueOperations;
+    ShowViewCountService showViewCountService;
 
     @InjectMocks
     ShowQueryService showQueryService;
@@ -264,7 +259,6 @@ class ShowQueryServiceTest {
         }
     }
 
-
     @Nested
     class 공연_단건_조회_테스트 {
 
@@ -315,66 +309,11 @@ class ShowQueryServiceTest {
     class 공연_단건_조회_QueryDSL_테스트 {
 
         @Test
-        void 로그인_사용자_첫_조회_조회수_증가_성공() throws Exception {
+        void 로그인_사용자_조회_성공() throws Exception {
             // given
             Long showId = 1L;
             Long userId = 1L;
             AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
-            String redisKey = String.format("show:%d:user:%d", showId, userId);
-
-            LocalDateTime now = LocalDateTime.now();
-            List<ShowDateDetailResponse> showDates = new ArrayList<>();
-            ShowDetailResponse response = ShowDetailResponse.toDto(
-                showId, 1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
-                now, now.plusDays(1), 2, 1, showDates, now, now
-            );
-
-            given(redisTemplate.opsForValue()).willReturn(valueOperations);
-            given(valueOperations.get(redisKey)).willReturn(null);
-            given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.of(response));
-
-            // when
-            ShowDetailResponse result = showQueryService.getShow(authUser, showId);
-
-            // then
-            assertThat(result).isEqualTo(response);
-            assertThat(result.getViewCount()).isEqualTo(1);
-            verify(showRepository, times(1)).getShowDetailResponseById(showId);
-        }
-
-        @Test
-        void 로그인_사용자_재조회_조회수_증가_없음() throws Exception {
-            // given
-            Long showId = 1L;
-            Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
-            String redisKey = String.format("show:%d:user:%d", showId, userId);
-
-            LocalDateTime now = LocalDateTime.now();
-            List<ShowDateDetailResponse> showDates = new ArrayList<>();
-            ShowDetailResponse response = ShowDetailResponse.toDto(
-                showId, 1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
-                now, now.plusDays(1), 2, 1, showDates, now, now
-            );
-
-            given(redisTemplate.opsForValue()).willReturn(valueOperations);
-            given(valueOperations.get(redisKey)).willReturn("viewed");
-            given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.of(response));
-
-            // when
-            ShowDetailResponse result = showQueryService.getShow(authUser, showId);
-
-            // then
-            assertThat(result).isEqualTo(response);
-            assertThat(result.getViewCount()).isEqualTo(1);
-            verify(showRepository, times(1)).getShowDetailResponseById(showId);
-        }
-
-        @Test
-        void 비로그인_사용자_조회수_증가_없음() throws Exception {
-            // given
-            Long showId = 1L;
-            AuthUser authUser = null; // 비로그인
 
             LocalDateTime now = LocalDateTime.now();
             List<ShowDateDetailResponse> showDates = new ArrayList<>();
@@ -384,15 +323,44 @@ class ShowQueryServiceTest {
             );
 
             given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.of(response));
+            given(showViewCountService.incrementViewCount(authUser, showId))
+                .willReturn(CompletableFuture.completedFuture(1));
 
             // when
             ShowDetailResponse result = showQueryService.getShow(authUser, showId);
 
             // then
-            assertThat(result).isEqualTo(response);
-            assertThat(result.getViewCount()).isEqualTo(0);
-            verify(redisTemplate, times(0)).opsForValue();
+            assertThat(result.getViewCount()).isEqualTo(1);
+            assertThat(result.getTitle()).isEqualTo("제목1");
             verify(showRepository, times(1)).getShowDetailResponseById(showId);
+            verify(showViewCountService, times(1)).incrementViewCount(authUser, showId);
+        }
+
+        @Test
+        void 비로그인_사용자_조회_성공() throws Exception {
+            // given
+            Long showId = 1L;
+            AuthUser authUser = null;
+
+            LocalDateTime now = LocalDateTime.now();
+            List<ShowDateDetailResponse> showDates = new ArrayList<>();
+            ShowDetailResponse response = ShowDetailResponse.toDto(
+                showId, 1L, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
+                now, now.plusDays(1), 2, 0, showDates, now, now
+            );
+
+            given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.of(response));
+            given(showViewCountService.incrementViewCount(authUser, showId))
+                .willReturn(CompletableFuture.completedFuture(null));
+
+            // when
+            ShowDetailResponse result = showQueryService.getShow(authUser, showId);
+
+            // then
+            assertThat(result.getViewCount()).isEqualTo(0);
+            assertThat(result.getTitle()).isEqualTo("제목1");
+            verify(showRepository, times(1)).getShowDetailResponseById(showId);
+            verify(showViewCountService, times(1)).incrementViewCount(authUser, showId);
         }
 
         @Test
@@ -400,10 +368,7 @@ class ShowQueryServiceTest {
             // given
             Long showId = -1L;
             AuthUser authUser = AuthUser.toEntity(1L, UserRole.USER);
-            String redisKey = String.format("show:%d:user:%d", showId, authUser.getId());
 
-            given(redisTemplate.opsForValue()).willReturn(valueOperations);
-            given(valueOperations.get(redisKey)).willReturn(null);
             given(showRepository.getShowDetailResponseById(showId)).willReturn(Optional.empty());
 
             // when & then
@@ -412,7 +377,9 @@ class ShowQueryServiceTest {
                 .hasMessage("해당 공연을 찾을 수 없습니다.")
                 .satisfies(e -> assertThat(((CustomException) e).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
             verify(showRepository, times(1)).getShowDetailResponseById(showId);
+            verify(showViewCountService, times(0)).incrementViewCount(any(), any());
         }
+
     }
 
     // 리플렉션
