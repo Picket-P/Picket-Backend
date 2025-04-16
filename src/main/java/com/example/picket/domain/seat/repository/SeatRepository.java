@@ -1,5 +1,6 @@
 package com.example.picket.domain.seat.repository;
 
+import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.seat.entity.Seat;
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +16,5 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     @Query("SELECT s FROM Seat s JOIN FETCH s.showDate sd JOIN FETCH sd.show WHERE s.id = :seatId")
     Optional<Seat> findByIdWithShowDateAndShow(@Param("seatId") Long seatId);
 
+    List<Seat> findAllBySeatStatus(SeatStatus seatStatus);
 }
