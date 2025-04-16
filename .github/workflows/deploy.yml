@@ -45,6 +45,8 @@ jobs:
           AWS_RDS_PASSWORD: ${{ secrets.AWS_RDS_PASSWORD }}
           AWS_REDIS_URL: ${{ secrets.AWS_REDIS_URL }}
           AWS_REDIS_PORT: ${{ secrets.AWS_REDIS_PORT }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET_KEY: ${{ secrets.CLIENT_SECRET_KEY }}
         run: ./gradlew clean build --no-daemon -Dspring.profiles.active=prod
 
       # 6. JAR 파일 검증
@@ -64,6 +66,8 @@ jobs:
           echo "AWS_RDS_PASSWORD=${{ secrets.AWS_RDS_PASSWORD }}" >> .env
           echo "AWS_REDIS_URL=${{ secrets.AWS_REDIS_URL }}" >> .env
           echo "AWS_REDIS_PORT=${{ secrets.AWS_REDIS_PORT }}" >> .env
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "CLIENT_SECRET_KEY=${{ secrets.CLIENT_SECRET_KEY }}" >> .env
           zip -j ./$GITHUB_SHA.zip build/libs/picket.jar appspec.yml scripts/deploy.sh .env
         shell: bash
 
