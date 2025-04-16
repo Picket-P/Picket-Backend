@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -25,7 +25,7 @@ oauth:
   google:
     client-id: ${CLIENT_ID}
     client-secret: ${CLIENT_SECRET_KEY}
-    redirect-uris :
+    redirect-uris:
       director: https://www.thepickets.com/api/v2/auth/callback/director
       user: https://www.thepickets.com/api/v2/auth/callback/user
       admin: https://www.thepickets.com/api/v2/auth/callback/admin
