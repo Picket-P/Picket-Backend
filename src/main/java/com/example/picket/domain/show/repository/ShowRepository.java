@@ -14,8 +14,4 @@ public interface ShowRepository extends JpaRepository<Show, Long>, ShowQueryDslR
 
     List<Show> findAllByCategoryAndDeletedAtIsNull(Category category);
 
-    @Modifying
-    @Query("update Show s set s.viewCount = s.viewCount + 1 where s.id = :showId")
-    void incrementViewCount(@Param("showId") Long showId);
-
 }

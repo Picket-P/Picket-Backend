@@ -2,6 +2,7 @@ package com.example.picket.domain.show.service;
 
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
+import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @Service
@@ -28,22 +31,37 @@ public class ShowViewCountService {
 
     @Async
     @Transactional
-    public void incrementViewCount(AuthUser authUser, Long showId) {
-        try {
-            if (authUser == null) {
-                return;
-            }
+    public CompletableFuture<Integer> incrementViewCount(AuthUser authUser, Long showId) {
+        if (authUser == null) {
+            return null;
+        }
 
-            String key = String.format(VIEW_KEY_FORMAT, showId, authUser.getId());
+        String key = String.format(VIEW_KEY_FORMAT, showId, authUser.getId());
+
+        try {
             String hasViewed = redisTemplate.opsForValue().get(key);
 
             if (hasViewed == null) {
+                Show show = showRepository.findById(showId)
+                    .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 공연을 찾을 수 없습니다."));
+
+                show.incrementViewCount();
                 redisTemplate.opsForValue().set(key, "viewed", getSecondsUntilMidnight());
-                showRepository.incrementViewCount(showId);
+
+                return CompletableFuture.completedFuture(show.getViewCount());
             }
 
+            return null;
         } catch (Exception e) {
+            rollBackRedis(key);
             throw new CustomException(INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    private void rollBackRedis(String key) {
+        boolean hasKey = redisTemplate.opsForValue().get(key) != null;
+        if (hasKey) {
+            redisTemplate.delete(key);
         }
     }
 
