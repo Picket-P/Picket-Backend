@@ -1,5 +1,6 @@
 package com.example.picket.domain.show.dto.response;
 
+import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.domain.show.entity.Show;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
@@ -23,6 +24,8 @@ public class ShowResponse {
     private String reservationStart;
     private String reservationEnd;
     private Integer ticketsLimitPerUser;
+    private Long viewCount;
+    private ShowStatus showStatus;
     private List<ShowDateResponse> showDates;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -33,7 +36,7 @@ public class ShowResponse {
 
 
     private ShowResponse(Long id, Long directorId, String title, String posterUrl, String category, String description,
-                         String location, String reservationStart, String reservationEnd, Integer ticketsLimitPerUser,
+                         String location, String reservationStart, String reservationEnd, Integer ticketsLimitPerUser, Long viewCount, ShowStatus showStatus,
                          List<ShowDateResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt
                          ) {
         this.id = id;
@@ -46,6 +49,8 @@ public class ShowResponse {
         this.reservationStart = reservationStart;
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
+        this.viewCount = viewCount;
+        this.showStatus = showStatus;
         this.showDates = showDates;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
@@ -64,6 +69,8 @@ public class ShowResponse {
                 show.getReservationStart().toString(),
                 show.getReservationEnd().toString(),
                 show.getTicketsLimitPerUser(),
+                show.getViewCount(),
+                show.getStatus(),
                 showDateResponses,
                 show.getCreatedAt(),
                 show.getModifiedAt()
