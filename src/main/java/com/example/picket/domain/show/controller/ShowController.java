@@ -6,6 +6,7 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.dto.PageResponse;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.UserRole;
+import com.example.picket.domain.ranking.scheduler.PopularKeywordScheduler;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
@@ -34,6 +35,7 @@ public class ShowController {
     private final ShowCommandService showCommandService;
     private final ShowQueryService showQueryService;
     private final ShowDateQueryService showDateQueryService;
+    private final PopularKeywordScheduler popularKeywordScheduler;
 
     // 공연 생성
     @AuthPermission(role = UserRole.DIRECTOR)
@@ -58,6 +60,11 @@ public class ShowController {
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
+        // 인기 검색어 카운트 증가
+        if (category != null) {
+            popularKeywordScheduler.incrementSearchKeyword(category);
+        }
+
         Page<ShowResponse> response = showQueryService.getShows(category, sortBy, order, page, size);
         return ResponseEntity.ok(PageResponse.toDto(response));
     }
