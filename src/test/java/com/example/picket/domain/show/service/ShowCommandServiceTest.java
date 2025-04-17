@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Grade;
+import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
@@ -400,7 +401,9 @@ class ShowCommandServiceTest {
                 "원래 장소",
                 now.plusDays(1),
                 now.plusDays(2),
-                2
+                2,
+                0L,
+                ShowStatus.RESERVATION_PENDING
         );
     }
 
@@ -414,7 +417,9 @@ class ShowCommandServiceTest {
                 "원래 장소",
                 reservationStart,
                 reservationEnd,
-                2
+                2,
+                0L,
+                ShowStatus.RESERVATION_PENDING
         );
     }
 
@@ -428,7 +433,9 @@ class ShowCommandServiceTest {
                 request.getLocation(),
                 request.getReservationStart(),
                 request.getReservationEnd(),
-                request.getTicketsLimitPerUser()
+                request.getTicketsLimitPerUser(),
+                0L,
+                ShowStatus.RESERVATION_PENDING
         );
     }
 
