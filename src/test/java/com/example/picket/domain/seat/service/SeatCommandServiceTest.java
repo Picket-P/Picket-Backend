@@ -51,8 +51,7 @@ class SeatCommandServiceTest {
             // given
             Long showDateId = 1L;
             Show show = Show.toEntity(1L, "테스트 공연", "image.png", Category.CONCERT, "설명",
-                    "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1), 1, 0L
-                    , ShowStatus.RESERVATION_PENDING);
+                    "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1), 1);
             LocalDateTime dateTime = LocalDateTime.now().plusDays(1);
             ShowDate showDate = ShowDate.toEntity(
                     dateTime.toLocalDate(),
@@ -86,8 +85,7 @@ class SeatCommandServiceTest {
             // given
             Long showDateId = 1L;
             Show show = Show.toEntity(1L, "공연", "image.png", Category.CONCERT, "desc",
-                    "장소", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), 1, 0L
-                    , ShowStatus.RESERVATION_PENDING);
+                    "장소", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), 1);
 
             ShowDate showDate = ShowDate.toEntity(
                     LocalDate.now().plusDays(2),
@@ -117,8 +115,7 @@ class SeatCommandServiceTest {
             // given
             Long showDateId = 1L;
             Show show = Show.toEntity(1L, "공연", "image.png", Category.CONCERT, "desc",
-                    "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2), 1, 0L
-                    , ShowStatus.RESERVATION_PENDING);
+                    "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2), 1);
 
             ShowDate showDate = ShowDate.toEntity(
                     LocalDate.now().plusDays(1),
@@ -152,9 +149,7 @@ class SeatCommandServiceTest {
                     "장소",
                     LocalDateTime.now().minusDays(1),
                     LocalDateTime.now().plusDays(1),
-                    1,
-                    0L,
-                    ShowStatus.RESERVATION_PENDING
+                    1
             );
 
             ShowDate showDate = ShowDate.toEntity(
@@ -190,9 +185,7 @@ class SeatCommandServiceTest {
                     "장소",
                     LocalDateTime.now().plusDays(1),  // 예매 시작 전
                     LocalDateTime.now().plusDays(2),
-                    1,
-                    0L,
-                    ShowStatus.RESERVATION_PENDING
+                    1
             );
 
             ShowDate showDate = ShowDate.toEntity(
