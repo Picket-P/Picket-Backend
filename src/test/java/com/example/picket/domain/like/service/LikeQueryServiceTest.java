@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Gender;
-import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.like.entity.Like;
 import com.example.picket.domain.like.repository.LikeRepository;
@@ -72,11 +71,9 @@ class LikeQueryServiceTest {
             User user = User.toEntity("test@example.com", "!Password1234", UserRole.USER, null, "nickname1",
                     LocalDate.of(2000, 12, 12), Gender.MALE);
             Show show1 = Show.toEntity(1L, "Show 1", "image1.png", Category.CONCERT, "desc1",
-                    "location1", LocalDateTime.now(), LocalDateTime.now().plusDays(3), 3, 0L
-                    , ShowStatus.RESERVATION_PENDING);
+                    "location1", LocalDateTime.now(), LocalDateTime.now().plusDays(3), 3);
             Show show2 = Show.toEntity(2L, "Show 2", "image2.png", Category.MUSICAL, "desc2",
-                    "location2", LocalDateTime.now(), LocalDateTime.now().plusDays(5), 5, 0L
-                    , ShowStatus.RESERVATION_PENDING);
+                    "location2", LocalDateTime.now(), LocalDateTime.now().plusDays(5), 5);
 
             Like like1 = Like.toEntity(show1, user);
             Like like2 = Like.toEntity(show2, user);
@@ -108,8 +105,7 @@ class LikeQueryServiceTest {
                     LocalDate.of(2000, 12, 12), Gender.MALE);
 
             Show show1 = Show.toEntity(1L, "Show 1", "image1.png", Category.CONCERT, "desc1",
-                    "location1", LocalDateTime.now(), LocalDateTime.now().plusDays(3), 3, 0L
-                    , ShowStatus.RESERVATION_PENDING);
+                    "location1", LocalDateTime.now(), LocalDateTime.now().plusDays(3), 3);
 
             Like like1 = Like.toEntity(show1, user);
 

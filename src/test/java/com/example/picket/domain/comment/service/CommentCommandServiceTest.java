@@ -260,8 +260,6 @@ class CommentCommandServiceTest {
                 , LocalDateTime.now().plusMinutes(1L)
                 , LocalDateTime.now().plusDays(1)
                 , 1
-                , 0L
-                , ShowStatus.RESERVATION_PENDING
         );
 
         ReflectionTestUtils.setField(show, "id", showId);

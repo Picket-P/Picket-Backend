@@ -3,14 +3,12 @@ package com.example.picket.domain.show.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Grade;
-import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
@@ -401,9 +399,7 @@ class ShowCommandServiceTest {
                 "원래 장소",
                 now.plusDays(1),
                 now.plusDays(2),
-                2,
-                0L,
-                ShowStatus.RESERVATION_PENDING
+                2
         );
     }
 
@@ -417,9 +413,7 @@ class ShowCommandServiceTest {
                 "원래 장소",
                 reservationStart,
                 reservationEnd,
-                2,
-                0L,
-                ShowStatus.RESERVATION_PENDING
+                2
         );
     }
 
@@ -433,9 +427,7 @@ class ShowCommandServiceTest {
                 request.getLocation(),
                 request.getReservationStart(),
                 request.getReservationEnd(),
-                request.getTicketsLimitPerUser(),
-                0L,
-                ShowStatus.RESERVATION_PENDING
+                request.getTicketsLimitPerUser()
         );
     }
 

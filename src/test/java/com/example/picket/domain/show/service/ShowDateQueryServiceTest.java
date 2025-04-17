@@ -1,7 +1,6 @@
 package com.example.picket.domain.show.service;
 
 import com.example.picket.common.enums.Category;
-import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -209,9 +208,7 @@ class ShowDateQueryServiceTest {
                 "원래 장소",
                 now.plusDays(1),
                 now.plusDays(2),
-                2,
-                0L,
-                ShowStatus.RESERVATION_PENDING
+                2
         );
     }
 
