@@ -8,10 +8,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import com.example.picket.common.enums.Category;
-import com.example.picket.common.enums.Gender;
-import com.example.picket.common.enums.Grade;
-import com.example.picket.common.enums.UserRole;
+import com.example.picket.common.enums.*;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.comment.dto.request.CommentRequest;
 import com.example.picket.domain.comment.entity.Comment;
@@ -262,7 +259,10 @@ class CommentCommandServiceTest {
                 , "서울"
                 , LocalDateTime.now().plusMinutes(1L)
                 , LocalDateTime.now().plusDays(1)
-                , 1);
+                , 1
+                , 0L
+                , ShowStatus.RESERVATION_PENDING
+        );
 
         ReflectionTestUtils.setField(show, "id", showId);
 

@@ -2,6 +2,7 @@ package com.example.picket.domain.show.service;
 
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
+import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
 import com.example.picket.domain.seat.entity.Seat;
@@ -50,7 +51,9 @@ public class ShowCommandService {
                 request.getLocation(),
                 request.getReservationStart(),
                 request.getReservationEnd(),
-                request.getTicketsLimitPerUser()
+                request.getTicketsLimitPerUser(),
+                0L,
+                ShowStatus.RESERVATION_PENDING
         );
         showRepository.save(show);
 
