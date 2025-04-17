@@ -42,7 +42,7 @@ public class HotShowRankingScheduler {
                                 show.getId(),
                                 show.getTitle(),
                                 show.getViewCount(),
-                                show.getStatus().name(),
+                                show.getStatus(),
                                 LocalDateTime.now()
                         ))
                         .toList();
