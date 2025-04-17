@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 public class LikeShowResponse {
     private final Long showId;
     private final String title;
-    private final Long likeCount;
+    private final int likeCount;
     private final LocalDateTime createdAt;
 
-    private LikeShowResponse(Long showId, String title, Long likeCount, LocalDateTime createdAt) {
+    private LikeShowResponse(Long showId, String title, int likeCount, LocalDateTime createdAt) {
         this.showId = showId;
         this.title = title;
         this.likeCount = likeCount;
