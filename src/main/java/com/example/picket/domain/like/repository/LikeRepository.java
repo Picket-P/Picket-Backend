@@ -29,10 +29,13 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     boolean existsByUserIdAndShowId(Long userId, Long showId);
 
+    @Query("SELECT COUNT(l) FROM Like l WHERE l.show.id = :showId")
+    Integer countLikesByShowId(@Param("showId") Long showId);
+
     @Query("SELECT l.show.id, s.title, COUNT(l) as likeCount, s.status " +
             "FROM Like l JOIN l.show s " +
             "WHERE s.status IN (:statuses) " +
             "GROUP BY l.show.id, s.title, s.status " +
             "ORDER BY likeCount DESC, l.show.id ASC")
-    List<Object[]> findTop10ShowsByLikeCountAndStatusIn(@Param("statuses") ShowStatus... statuses);
+    List<Object[]> findTop10ShowsByLikeCountAndStatusIn(@Param("statuses") ShowStatus[] statuses, Pageable pageable);
 }
