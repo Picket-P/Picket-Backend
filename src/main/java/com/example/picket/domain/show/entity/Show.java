@@ -2,6 +2,7 @@ package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
+import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,8 +57,12 @@ public class Show extends BaseEntity {
     @Column
     private Integer ticketsLimitPerUser;
 
-    @Column(nullable = false)
+    @Column(name = "view_count", nullable = false)
     private int viewCount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ShowStatus status;
 
     @PrePersist
     private void prePersist() {
@@ -79,6 +84,7 @@ public class Show extends BaseEntity {
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
         this.viewCount = 0;
+        this.status = ShowStatus.RESERVATION_PENDING;
     }
 
     public static Show toEntity(Long directorId, String title, String posterUrl, Category category, String description,
@@ -90,6 +96,10 @@ public class Show extends BaseEntity {
 
     public void incrementViewCount() {
         this.viewCount++;
+    }
+
+    public void updateStatus(ShowStatus status) {
+        this.status = status;
     }
 
     public void update(ShowUpdateRequest request) {
@@ -118,6 +128,4 @@ public class Show extends BaseEntity {
             this.ticketsLimitPerUser = request.getTicketsLimitPerUser();
         }
     }
-
 }
-

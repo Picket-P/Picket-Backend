@@ -6,6 +6,7 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.dto.PageResponse;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.UserRole;
+import com.example.picket.domain.ranking.scheduler.PopularKeywordScheduler;
 import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
@@ -34,14 +35,15 @@ public class ShowController {
     private final ShowCommandService showCommandService;
     private final ShowQueryService showQueryService;
     private final ShowDateQueryService showDateQueryService;
+    private final PopularKeywordScheduler popularKeywordScheduler;
 
     // 공연 생성
     @AuthPermission(role = UserRole.DIRECTOR)
     @Operation(summary = "공연 생성", description = "공연을 생성할 수 있습니다.")
     @PostMapping("/admin/shows")
     public ResponseEntity<ShowDetailResponse> createShow(
-        @Auth AuthUser user,
-        @Valid @RequestBody ShowCreateRequest request
+            @Auth AuthUser user,
+            @Valid @RequestBody ShowCreateRequest request
     ) {
         Show show = showCommandService.createShow(user, request);
         List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(show.getId());
@@ -52,12 +54,17 @@ public class ShowController {
     @Operation(summary = "공연 다건 조회", description = "공연을 다건으로 조회할 수 있습니다.")
     @GetMapping("/shows")
     public ResponseEntity<PageResponse<ShowResponse>> getShows(
-        @RequestParam(required = false) Category category,
-        @RequestParam(defaultValue = "createdAt") String sortBy,
-        @RequestParam(defaultValue = "desc") String order,
-        @RequestParam(name = "page", defaultValue = "1") int page,
-        @RequestParam(name = "size", defaultValue = "10") int size
+            @RequestParam(required = false) Category category,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String order,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
     ) {
+        // 인기 검색어 카운트 증가
+        if (category != null) {
+            popularKeywordScheduler.incrementSearchKeyword(category);
+        }
+
         Page<ShowResponse> response = showQueryService.getShows(category, sortBy, order, page, size);
         return ResponseEntity.ok(PageResponse.toDto(response));
     }
@@ -66,8 +73,8 @@ public class ShowController {
     @Operation(summary = "공연 단건 조회", description = "공연을 단건으로 조회할 수 있습니다.")
     @GetMapping("/shows/{showId}")
     public ResponseEntity<ShowDetailResponse> getShowDetail(
-        @Auth(isRequire = false) AuthUser authUser,
-        @PathVariable Long showId
+            @Auth(isRequire = false) AuthUser authUser,
+            @PathVariable Long showId
     ) {
         ShowDetailResponse response = showQueryService.getShow(authUser, showId);
         return ResponseEntity.ok(response);
@@ -78,9 +85,9 @@ public class ShowController {
     @Operation(summary = "공연 업데이트", description = "공연을 업데이트 할 수 있습니다.")
     @PutMapping("/shows/{showId}")
     public ResponseEntity<ShowDetailResponse> updateShow(
-        @Auth AuthUser authUser,
-        @PathVariable Long showId,
-        @Valid @RequestBody ShowUpdateRequest request
+            @Auth AuthUser authUser,
+            @PathVariable Long showId,
+            @Valid @RequestBody ShowUpdateRequest request
     ) {
         Show show = showCommandService.updateShow(authUser, showId, request);
         List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(show.getId());
@@ -92,8 +99,8 @@ public class ShowController {
     @Operation(summary = "공연 삭제", description = "공연을 삭제할 수 있습니다.")
     @DeleteMapping("/shows/{showId}")
     public ResponseEntity<Void> deleteShow(
-        @Auth AuthUser authUser,
-        @PathVariable Long showId
+            @Auth AuthUser authUser,
+            @PathVariable Long showId
     ) {
         showCommandService.deleteShow(authUser, showId);
         return ResponseEntity.noContent().build();

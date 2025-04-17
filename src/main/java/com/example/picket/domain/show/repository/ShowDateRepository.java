@@ -5,7 +5,9 @@ import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.querydsl.ShowDateQueryDslRepository;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +18,7 @@ public interface ShowDateRepository extends JpaRepository<ShowDate, Long>, ShowD
 
     Optional<ShowDate> findShowDateByShow(Show show);
 
+    @Query("SELECT sd FROM ShowDate sd WHERE sd.show.status != com.example.picket.common.enums.ShowStatus.FINISHED " +
+            "AND sd.deletedAt IS NULL")
+    List<ShowDate> findAllActiveShowDates();
 }

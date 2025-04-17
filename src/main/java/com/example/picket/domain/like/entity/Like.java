@@ -1,5 +1,6 @@
 package com.example.picket.domain.like.entity;
 
+import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.user.entity.User;
 import jakarta.persistence.Entity;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "likes")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like {
+public class Like extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
