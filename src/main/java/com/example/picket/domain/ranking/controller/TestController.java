@@ -3,38 +3,44 @@ package com.example.picket.domain.ranking.controller;
 import com.example.picket.domain.ranking.scheduler.HotShowRankingScheduler;
 import com.example.picket.domain.ranking.scheduler.LikeRankingScheduler;
 import com.example.picket.domain.ranking.scheduler.PopularKeywordScheduler;
+import com.example.picket.domain.ranking.scheduler.ShowStatusScheduler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/v2/test")
+@RequiredArgsConstructor
 public class TestController {
 
     private final PopularKeywordScheduler popularKeywordScheduler;
     private final HotShowRankingScheduler hotShowRankingScheduler;
     private final LikeRankingScheduler likeRankingScheduler;
-//    private final TicketStatusScheduler ticketStatusScheduler;
+    private final ShowStatusScheduler showStatusScheduler;
 
     @PostMapping("/popular-keywords")
-    public void testPopularKeywords() {
+    public ResponseEntity<Void> testPopularKeywords() {
         popularKeywordScheduler.updatePopularKeywords();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/hot-shows")
-    public void testHotShows() {
+    public ResponseEntity<Void> testHotShows() {
         hotShowRankingScheduler.updateHotShowRanking();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/like-shows")
-    public void testLikeShows() {
+    public ResponseEntity<Void> testLikeShows() {
         likeRankingScheduler.updateLikeRanking();
+        return ResponseEntity.ok().build();
     }
 
-//    @PostMapping("/ticket-status")
-//    public void testTicketStatus() {
-//        ticketStatusScheduler.updateShowStatuses();
-//    }
+    @PostMapping("/show-status")
+    public ResponseEntity<Void> testShowStatus() {
+        showStatusScheduler.updateShowStatuses();
+        return ResponseEntity.ok().build();
+    }
 }
