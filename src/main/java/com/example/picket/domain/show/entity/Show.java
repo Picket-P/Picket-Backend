@@ -62,11 +62,7 @@ public class Show extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ShowStatus status = ShowStatus.RESERVATION_PENDING;
-
-    public void updateStatus(ShowStatus status) {
-        this.status = status;
-    }
+    private ShowStatus status;
 
     @PrePersist
     private void prePersist() {
@@ -77,7 +73,7 @@ public class Show extends BaseEntity {
 
     private Show(Long directorId, String title, String posterUrl, Category category, String description,
                  String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
-                 Integer ticketsLimitPerUser, ShowStatus status) {
+                 Integer ticketsLimitPerUser) {
         this.directorId = directorId;
         this.title = title;
         this.posterUrl = posterUrl;
@@ -88,18 +84,22 @@ public class Show extends BaseEntity {
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
         this.viewCount = 0;
-        this.status = status;
+        this.status = ShowStatus.RESERVATION_PENDING;
     }
 
     public static Show toEntity(Long directorId, String title, String posterUrl, Category category, String description,
                                 String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
-                                Integer ticketsLimitPerUser, ShowStatus status) {
+                                Integer ticketsLimitPerUser) {
         return new Show(directorId, title, posterUrl, category, description, location, reservationStart, reservationEnd,
-                ticketsLimitPerUser, status);
+                ticketsLimitPerUser);
     }
 
     public void incrementViewCount() {
         this.viewCount++;
+    }
+
+    public void updateStatus(ShowStatus status) {
+        this.status = status;
     }
 
     public void update(ShowUpdateRequest request) {
@@ -128,5 +128,4 @@ public class Show extends BaseEntity {
             this.ticketsLimitPerUser = request.getTicketsLimitPerUser();
         }
     }
-
 }
