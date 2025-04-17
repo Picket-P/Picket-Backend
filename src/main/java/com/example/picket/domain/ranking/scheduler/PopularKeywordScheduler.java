@@ -58,7 +58,7 @@ public class PopularKeywordScheduler {
                 List<PopularKeyword> keywordList = topKeywords.stream()
                         .map(tuple -> PopularKeyword.toEntity(
                                 Category.valueOf(tuple.getValue()),
-                                tuple.getScore().intValue(),
+                                tuple.getScore().longValue(),
                                 now
                         ))
                         .toList();

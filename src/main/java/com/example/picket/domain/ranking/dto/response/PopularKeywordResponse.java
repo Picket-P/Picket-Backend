@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 public class PopularKeywordResponse {
     private final Category category;
-    private final int keywordCount;
+    private final Long keywordCount;
     private final LocalDateTime createdAt;
 
-    private PopularKeywordResponse(Category category, int keywordCount, LocalDateTime createdAt) {
+    private PopularKeywordResponse(Category category, Long keywordCount, LocalDateTime createdAt) {
         this.category = category;
         this.keywordCount = keywordCount;
         this.createdAt = createdAt;

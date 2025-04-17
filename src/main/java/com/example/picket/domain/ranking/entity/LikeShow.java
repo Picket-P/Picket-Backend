@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 public class LikeShow {
     private Long showId;
     private String title;
-    private int likeCount;
+    private Long likeCount;
     private ShowStatus status;
     private LocalDateTime createdAt;
 
-    private LikeShow(Long showId, String title, int likeCount, ShowStatus status, LocalDateTime createdAt) {
+    private LikeShow(Long showId, String title, Long likeCount, ShowStatus status, LocalDateTime createdAt) {
         this.showId = showId;
         this.title = title;
         this.likeCount = likeCount;
@@ -24,7 +24,7 @@ public class LikeShow {
         this.createdAt = createdAt;
     }
 
-    public static LikeShow toEntity(Long showId, String title, int likeCount, ShowStatus status, LocalDateTime createdAt) {
+    public static LikeShow toEntity(Long showId, String title, Long likeCount, ShowStatus status, LocalDateTime createdAt) {
         LikeShow show = new LikeShow();
         show.showId = showId;
         show.title = title;

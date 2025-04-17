@@ -10,16 +10,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PopularKeyword {
     private Category category;
-    private int keywordCount;
+    private Long keywordCount;
     private LocalDateTime createdAt;
 
-    private PopularKeyword(Category category, int keywordCount, LocalDateTime createdAt) {
+    private PopularKeyword(Category category, Long keywordCount, LocalDateTime createdAt) {
         this.category = category;
         this.keywordCount = keywordCount;
         this.createdAt = createdAt;
     }
 
-    public static PopularKeyword toEntity(Category category, int keywordCount, LocalDateTime createdAt) {
+    public static PopularKeyword toEntity(Category category, Long keywordCount, LocalDateTime createdAt) {
         return new PopularKeyword(category, keywordCount, createdAt);
     }
 }
