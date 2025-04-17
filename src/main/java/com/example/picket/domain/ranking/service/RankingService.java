@@ -12,6 +12,8 @@ import com.example.picket.domain.show.repository.ShowRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class RankingService {
     private static final ShowStatus[] ACTIVE_STATUSES = {
             ShowStatus.RESERVATION_PENDING,
             ShowStatus.RESERVATION_ONGOING,
+            ShowStatus.RESERVATION_CLOSED,
             ShowStatus.PERFORMANCE_ONGOING
     };
 
@@ -62,7 +65,7 @@ public class RankingService {
             List<PopularKeyword> fallbackKeywords = new ArrayList<>();
             for (Object[] row : topKeywords) {
                 Category category = (Category) row[0];
-                Long keywordCount = (Long) row[1];
+                int keywordCount = ((Long) row[1]).intValue();
                 fallbackKeywords.add(PopularKeyword.toEntity(category, keywordCount, LocalDateTime.now()));
             }
             log.info("RDS에서 {}개 검색 키워드 조회 완료", fallbackKeywords.size());
@@ -100,7 +103,7 @@ public class RankingService {
                             show.getId(),
                             show.getTitle(),
                             show.getViewCount(),
-                            show.getStatus().name(),
+                            show.getStatus(),
                             LocalDateTime.now()
                     ))
                     .toList();
@@ -133,13 +136,14 @@ public class RankingService {
             }
 
             log.warn("Redis 데이터 사용 불가, RDS로 폴백");
-            List<Object[]> topShows = likeRepository.findTop10ShowsByLikeCountAndStatusIn(ACTIVE_STATUSES);
+            Pageable pageable = PageRequest.of(0, 10);
+            List<Object[]> topShows = likeRepository.findTop10ShowsByLikeCountAndStatusIn(ACTIVE_STATUSES, pageable);
             log.debug("RDS 좋아요 공연 쿼리 결과: {}", topShows);
             List<LikeShow> fallbackShows = topShows.stream()
                     .map(row -> LikeShow.toEntity(
                             (Long) row[0],
                             (String) row[1],
-                            (Long) row[2],
+                            ((Long) row[2]).intValue(),
                             (ShowStatus) row[3],
                             LocalDateTime.now()
                     ))
