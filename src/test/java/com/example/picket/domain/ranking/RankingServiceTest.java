@@ -140,7 +140,7 @@ class RankingServiceTest {
     @Test
     void 인기_공연_Redis_조회_성공() throws Exception {
         // Given
-        HotShow hotShow = HotShow.toEntity(1L, "Show 1", 1000L, ShowStatus.RESERVATION_ONGOING.name(), now);
+        HotShow hotShow = HotShow.toEntity(1L, "Show 1", 1000, ShowStatus.RESERVATION_ONGOING.name(), now);
         String json = "{\"showId\":1,\"title\":\"Show 1\",\"viewCount\":1000,\"status\":\"RESERVATION_ONGOING\",\"createdAt\":\"" + now + "\"}";
         when(listOperations.range("ranking:hot_shows", 0, -1)).thenReturn(List.of(json));
         when(objectMapper.readValue(json, HotShow.class)).thenReturn(hotShow);
@@ -170,13 +170,23 @@ class RankingServiceTest {
                 "Seoul",
                 now.plusDays(1),
                 now.plusDays(2),
-                2,
-                1000L, // viewCount
-                ShowStatus.RESERVATION_ONGOING
+                2
         );
+        // id 설정
         java.lang.reflect.Field idField = Show.class.getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(show, 1L);
+
+        // viewCount 설정
+        java.lang.reflect.Field viewCountField = Show.class.getDeclaredField("viewCount");
+        viewCountField.setAccessible(true);
+        viewCountField.set(show, 1000);
+
+        // status 설정
+        java.lang.reflect.Field statusField = Show.class.getDeclaredField("status");
+        statusField.setAccessible(true);
+        statusField.set(show, ShowStatus.RESERVATION_ONGOING);
+
         when(showRepository.findTop10ByStatusNotAndOrderByViewCountDesc(any())).thenReturn(List.of(show));
 
         // When
