@@ -51,9 +51,7 @@ public class ShowCommandService {
                 request.getLocation(),
                 request.getReservationStart(),
                 request.getReservationEnd(),
-                request.getTicketsLimitPerUser(),
-                0L,
-                ShowStatus.RESERVATION_PENDING
+                request.getTicketsLimitPerUser()
         );
         showRepository.save(show);
 
@@ -187,15 +185,6 @@ public class ShowCommandService {
                         showDate
                 ));
             }
-        }
-    }
-
-    // 조회수 증가
-    @Transactional
-    public void incrementViewCount(Long showId) {
-        int updated = showRepository.incrementViewCount(showId);
-        if (updated == 0) {
-            throw new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다.");
         }
     }
 
