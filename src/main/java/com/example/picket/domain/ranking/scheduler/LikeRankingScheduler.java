@@ -53,7 +53,7 @@ public class LikeRankingScheduler {
                         .map(row -> LikeShow.toEntity(
                                 (Long) row[0],
                                 (String) row[1],
-                                ((Long) row[2]).intValue(),
+                                (Long) row[2],
                                 (ShowStatus) row[3],
                                 LocalDateTime.now()
                         ))
