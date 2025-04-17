@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 public class HotShowResponse {
     private final Long showId;
     private final String title;
-    private final Long viewCount;
+    private final int viewCount;
     private final LocalDateTime createdAt;
 
-    private HotShowResponse(Long showId, String title, Long viewCount, LocalDateTime createdAt) {
+    private HotShowResponse(Long showId, String title, int viewCount, LocalDateTime createdAt) {
         this.showId = showId;
         this.title = title;
         this.viewCount = viewCount;
