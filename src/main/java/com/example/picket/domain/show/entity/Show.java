@@ -2,6 +2,7 @@ package com.example.picket.domain.show.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
+import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,8 +57,16 @@ public class Show extends BaseEntity {
     @Column
     private Integer ticketsLimitPerUser;
 
-    @Column(nullable = false)
+    @Column(name = "view_count", nullable = false)
     private int viewCount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ShowStatus status = ShowStatus.RESERVATION_PENDING;
+
+    public void updateStatus(ShowStatus status) {
+        this.status = status;
+    }
 
     @PrePersist
     private void prePersist() {
@@ -68,7 +77,7 @@ public class Show extends BaseEntity {
 
     private Show(Long directorId, String title, String posterUrl, Category category, String description,
                  String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
-                 Integer ticketsLimitPerUser) {
+                 Integer ticketsLimitPerUser, ShowStatus status) {
         this.directorId = directorId;
         this.title = title;
         this.posterUrl = posterUrl;
@@ -79,13 +88,14 @@ public class Show extends BaseEntity {
         this.reservationEnd = reservationEnd;
         this.ticketsLimitPerUser = ticketsLimitPerUser;
         this.viewCount = 0;
+        this.status = status;
     }
 
     public static Show toEntity(Long directorId, String title, String posterUrl, Category category, String description,
                                 String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
-                                Integer ticketsLimitPerUser) {
+                                Integer ticketsLimitPerUser, ShowStatus status) {
         return new Show(directorId, title, posterUrl, category, description, location, reservationStart, reservationEnd,
-                ticketsLimitPerUser);
+                ticketsLimitPerUser, status);
     }
 
     public void incrementViewCount() {
@@ -120,4 +130,3 @@ public class Show extends BaseEntity {
     }
 
 }
-
