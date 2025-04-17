@@ -19,7 +19,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -62,12 +61,13 @@ public class RankingService {
 
             log.warn("Redis 데이터 사용 불가, RDS로 폴백");
             List<Object[]> topKeywords = searchLogRepository.findTopKeywordsSince(LocalDateTime.now().minusDays(1));
-            List<PopularKeyword> fallbackKeywords = new ArrayList<>();
-            for (Object[] row : topKeywords) {
-                Category category = (Category) row[0];
-                int keywordCount = ((Long) row[1]).intValue();
-                fallbackKeywords.add(PopularKeyword.toEntity(category, keywordCount, LocalDateTime.now()));
-            }
+            List<PopularKeyword> fallbackKeywords = topKeywords.stream()
+                    .map(row -> PopularKeyword.toEntity(
+                            (Category) row[0],
+                            (Long) row[1],
+                            LocalDateTime.now()
+                    ))
+                    .toList();
             log.info("RDS에서 {}개 검색 키워드 조회 완료", fallbackKeywords.size());
             return CompletableFuture.completedFuture(fallbackKeywords);
         } catch (Exception e) {
@@ -143,7 +143,7 @@ public class RankingService {
                     .map(row -> LikeShow.toEntity(
                             (Long) row[0],
                             (String) row[1],
-                            ((Long) row[2]).intValue(),
+                            (Long) row[2],
                             (ShowStatus) row[3],
                             LocalDateTime.now()
                     ))
