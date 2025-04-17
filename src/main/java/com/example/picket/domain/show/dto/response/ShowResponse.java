@@ -24,7 +24,7 @@ public class ShowResponse {
     private String reservationStart;
     private String reservationEnd;
     private Integer ticketsLimitPerUser;
-    private Long viewCount;
+    private int viewCount;
     private ShowStatus showStatus;
     private List<ShowDateResponse> showDates;
 
@@ -36,7 +36,7 @@ public class ShowResponse {
 
 
     private ShowResponse(Long id, Long directorId, String title, String posterUrl, String category, String description,
-                         String location, String reservationStart, String reservationEnd, Integer ticketsLimitPerUser, Long viewCount, ShowStatus showStatus,
+                         String location, String reservationStart, String reservationEnd, Integer ticketsLimitPerUser, int viewCount, ShowStatus showStatus,
                          List<ShowDateResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt
                          ) {
         this.id = id;
