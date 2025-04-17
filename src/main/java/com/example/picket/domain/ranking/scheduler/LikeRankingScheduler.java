@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,17 +33,19 @@ public class LikeRankingScheduler {
     private static final ShowStatus[] ACTIVE_STATUSES = {
             ShowStatus.RESERVATION_PENDING,
             ShowStatus.RESERVATION_ONGOING,
+            ShowStatus.RESERVATION_CLOSED,
             ShowStatus.PERFORMANCE_ONGOING
     };
 
     @Scheduled(cron = "0 0 * * * ?") // 매시간
-    @Transactional(readOnly = true)
+    @Transactional
     public void updateLikeRanking() {
         RLock lock = redissonClient.getLock("lock:like_show_ranking");
         try {
             if (lock.tryLock(0, 60, TimeUnit.SECONDS)) {
                 log.info("좋아요 공연 랭킹 업데이트 시작");
-                List<Object[]> topShows = likeRepository.findTop10ShowsByLikeCountAndStatusIn(ACTIVE_STATUSES);
+                Pageable pageable = PageRequest.of(0, 10);
+                List<Object[]> topShows = likeRepository.findTop10ShowsByLikeCountAndStatusIn(ACTIVE_STATUSES, pageable);
                 log.info("상위 좋아요 공연 {}개 조회", topShows.size());
                 log.debug("좋아요 공연 쿼리 결과: {}, 상태 필터: {}", topShows, Arrays.toString(ACTIVE_STATUSES));
 
@@ -49,7 +53,7 @@ public class LikeRankingScheduler {
                         .map(row -> LikeShow.toEntity(
                                 (Long) row[0],
                                 (String) row[1],
-                                (Long) row[2],
+                                ((Long) row[2]).intValue(),
                                 (ShowStatus) row[3],
                                 LocalDateTime.now()
                         ))
