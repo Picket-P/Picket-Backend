@@ -1,10 +1,7 @@
 package com.example.picket.domain.seat.service;
 
 import com.example.picket.common.dto.AuthUser;
-import com.example.picket.common.enums.Category;
-import com.example.picket.common.enums.Grade;
-import com.example.picket.common.enums.SeatStatus;
-import com.example.picket.common.enums.UserRole;
+import com.example.picket.common.enums.*;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatUpdateRequest;
 import com.example.picket.domain.seat.entity.Seat;
@@ -54,15 +51,16 @@ class SeatCommandServiceTest {
             // given
             Long showDateId = 1L;
             Show show = Show.toEntity(1L, "테스트 공연", "image.png", Category.CONCERT, "설명",
-                "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1), 1);
+                    "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1), 1, 0L
+                    , ShowStatus.RESERVATION_PENDING);
             LocalDateTime dateTime = LocalDateTime.now().plusDays(1);
             ShowDate showDate = ShowDate.toEntity(
-                dateTime.toLocalDate(),
-                dateTime.toLocalTime(),
-                dateTime.toLocalTime().plusHours(2),
-                100,  // totalSeatCount
-                0,    // reservedSeatCount
-                show
+                    dateTime.toLocalDate(),
+                    dateTime.toLocalTime(),
+                    dateTime.toLocalTime().plusHours(2),
+                    100,  // totalSeatCount
+                    0,    // reservedSeatCount
+                    show
             );
             Grade grade = Grade.VIP;
             BigDecimal newPrice = BigDecimal.valueOf(10000);
@@ -88,13 +86,14 @@ class SeatCommandServiceTest {
             // given
             Long showDateId = 1L;
             Show show = Show.toEntity(1L, "공연", "image.png", Category.CONCERT, "desc",
-                "장소", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), 1);
+                    "장소", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), 1, 0L
+                    , ShowStatus.RESERVATION_PENDING);
 
             ShowDate showDate = ShowDate.toEntity(
-                LocalDate.now().plusDays(2),
-                LocalTime.of(19, 0),
-                LocalTime.of(21, 0),
-                100, 0, show);
+                    LocalDate.now().plusDays(2),
+                    LocalTime.of(19, 0),
+                    LocalTime.of(21, 0),
+                    100, 0, show);
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
@@ -118,13 +117,14 @@ class SeatCommandServiceTest {
             // given
             Long showDateId = 1L;
             Show show = Show.toEntity(1L, "공연", "image.png", Category.CONCERT, "desc",
-                "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2), 1);
+                    "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2), 1, 0L
+                    , ShowStatus.RESERVATION_PENDING);
 
             ShowDate showDate = ShowDate.toEntity(
-                LocalDate.now().plusDays(1),
-                LocalTime.of(19, 0),
-                LocalTime.of(21, 0),
-                100, 0, show);
+                    LocalDate.now().plusDays(1),
+                    LocalTime.of(19, 0),
+                    LocalTime.of(21, 0),
+                    100, 0, show);
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
@@ -138,8 +138,8 @@ class SeatCommandServiceTest {
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.updateSeats(adminUser, showDateId, List.of(request)))
-                .isInstanceOf(CustomException.class)
-                .hasMessageContaining("예매 시작 이후에는 좌석 수 감소가 불가능합니다");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining("예매 시작 이후에는 좌석 수 감소가 불가능합니다");
 
             verify(seatRepository, never()).deleteAll(any());
         }
@@ -148,60 +148,64 @@ class SeatCommandServiceTest {
         void 예매_시작_이후에는_좌석_수_감소_불가() {
             // given
             Show show = Show.toEntity(
-                1L, "공연", "image.png", Category.CONCERT, "desc",
-                "장소",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                1
+                    1L, "공연", "image.png", Category.CONCERT, "desc",
+                    "장소",
+                    LocalDateTime.now().minusDays(1),
+                    LocalDateTime.now().plusDays(1),
+                    1,
+                    0L,
+                    ShowStatus.RESERVATION_PENDING
             );
 
             ShowDate showDate = ShowDate.toEntity(
-                LocalDate.now().plusDays(1),
-                LocalTime.of(19, 0),
-                LocalTime.of(21, 0),
-                100, 0, show);
+                    LocalDate.now().plusDays(1),
+                    LocalTime.of(19, 0),
+                    LocalTime.of(21, 0),
+                    100, 0, show);
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
             given(showDateQueryService.getShowDate(showDate.getId()))
-                .willReturn(showDate);
+                    .willReturn(showDate);
 
             Seat reservedSeat = Seat.toEntity(Grade.VIP, 1, price, showDate);
             ReflectionTestUtils.setField(reservedSeat, "seatStatus", SeatStatus.RESERVED);
 
             given(seatRepository.findAllByShowDateId(showDate.getId()))
-                .willReturn(List.of(reservedSeat));
+                    .willReturn(List.of(reservedSeat));
 
             SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 0, price);
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.updateSeats(adminUser, showDate.getId(), List.of(request)))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("예매 시작 이후에는 좌석 수 감소가 불가능합니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("예매 시작 이후에는 좌석 수 감소가 불가능합니다.");
         }
 
         @Test
         void 좌석_줄이기_요청시_예약된_좌석_때문에_실패() {
             // given
             Show show = Show.toEntity(
-                1L, "공연", "image.png", Category.CONCERT, "desc",
-                "장소",
-                LocalDateTime.now().plusDays(1),  // 예매 시작 전
-                LocalDateTime.now().plusDays(2),
-                1
+                    1L, "공연", "image.png", Category.CONCERT, "desc",
+                    "장소",
+                    LocalDateTime.now().plusDays(1),  // 예매 시작 전
+                    LocalDateTime.now().plusDays(2),
+                    1,
+                    0L,
+                    ShowStatus.RESERVATION_PENDING
             );
 
             ShowDate showDate = ShowDate.toEntity(
-                LocalDate.now().plusDays(1),
-                LocalTime.of(19, 0),
-                LocalTime.of(21, 0),
-                100, 0, show
+                    LocalDate.now().plusDays(1),
+                    LocalTime.of(19, 0),
+                    LocalTime.of(21, 0),
+                    100, 0, show
             );
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
             given(showDateQueryService.getShowDate(showDate.getId()))
-                .willReturn(showDate);
+                    .willReturn(showDate);
 
             // 현재 좌석 2개 중 1개는 예약된 상태 (줄일 수 없음)
             Seat reservedSeat = Seat.toEntity(Grade.VIP, 1, price, showDate);
@@ -211,15 +215,15 @@ class SeatCommandServiceTest {
             ReflectionTestUtils.setField(availableSeat, "seatStatus", SeatStatus.AVAILABLE);
 
             given(seatRepository.findAllByShowDateId(showDate.getId()))
-                .willReturn(List.of(reservedSeat, availableSeat));
+                    .willReturn(List.of(reservedSeat, availableSeat));
 
             // 요청: 좌석 수 2개 → 0개로 줄이기 (2개 줄여야 하는데 예약된 좌석 때문에 불가)
             SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 0, price);
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.updateSeats(adminUser, showDate.getId(), List.of(request)))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("예약된 좌석이 있어 일부 좌석을 줄일 수 없습니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("예약된 좌석이 있어 일부 좌석을 줄일 수 없습니다.");
         }
     }
 
@@ -263,8 +267,8 @@ class SeatCommandServiceTest {
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.deleteSeat(adminUser, seatId))
-                .isInstanceOf(CustomException.class)
-                .hasMessageContaining("이미 예약된 좌석은 삭제할 수 없습니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining("이미 예약된 좌석은 삭제할 수 없습니다.");
         }
 
         @Test
@@ -286,8 +290,8 @@ class SeatCommandServiceTest {
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.deleteSeat(adminUser, seatId))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("종료된 공연은 수정할 수 없습니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("종료된 공연은 수정할 수 없습니다.");
         }
 
         @Test
@@ -310,10 +314,10 @@ class SeatCommandServiceTest {
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.deleteSeat(adminUser, seatId))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("예매 시작 이후에는 좌석 삭제가 불가능합니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("예매 시작 이후에는 좌석 삭제가 불가능합니다.");
         }
-        
+
         @Test
         void 자신이_만든_것이_아니면_삭제_불가() throws Exception {
             // given
@@ -328,8 +332,8 @@ class SeatCommandServiceTest {
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.deleteSeat(adminUser, seatId))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("해당 작업을 수행할 권한이 없습니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("해당 작업을 수행할 권한이 없습니다.");
 
         }
 

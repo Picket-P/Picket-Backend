@@ -3,6 +3,7 @@ package com.example.picket.domain.show.service;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.UserRole;
+import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
 import com.example.picket.domain.show.dto.response.ShowDateResponse;
@@ -58,7 +59,7 @@ class ShowQueryServiceTest {
 
             Show show = Show.toEntity(1L, "제목1", "포스터1.jpg",
                 Category.MUSICAL, "내용1", "장소1",
-                reservationStart, reservationEnd, 2
+                reservationStart, reservationEnd, 2, ShowStatus.RESERVATION_PENDING
             );
 
             setCreatedAt(show, now);
@@ -92,7 +93,7 @@ class ShowQueryServiceTest {
 
             Show show = Show.toEntity(1L, "제목1", "포스터1.jpg",
                 Category.MUSICAL, "내용1", "장소1",
-                reservationStart, reservationEnd, 2
+                reservationStart, reservationEnd, 2, ShowStatus.RESERVATION_PENDING
             );
             setCreatedAt(show, now);
 
@@ -272,7 +273,7 @@ class ShowQueryServiceTest {
 
             Show show = Show.toEntity(1L, "제목1", "포스터1.jpg",
                 Category.MUSICAL, "내용1", "장소1",
-                reservationStart, reservationEnd, 2
+                reservationStart, reservationEnd, 2, ShowStatus.RESERVATION_PENDING
             );
             setCreatedAt(show, now);
             given(showRepository.findById(showId)).willReturn(Optional.of(show));

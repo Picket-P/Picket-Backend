@@ -1,9 +1,6 @@
 package com.example.picket.domain.comment.service;
 
-import com.example.picket.common.enums.Category;
-import com.example.picket.common.enums.Gender;
-import com.example.picket.common.enums.Grade;
-import com.example.picket.common.enums.UserRole;
+import com.example.picket.common.enums.*;
 import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.repository.CommentRepository;
 import com.example.picket.domain.seat.entity.Seat;
@@ -106,7 +103,9 @@ class CommentQueryServiceTest {
                 , "서울"
                 , LocalDateTime.now().plusMinutes(1L)
                 , LocalDateTime.now().plusDays(1)
-                , 1);
+                , 1
+                , 0L
+                , ShowStatus.RESERVATION_PENDING);
 
         ReflectionTestUtils.setField(show, "id", showId);
 
