@@ -10,16 +10,23 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+    open-in-view: false
+
   data:
     redis:
       host: ${AWS_REDIS_URL}
       port: ${AWS_REDIS_PORT}
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
 
 oauth:
   google:
