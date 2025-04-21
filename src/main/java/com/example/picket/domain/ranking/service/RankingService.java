@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class RankingService {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final SearchLogRepository searchLogRepository;
     private final ShowRepository showRepository;
     private final LikeRepository likeRepository;
@@ -98,6 +98,10 @@ public class RankingService {
 
             log.warn("Redis 데이터 사용 불가, RDS로 폴백");
             List<Show> topShows = showRepository.findTop10ByStatusNotAndOrderByViewCountDesc(ShowStatus.FINISHED);
+            log.debug("RDS에서 조회된 공연 데이터: {}", topShows);
+            if (topShows.isEmpty()) {
+                log.warn("RDS에서 조건에 맞는 공연 데이터가 없습니다. 상태: NOT FINISHED, 정렬: viewCount DESC");
+            }
             List<HotShow> fallbackShows = topShows.stream()
                     .map(show -> HotShow.toEntity(
                             show.getId(),

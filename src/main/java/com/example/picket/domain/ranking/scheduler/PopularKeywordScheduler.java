@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class PopularKeywordScheduler {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final RedissonClient redissonClient;
     private final SearchLogRepository searchLogRepository;
     private final ObjectMapper objectMapper;
@@ -54,6 +54,7 @@ public class PopularKeywordScheduler {
                 LocalDateTime now = LocalDateTime.now();
                 Set<ZSetOperations.TypedTuple<String>> topKeywords = redisTemplate.opsForZSet()
                         .reverseRangeWithScores(SEARCH_KEYWORD_KEY, 0, 9);
+                log.debug("상위 키워드 조회: {}", topKeywords);
 
                 List<PopularKeyword> keywordList = topKeywords.stream()
                         .map(tuple -> PopularKeyword.toEntity(
@@ -62,6 +63,7 @@ public class PopularKeywordScheduler {
                                 now
                         ))
                         .toList();
+                log.debug("변환된 키워드 리스트: {}", keywordList);
 
                 List<String> jsonKeywords = keywordList.stream()
                         .map(keyword -> {
