@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ public class ShowStatusScheduler {
     private final ShowDateRepository showDateRepository;
     private final HotShowRankingScheduler hotShowRankingScheduler;
     private final LikeRankingScheduler likeRankingScheduler;
+    private final TicketExpiryScheduler ticketExpiryScheduler;
 
     @Scheduled(cron = "0 */5 * * * ?") // 5분마다
     @SchedulerLock(name = "show_status", lockAtMostFor = "PT5M", lockAtLeastFor = "PT10S")
@@ -47,18 +49,26 @@ public class ShowStatusScheduler {
                     .map(show -> show.get())
                     .toList();
 
-            shows.forEach(show -> updateShowStatus(show, showDateMap.getOrDefault(show.getId(), List.of()), now));
+            List<Show> newlyFinishedShows = new ArrayList<>();
+            shows.forEach(show -> {
+                if (updateShowStatus(show, showDateMap.getOrDefault(show.getId(), List.of()), now)) {
+                    newlyFinishedShows.add(show);
+                }
+            });
 
-            log.info("공연 상태 업데이트 완료");
+            log.info("공연 상태 업데이트 완료: {}개 공연이 FINISHED로 변경됨", newlyFinishedShows.size());
             hotShowRankingScheduler.updateHotShowRanking();
             likeRankingScheduler.updateLikeRanking();
-            log.info("랭킹 캐시 갱신 완료");
+            if (!newlyFinishedShows.isEmpty()) {
+                ticketExpiryScheduler.expireTicketsForShows(newlyFinishedShows);
+            }
+            log.info("랭킹 캐시 및 티켓 만료 처리 완료");
         } catch (Exception e) {
             log.error("공연 상태 업데이트 실패", e);
         }
     }
 
-    private void updateShowStatus(Show show, List<ShowDate> showDates, LocalDateTime now) {
+    private boolean updateShowStatus(Show show, List<ShowDate> showDates, LocalDateTime now) {
         ShowStatus oldStatus = show.getStatus();
         ShowStatus newStatus = calculateShowStatus(show, showDates, now);
 
@@ -66,7 +76,9 @@ public class ShowStatusScheduler {
             show.updateStatus(newStatus);
             log.info("공연 ID: {}, 제목: {}, 상태 변경: {} -> {}",
                     show.getId(), show.getTitle(), oldStatus, newStatus);
+            return newStatus == ShowStatus.FINISHED;
         }
+        return false;
     }
 
     private ShowStatus calculateShowStatus(Show show, List<ShowDate> showDates, LocalDateTime now) {

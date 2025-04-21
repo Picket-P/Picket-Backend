@@ -1,9 +1,6 @@
 package com.example.picket.domain.ranking.controller;
 
-import com.example.picket.domain.ranking.scheduler.HotShowRankingScheduler;
-import com.example.picket.domain.ranking.scheduler.LikeRankingScheduler;
-import com.example.picket.domain.ranking.scheduler.PopularKeywordScheduler;
-import com.example.picket.domain.ranking.scheduler.ShowStatusScheduler;
+import com.example.picket.domain.ranking.scheduler.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +16,7 @@ public class RankingSchedulerTestController {
     private final HotShowRankingScheduler hotShowRankingScheduler;
     private final LikeRankingScheduler likeRankingScheduler;
     private final ShowStatusScheduler showStatusScheduler;
+    private final TicketExpiryScheduler ticketExpiryScheduler; // Added dependency
 
     @PostMapping("/popular-keywords")
     public ResponseEntity<Void> testPopularKeywords() {
@@ -41,6 +39,12 @@ public class RankingSchedulerTestController {
     @PostMapping("/show-status")
     public ResponseEntity<Void> testShowStatus() {
         showStatusScheduler.updateShowStatuses();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/ticket-expiry")
+    public ResponseEntity<Void> testTicketExpiry() {
+        ticketExpiryScheduler.expireTicketsForFinishedShows();
         return ResponseEntity.ok().build();
     }
 }
