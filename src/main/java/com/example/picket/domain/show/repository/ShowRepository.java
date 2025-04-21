@@ -22,4 +22,6 @@ public interface ShowRepository extends JpaRepository<Show, Long>, ShowQueryDslR
     default List<Show> findTop10ByStatusNotAndOrderByViewCountDesc(ShowStatus status) {
         return findTop10ByStatusNotAndOrderByViewCountDesc(status, PageRequest.of(0, 10));
     }
+
+    List<Show> findByStatus(@Param("status") ShowStatus status);
 }

@@ -1,5 +1,6 @@
 package com.example.picket.domain.ticket.repository;
 
+import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.show.entity.Show;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -38,4 +40,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             @Param("user") User user,
             @Param("show") Show show,
             @Param("ticketStatus") TicketStatus status);
+
+    @Modifying
+    @Query("UPDATE Ticket t SET t.status = :newStatus WHERE t.show.id = :showId AND t.status = :currentStatus")
+    int updateTicketStatusByShowId(@Param("showId") Long showId,
+                                   @Param("currentStatus") TicketStatus currentStatus,
+                                   @Param("newStatus") TicketStatus newStatus);
 }
