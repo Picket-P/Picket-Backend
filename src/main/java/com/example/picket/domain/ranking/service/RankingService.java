@@ -3,6 +3,9 @@ package com.example.picket.domain.ranking.service;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.domain.like.repository.LikeRepository;
+import com.example.picket.domain.ranking.dto.response.HotShowResponse;
+import com.example.picket.domain.ranking.dto.response.LikeShowResponse;
+import com.example.picket.domain.ranking.dto.response.PopularKeywordResponse;
 import com.example.picket.domain.ranking.entity.HotShow;
 import com.example.picket.domain.ranking.entity.LikeShow;
 import com.example.picket.domain.ranking.entity.PopularKeyword;
@@ -15,12 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -39,15 +40,15 @@ public class RankingService {
             ShowStatus.PERFORMANCE_ONGOING
     };
 
-    @Async
-    public CompletableFuture<List<PopularKeyword>> getPopularKeywordsAsync() {
+    public List<PopularKeywordResponse> getPopularKeywords() {
         try {
             List<String> jsonKeywords = redisTemplate.opsForList().range("ranking:popular_keywords", 0, -1);
             if (jsonKeywords != null && !jsonKeywords.isEmpty()) {
-                List<PopularKeyword> keywords = jsonKeywords.stream()
+                List<PopularKeywordResponse> keywords = jsonKeywords.stream()
                         .map(json -> {
                             try {
-                                return objectMapper.readValue(json, PopularKeyword.class);
+                                PopularKeyword keyword = objectMapper.readValue(json, PopularKeyword.class);
+                                return PopularKeywordResponse.toDto(keyword);
                             } catch (Exception e) {
                                 log.error("검색 키워드 역직렬화 실패: {}", json, e);
                                 return null;
@@ -56,35 +57,36 @@ public class RankingService {
                         .filter(keyword -> keyword != null)
                         .toList();
                 log.info("Redis에서 {}개 검색 키워드 조회 완료", keywords.size());
-                return CompletableFuture.completedFuture(keywords);
+                return keywords;
             }
 
             log.warn("Redis 데이터 사용 불가, RDS로 폴백");
             List<Object[]> topKeywords = searchLogRepository.findTopKeywordsSince(LocalDateTime.now().minusDays(1));
-            List<PopularKeyword> fallbackKeywords = topKeywords.stream()
+            List<PopularKeywordResponse> fallbackKeywords = topKeywords.stream()
                     .map(row -> PopularKeyword.toEntity(
                             (Category) row[0],
                             (Long) row[1],
                             LocalDateTime.now()
                     ))
+                    .map(PopularKeywordResponse::toDto)
                     .toList();
             log.info("RDS에서 {}개 검색 키워드 조회 완료", fallbackKeywords.size());
-            return CompletableFuture.completedFuture(fallbackKeywords);
+            return fallbackKeywords;
         } catch (Exception e) {
             log.error("검색 키워드 조회 실패", e);
-            return CompletableFuture.completedFuture(List.of());
+            return List.of();
         }
     }
 
-    @Async
-    public CompletableFuture<List<HotShow>> getHotShowsAsync() {
+    public List<HotShowResponse> getHotShows() {
         try {
             List<String> jsonShows = redisTemplate.opsForList().range("ranking:hot_shows", 0, -1);
             if (jsonShows != null && !jsonShows.isEmpty()) {
-                List<HotShow> shows = jsonShows.stream()
+                List<HotShowResponse> shows = jsonShows.stream()
                         .map(json -> {
                             try {
-                                return objectMapper.readValue(json, HotShow.class);
+                                HotShow show = objectMapper.readValue(json, HotShow.class);
+                                return HotShowResponse.toDto(show);
                             } catch (Exception e) {
                                 log.error("공연 역직렬화 실패: {}", json, e);
                                 return null;
@@ -93,7 +95,7 @@ public class RankingService {
                         .filter(show -> show != null)
                         .toList();
                 log.info("Redis에서 {}개 인기 공연 조회 완료", shows.size());
-                return CompletableFuture.completedFuture(shows);
+                return shows;
             }
 
             log.warn("Redis 데이터 사용 불가, RDS로 폴백");
@@ -102,7 +104,7 @@ public class RankingService {
             if (topShows.isEmpty()) {
                 log.warn("RDS에서 조건에 맞는 공연 데이터가 없습니다. 상태: NOT FINISHED, 정렬: viewCount DESC");
             }
-            List<HotShow> fallbackShows = topShows.stream()
+            List<HotShowResponse> fallbackShows = topShows.stream()
                     .map(show -> HotShow.toEntity(
                             show.getId(),
                             show.getTitle(),
@@ -110,24 +112,25 @@ public class RankingService {
                             show.getStatus(),
                             LocalDateTime.now()
                     ))
+                    .map(HotShowResponse::toDto)
                     .toList();
             log.info("RDS에서 {}개 인기 공연 조회 완료", fallbackShows.size());
-            return CompletableFuture.completedFuture(fallbackShows);
+            return fallbackShows;
         } catch (Exception e) {
             log.error("인기 공연 조회 실패", e);
-            return CompletableFuture.completedFuture(List.of());
+            return List.of();
         }
     }
 
-    @Async
-    public CompletableFuture<List<LikeShow>> getLikeShowsAsync() {
+    public List<LikeShowResponse> getLikeShows() {
         try {
             List<String> jsonShows = redisTemplate.opsForList().range("ranking:like_shows", 0, -1);
             if (jsonShows != null && !jsonShows.isEmpty()) {
-                List<LikeShow> shows = jsonShows.stream()
+                List<LikeShowResponse> shows = jsonShows.stream()
                         .map(json -> {
                             try {
-                                return objectMapper.readValue(json, LikeShow.class);
+                                LikeShow show = objectMapper.readValue(json, LikeShow.class);
+                                return LikeShowResponse.toDto(show);
                             } catch (Exception e) {
                                 log.error("공연 역직렬화 실패: {}", json, e);
                                 return null;
@@ -136,14 +139,14 @@ public class RankingService {
                         .filter(show -> show != null)
                         .toList();
                 log.info("Redis에서 {}개 좋아요 공연 조회 완료", shows.size());
-                return CompletableFuture.completedFuture(shows);
+                return shows;
             }
 
             log.warn("Redis 데이터 사용 불가, RDS로 폴백");
             Pageable pageable = PageRequest.of(0, 10);
             List<Object[]> topShows = likeRepository.findTop10ShowsByLikeCountAndStatusIn(ACTIVE_STATUSES, pageable);
             log.debug("RDS 좋아요 공연 쿼리 결과: {}", topShows);
-            List<LikeShow> fallbackShows = topShows.stream()
+            List<LikeShowResponse> fallbackShows = topShows.stream()
                     .map(row -> LikeShow.toEntity(
                             (Long) row[0],
                             (String) row[1],
@@ -151,12 +154,13 @@ public class RankingService {
                             (ShowStatus) row[3],
                             LocalDateTime.now()
                     ))
+                    .map(LikeShowResponse::toDto)
                     .toList();
             log.info("RDS에서 {}개 좋아요 공연 조회 완료", fallbackShows.size());
-            return CompletableFuture.completedFuture(fallbackShows);
+            return fallbackShows;
         } catch (Exception e) {
             log.error("좋아요 공연 조회 실패", e);
-            return CompletableFuture.completedFuture(List.of());
+            return List.of();
         }
     }
 }
