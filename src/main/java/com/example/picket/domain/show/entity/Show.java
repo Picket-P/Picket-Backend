@@ -57,7 +57,7 @@ public class Show extends BaseEntity {
     @Column
     private Integer ticketsLimitPerUser;
 
-    @Column(name = "view_count", nullable = false)
+    @Column(nullable = false)
     private int viewCount;
 
     @Enumerated(EnumType.STRING)
