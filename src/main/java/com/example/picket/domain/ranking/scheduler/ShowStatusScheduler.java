@@ -34,7 +34,7 @@ public class ShowStatusScheduler {
         try {
             log.info("공연 상태 업데이트 시작");
             LocalDateTime now = LocalDateTime.now();
-            List<ShowDate> showDates = showDateRepository.findAllActiveShowDates();
+            List<ShowDate> showDates = showDateRepository.findAllActiveShowDates(ShowStatus.FINISHED);
             log.info("활성 공연 날짜 {}개 조회", showDates.size());
 
             // Show ID별 ShowDate 그룹핑
