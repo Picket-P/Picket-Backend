@@ -39,7 +39,7 @@ public class TicketCommandService {
     @Transactional
     public List<Ticket> createTicket(User user, Show show, List<Long> seatIds) {
         return seatIds.stream().map(seatId -> {
-            Seat foundSeat = seatQueryService.getSeat(seatId);
+            Seat foundSeat = seatQueryService.getSeatForBooking(seatId);
             foundSeat.updateSeatStatus(SeatStatus.RESERVED);
             Ticket ticket = Ticket.toEntity(user, show, foundSeat, foundSeat.getPrice(), TicketStatus.TICKET_CREATED);
             ticketRepository.save(ticket);

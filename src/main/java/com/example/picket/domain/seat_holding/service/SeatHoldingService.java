@@ -50,7 +50,7 @@ public class SeatHoldingService {
             }
 
             successfullyLockedSeats.add(seatId);
-            seatQueryService.getSeat(seatId).updateSeatStatus(SeatStatus.OCCUPIED);
+            seatQueryService.getSeatForBooking(seatId).updateSeatStatus(SeatStatus.OCCUPIED);
         }
     }
 
@@ -79,7 +79,7 @@ public class SeatHoldingService {
             RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
             seatLock.delete();
 
-            seatQueryService.getSeat(seatId).updateSeatStatus(SeatStatus.AVAILABLE);
+            seatQueryService.getSeatForBooking(seatId).updateSeatStatus(SeatStatus.AVAILABLE);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.example.picket.domain.booking.service;
 
 import com.example.picket.common.enums.OrderStatus;
+import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.order.entity.Order;
@@ -10,6 +11,7 @@ import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.seat_holding.service.SeatHoldingService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
+import com.example.picket.domain.show.service.ShowDateCommandService;
 import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.ticket.entity.Ticket;
@@ -17,6 +19,7 @@ import com.example.picket.domain.ticket.service.TicketCommandService;
 import com.example.picket.domain.ticket.service.TicketQueryService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -48,6 +51,7 @@ public class BookingService {
     private final OrderCommandService orderCommandService;
     private final TicketCommandService ticketCommandService;
     private final TicketQueryService ticketQueryService;
+    private final ShowDateCommandService showDateCommandService;
 
     @Transactional
     public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds) throws InterruptedException {
@@ -95,11 +99,10 @@ public class BookingService {
         String lockKey = KEY_PREFIX + showDateId;
         RLock lock = redissonClient.getFairLock(lockKey);
 
-        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
 
         if (lock.tryLock(10, TimeUnit.SECONDS)) {
             try {
-                foundShowDate.updateCountOnBooking(count);
+                showDateCommandService.showDateUpdate(showDateId, count);
             } finally {
                 lock.unlock();
             }
