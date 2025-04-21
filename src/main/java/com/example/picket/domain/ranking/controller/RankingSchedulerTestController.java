@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v2/test")
 @RequiredArgsConstructor
-public class TestController {
+public class RankingSchedulerTestController {
 
     private final PopularKeywordScheduler popularKeywordScheduler;
     private final HotShowRankingScheduler hotShowRankingScheduler;
