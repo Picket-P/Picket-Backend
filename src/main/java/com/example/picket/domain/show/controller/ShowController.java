@@ -61,9 +61,7 @@ public class ShowController {
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         // 인기 검색어 카운트 증가
-        if (category != null) {
-            popularKeywordScheduler.incrementSearchKeyword(category);
-        }
+        popularKeywordScheduler.incrementSearchKeyword(category);
 
         Page<ShowResponse> response = showQueryService.getShows(category, sortBy, order, page, size);
         return ResponseEntity.ok(PageResponse.toDto(response));
