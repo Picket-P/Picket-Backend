@@ -7,8 +7,7 @@ import com.example.picket.domain.show.repository.ShowDateRepository;
 import com.example.picket.domain.show.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,47 +26,35 @@ public class ShowStatusScheduler {
     private final ShowDateRepository showDateRepository;
     private final HotShowRankingScheduler hotShowRankingScheduler;
     private final LikeRankingScheduler likeRankingScheduler;
-    private final RedissonClient redissonClient;
 
     @Scheduled(cron = "0 */5 * * * ?") // 5분마다
+    @SchedulerLock(name = "show_status", lockAtMostFor = "PT5M", lockAtLeastFor = "PT10S")
     @Transactional
     public void updateShowStatuses() {
-        RLock lock = redissonClient.getLock("lock:show_status");
         try {
-            if (lock.tryLock(0, 60, TimeUnit.SECONDS)) {
-                log.info("공연 상태 업데이트 시작");
-                LocalDateTime now = LocalDateTime.now();
-                List<ShowDate> showDates = showDateRepository.findAllActiveShowDates();
-                log.info("활성 공연 날짜 {}개 조회", showDates.size());
+            log.info("공연 상태 업데이트 시작");
+            LocalDateTime now = LocalDateTime.now();
+            List<ShowDate> showDates = showDateRepository.findAllActiveShowDates();
+            log.info("활성 공연 날짜 {}개 조회", showDates.size());
 
-                // Show ID별 ShowDate 그룹핑
-                Map<Long, List<ShowDate>> showDateMap = showDates.stream()
-                        .collect(Collectors.groupingBy(showDate -> showDate.getShow().getId()));
+            // Show ID별 ShowDate 그룹핑
+            Map<Long, List<ShowDate>> showDateMap = showDates.stream()
+                    .collect(Collectors.groupingBy(showDate -> showDate.getShow().getId()));
 
-                List<Show> shows = showDateMap.keySet().stream()
-                        .map(showRepository::findById)
-                        .filter(show -> show.isPresent())
-                        .map(show -> show.get())
-                        .toList();
+            List<Show> shows = showDateMap.keySet().stream()
+                    .map(showRepository::findById)
+                    .filter(show -> show.isPresent())
+                    .map(show -> show.get())
+                    .toList();
 
-                shows.forEach(show -> updateShowStatus(show, showDateMap.getOrDefault(show.getId(), List.of()), now));
+            shows.forEach(show -> updateShowStatus(show, showDateMap.getOrDefault(show.getId(), List.of()), now));
 
-                log.info("공연 상태 업데이트 완료");
-                hotShowRankingScheduler.updateHotShowRanking();
-                likeRankingScheduler.updateLikeRanking();
-                log.info("랭킹 캐시 갱신 완료");
-            } else {
-                log.warn("공연 상태 업데이트 락 획득 실패, 스킵");
-            }
-        } catch (InterruptedException e) {
-            log.error("공연 상태 업데이트 �락 획득 실패", e);
+            log.info("공연 상태 업데이트 완료");
+            hotShowRankingScheduler.updateHotShowRanking();
+            likeRankingScheduler.updateLikeRanking();
+            log.info("랭킹 캐시 갱신 완료");
         } catch (Exception e) {
             log.error("공연 상태 업데이트 실패", e);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-                log.info("공연 상태 업데이트 락 해제");
-            }
         }
     }
 
