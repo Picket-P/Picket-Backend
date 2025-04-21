@@ -24,6 +24,11 @@ public class SeatQueryService {
         return seatRepository.findAllByShowDateId(showDateId);
     }
 
+    public Seat getSeatForBooking(Long id) {
+        return seatRepository.findById(id).orElseThrow(
+                () -> new CustomException(NOT_FOUND, "존재하지 않는 Seat입니다."));
+    }
+
 }
 
 
