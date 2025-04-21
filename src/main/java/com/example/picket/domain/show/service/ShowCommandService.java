@@ -187,13 +187,4 @@ public class ShowCommandService {
             }
         }
     }
-
-    // 조회수 증가
-    @Transactional
-    public void incrementViewCount(Long showId) {
-        int updated = showRepository.incrementViewCount(showId);
-        if (updated == 0) {
-            throw new CustomException(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다.");
-        }
-    }
 }
