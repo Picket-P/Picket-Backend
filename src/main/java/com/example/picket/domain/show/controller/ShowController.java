@@ -18,13 +18,22 @@ import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v2")
@@ -46,7 +55,8 @@ public class ShowController {
             @Valid @RequestBody ShowCreateRequest request
     ) {
         Show show = showCommandService.createShow(user, request);
-        List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(show.getId());
+        List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(
+                show.getId());
         return ResponseEntity.ok(ShowDetailResponse.toDto(show, showDateDetail));
     }
 
@@ -88,7 +98,8 @@ public class ShowController {
             @Valid @RequestBody ShowUpdateRequest request
     ) {
         Show show = showCommandService.updateShow(authUser, showId, request);
-        List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(show.getId());
+        List<ShowDateDetailResponse> showDateDetail = showDateQueryService.getShowDateDetailResponsesByShowId(
+                show.getId());
         return ResponseEntity.ok(ShowDetailResponse.toDto(show, showDateDetail));
     }
 
@@ -104,4 +115,12 @@ public class ShowController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @Operation(summary = "공연 포스터 이미지 업로드", description = "공연 포스터 이미지를 업로드할 수 있습니다.")
+    @PostMapping("/shows/uploadImage")
+    public ResponseEntity<String> uploadImage(HttpServletRequest request,
+                                              @RequestHeader("Content-Length") long contentLength,
+                                              @RequestHeader(value = "Content-Type", defaultValue = "application/octet-stream") String contentType) {
+        return ResponseEntity.ok(showCommandService.uploadImage(request, contentLength, contentType));
+    }
 }

@@ -50,13 +50,13 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    //swagger
+    // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     // redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.37.0'
 
-    //webClient
+    // webClient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // monitoring
@@ -70,6 +70,15 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // AWS
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.1.1'
+
+    // S3
+    implementation "software.amazon.awssdk:s3:2.31.0"
+
+    // Scalr
+    implementation "org.imgscalr:imgscalr-lib:4.2"
 }
 
 tasks.named('test') {
