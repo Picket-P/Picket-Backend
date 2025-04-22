@@ -31,28 +31,28 @@ class SeatQueryServiceTest {
         // given
         Long seatId = 1L;
         Seat seat = mock(Seat.class);
-        when(seatRepository.findByIdWithShowDateAndShow(seatId)).thenReturn(Optional.of(seat));
+        when(seatRepository.findById(seatId)).thenReturn(Optional.of(seat));
 
         // when
         Seat result = seatQueryService.getSeat(seatId);
 
         // then
         assertThat(result).isEqualTo(seat);
-        verify(seatRepository).findByIdWithShowDateAndShow(seatId);
+        verify(seatRepository).findById(seatId);
     }
 
     @Test
     void 좌석ID로_좌석_조회_실패_존재하지_않음() {
         // given
         Long seatId = 2L;
-        when(seatRepository.findByIdWithShowDateAndShow(seatId)).thenReturn(Optional.empty());
+        when(seatRepository.findById(seatId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> seatQueryService.getSeat(seatId))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("존재하지 않는 Seat입니다.");
 
-        verify(seatRepository).findByIdWithShowDateAndShow(seatId);
+        verify(seatRepository).findById(seatId);
     }
 
     @Test
