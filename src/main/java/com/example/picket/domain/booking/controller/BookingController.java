@@ -5,6 +5,7 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.booking.dto.request.BookingRequest;
 import com.example.picket.domain.booking.dto.request.CancelBookingRequest;
 import com.example.picket.domain.booking.dto.response.CancelBookingResponse;
+import com.example.picket.domain.booking.service.BookingFacade;
 import com.example.picket.domain.booking.service.BookingService;
 import com.example.picket.domain.order.dto.response.OrderResponse;
 import com.example.picket.domain.order.entity.Order;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
 @Tag(name = "예매 API", description = "예매, 예매취소 기능 API입니다.")
 public class BookingController {
 
-    private final BookingService bookingService;
+    private final BookingFacade bookingFacade;
 
     @Operation(summary = "예매", description = "좌석을 예매하여 티켓, 주문을 생성할 수 있습니다.")
     @PostMapping("show/{showId}/show-date/{showDateId}/booking")
@@ -36,7 +37,7 @@ public class BookingController {
             @Auth AuthUser authUser,
             @RequestBody BookingRequest dto
             ) throws InterruptedException {
-        Order order = bookingService.booking(showId, showDateId, authUser.getId(), dto.getSeatIds());
+        Order order = bookingFacade.booking(showId, showDateId, authUser.getId(), dto.getSeatIds());
         OrderResponse orderResponse = OrderResponse.toDto(order);
         return ResponseEntity.ok(orderResponse);
     }
@@ -49,7 +50,7 @@ public class BookingController {
             @Auth AuthUser authUser,
             @RequestBody CancelBookingRequest dto
     ) throws InterruptedException {
-        List<Ticket> canceledTickets = bookingService.cancelBooking(showId, showDateId, authUser.getId(), dto.getTicketIds());
+        List<Ticket> canceledTickets = bookingFacade.cancelBooking(showId, showDateId, authUser.getId(), dto.getTicketIds());
         List<GetTicketResponse> getTicketResponses = canceledTickets.stream().map(GetTicketResponse::toDto).toList();
         CancelBookingResponse cancelBookingResponse = CancelBookingResponse.toDto(getTicketResponses);
         return ResponseEntity.ok(cancelBookingResponse);

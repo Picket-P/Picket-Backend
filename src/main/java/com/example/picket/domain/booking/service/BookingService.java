@@ -33,9 +33,6 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 public class BookingService {
 
-    private final RedissonClient redissonClient;
-    private final String KEY_PREFIX = "BOOKING-LOCK:SHOW-DATE:";
-
     private final SeatHoldingService seatHoldingService;
 
     private final ShowQueryService showQueryService;
@@ -50,63 +47,37 @@ public class BookingService {
     @Transactional
     public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds) throws InterruptedException {
 
-        String lockKey = KEY_PREFIX + showDateId;
-        RLock lock = redissonClient.getFairLock(lockKey);
+        Show foundShow = showQueryService.getShow(showId); // select
+        checkBookingTime(foundShow);
 
-        if (lock.tryLock(10, TimeUnit.SECONDS)) {
-            try {
-                Show foundShow = showQueryService.getShow(showId); // select
-                checkBookingTime(foundShow);
+        User foundUser = userQueryService.getUser(userId); // select
 
-                User foundUser = userQueryService.getUser(userId); // select
+        seatHoldingService.seatHoldingCheck(userId, seatIds);
 
-                seatHoldingService.seatHoldingCheck(userId, seatIds);
+        ticketQueryService.checkTicketLimit(foundUser, foundShow); // select
 
-                ticketQueryService.checkTicketLimit(foundUser, foundShow); // select
+        List<Ticket> tickets = ticketCommandService.createTicket(foundUser, foundShow, seatIds); // insert
 
-                List<Ticket> tickets = ticketCommandService.createTicket(foundUser, foundShow, seatIds); // insert
+        Order order = orderCommandService.createOrder(foundUser, tickets); // insert
 
-                Order order = orderCommandService.createOrder(foundUser, tickets); // insert
+        showDateCommandService.countUpdate(showDateId, seatIds.size()); // update
 
-                showDateCommandService.countUpdate(showDateId, seatIds.size()); // update
+        seatHoldingService.seatHoldingUnLock(seatIds);
 
-                seatHoldingService.seatHoldingUnLock(seatIds);
-
-                return order;
-
-            } finally {
-                lock.unlock();
-            }
-        } else {
-            throw new IllegalStateException("락 획득 실패: " + lockKey);
-        }
+        return order;
     }
 
     @Transactional
     public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, List<Long> ticketIds) throws InterruptedException {
+        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+        checkCancelBookingTime(foundShowDate);
 
-        String lockKey = KEY_PREFIX + showDateId;
-        RLock lock = redissonClient.getFairLock(lockKey);
+        User foundUser = userQueryService.getUser(userId);
+        List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
 
-        if (lock.tryLock(10, TimeUnit.SECONDS)) {
-            try {
-                ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
-                checkCancelBookingTime(foundShowDate);
+        showDateCommandService.countUpdate(showDateId, ticketIds.size());
 
-                User foundUser = userQueryService.getUser(userId);
-                List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
-
-                showDateCommandService.countUpdate(showDateId, ticketIds.size());
-
-                return canceledTickets;
-
-            } finally {
-                lock.unlock();
-            }
-        } else {
-            throw new IllegalStateException("락 획득 실패: " + lockKey);
-        }
-
+        return canceledTickets;
     }
 
     private void checkBookingTime(Show show) {

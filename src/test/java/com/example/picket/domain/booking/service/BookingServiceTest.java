@@ -72,9 +72,6 @@ class BookingServiceTest {
         List<Ticket> mockTickets = List.of(mock(Ticket.class));
         Order mockOrder = mock(Order.class);
 
-        when(redissonClient.getFairLock(anyString())).thenReturn(rLock);
-        when(rLock.tryLock(anyLong(), any(TimeUnit.class))).thenReturn(true);
-
         when(showQueryService.getShow(showId)).thenReturn(mockShow);
         when(userQueryService.getUser(userId)).thenReturn(mockUser);
 
@@ -92,7 +89,6 @@ class BookingServiceTest {
 
         // then
         assertThat(result).isEqualTo(mockOrder);
-        verify(rLock).unlock();
     }
 
     @Test
@@ -110,9 +106,6 @@ class BookingServiceTest {
         User mockUser = mock(User.class);
         List<Ticket> mockTickets = List.of(mock(Ticket.class));
 
-        when(redissonClient.getFairLock(anyString())).thenReturn(rLock);
-        when(rLock.tryLock(anyLong(), any(TimeUnit.class))).thenReturn(true);
-
         when(showDateQueryService.getShowDate(showDateId)).thenReturn(mockShowDate);
         when(userQueryService.getUser(userId)).thenReturn(mockUser);
 
@@ -125,148 +118,5 @@ class BookingServiceTest {
 
         // then
         assertThat(result).isEqualTo(mockTickets);
-        verify(rLock).unlock();
-
-    }
-    @Test
-    void 동시에_예매할_경우_Lock을_통해_제어한다() throws InterruptedException {
-
-        // given
-        Long showId = 1L;
-        Long showDateId = 1L;
-        Long userId1 = 1L;
-        Long userId2 = 2L;
-        List<Long> seatIds1 = List.of(100L);
-        List<Long> seatIds2 = List.of(101L);
-
-        Show mockShow = mock(Show.class);
-        when(mockShow.getReservationStart()).thenReturn(LocalDateTime.now().minusMinutes(10));
-        when(mockShow.getReservationEnd()).thenReturn(LocalDateTime.now().plusMinutes(10));
-        when(showQueryService.getShow(any())).thenReturn(mockShow);
-
-        when(userQueryService.getUser(any())).thenReturn(mock(User.class));
-        doNothing().when(seatHoldingService).seatHoldingCheck(any(), any());
-        doNothing().when(ticketQueryService).checkTicketLimit(any(), any());
-
-        when(ticketCommandService.createTicket(any(), any(), any())).thenReturn(List.of(mock(Ticket.class)));
-        when(orderCommandService.createOrder(any(), any())).thenReturn(mock(Order.class));
-
-        doNothing().when(showDateCommandService).countUpdate(any(), anyInt());
-        doNothing().when(seatHoldingService).seatHoldingUnLock(any());
-
-        RLock lock = mock(RLock.class);
-        when(redissonClient.getFairLock(anyString())).thenReturn(lock);
-
-        // 두 번 호출될 때 다른 값을 반환하게 설정 (첫 호출 true, 두 번째 false)
-        when(lock.tryLock(anyLong(), any(TimeUnit.class))).thenAnswer(new Answer<Boolean>() {
-            private int count = 0;
-            @Override
-            public Boolean answer(InvocationOnMock invocation) {
-                return count++ == 0; // 첫 번째만 true
-            }
-        });
-
-        // when
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-
-        Future<Order> future1 = executor.submit(() ->
-                bookingService.booking(showId, showDateId, userId1, seatIds1));
-        Future<Order> future2 = executor.submit(() ->
-                bookingService.booking(showId, showDateId, userId2, seatIds2));
-
-        int success = 0;
-        int fail = 0;
-
-        for (Future<Order> future : List.of(future1, future2)) {
-            try {
-                future.get(); // 성공하면 Order 반환
-                success++;
-            } catch (ExecutionException e) {
-                // 실패는 락 획득 실패
-                if (e.getCause() instanceof IllegalStateException) {
-                    fail++;
-                }
-            }
-        }
-
-        executor.shutdown();
-
-        // then
-        assertThat(success).isEqualTo(1);
-        assertThat(fail).isEqualTo(1);
-        verify(lock, times(2)).tryLock(anyLong(), any(TimeUnit.class));
-        verify(lock, times(1)).unlock(); // 성공한 쪽만 unlock
-        verify(showDateCommandService, times(1)).countUpdate(eq(showDateId), eq(1));
-    }
-
-    @Test
-    void 두개의_스레드가_Lock을_통해_booking을_순차적으로_진행하고_countUpdate가_2번_호출된다() throws Exception {
-        // given
-        Long showId = 1L;
-        Long showDateId = 1L;
-        Long userId1 = 1L;
-        Long userId2 = 2L;
-        List<Long> seatIds1 = List.of(100L);
-        List<Long> seatIds2 = List.of(101L);
-
-        Show mockShow = mock(Show.class);
-        when(mockShow.getReservationStart()).thenReturn(LocalDateTime.now().minusMinutes(10));
-        when(mockShow.getReservationEnd()).thenReturn(LocalDateTime.now().plusMinutes(10));
-        when(showQueryService.getShow(any())).thenReturn(mockShow);
-
-        when(userQueryService.getUser(any())).thenReturn(mock(User.class));
-
-        doNothing().when(seatHoldingService).seatHoldingCheck(any(), any());
-        doNothing().when(ticketQueryService).checkTicketLimit(any(), any());
-        doNothing().when(showDateCommandService).countUpdate(anyLong(), anyInt());
-
-        RLock lock = mock(RLock.class);
-        when(redissonClient.getFairLock(anyString())).thenReturn(lock);
-
-        // 순차적으로 실행되도록 설정 (두 번째 스레드는 첫 번째가 끝날 때까지 기다렸다가 true 반환)
-        CountDownLatch firstLockAcquired = new CountDownLatch(1);
-        CountDownLatch allowSecondThread = new CountDownLatch(1);
-
-        when(lock.tryLock(anyLong(), any(TimeUnit.class)))
-                .thenAnswer(new Answer<Boolean>() {
-                    private boolean firstCall = true;
-
-                    @Override
-                    public Boolean answer(InvocationOnMock invocation) throws InterruptedException {
-                        if (firstCall) {
-                            firstCall = false;
-                            firstLockAcquired.countDown(); // 첫 번째 스레드가 락을 잡음
-                            allowSecondThread.await(); // 두 번째 스레드는 여기서 기다림
-                            return true;
-                        } else {
-                            return true;
-                        }
-                    }
-                });
-
-        // 첫 번째 스레드가 unlock 호출할 때 두 번째 스레드 진행 허용
-        doAnswer(invocation -> {
-            allowSecondThread.countDown(); // 이제 두 번째 스레드가 tryLock 가능
-            return null;
-        }).when(lock).unlock();
-
-        doReturn(List.of(mock(Ticket.class))).when(ticketCommandService).createTicket(any(), any(), any());
-
-        doReturn(mock(Order.class)).when(orderCommandService).createOrder(any(), any());
-
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-
-        Future<?> future1 = executor.submit(() ->
-                bookingService.booking(showId, showDateId, userId1, seatIds1)
-        );
-        Future<?> future2 = executor.submit(() ->
-                bookingService.booking(showId, showDateId, userId2, seatIds2)
-        );
-
-        future1.get();
-        future2.get();
-
-        // then
-        verify(showDateCommandService, times(2)).countUpdate(showDateId, 1);
     }
 }
