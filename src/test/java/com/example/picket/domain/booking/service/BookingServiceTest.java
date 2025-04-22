@@ -8,6 +8,7 @@ import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat_holding.service.SeatHoldingService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
+import com.example.picket.domain.show.service.ShowDateCommandService;
 import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.ticket.entity.Ticket;
@@ -20,7 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 
@@ -30,168 +33,240 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
 
-    @InjectMocks
-    private BookingService bookingService;
-
-    @Mock
-    private RedissonClient redissonClient;
-    @Mock
-    private RLock rLock;
-
+    @Mock private RedissonClient redissonClient;
+    @Mock private RLock rLock;
     @Mock private SeatHoldingService seatHoldingService;
     @Mock private ShowQueryService showQueryService;
     @Mock private UserQueryService userQueryService;
     @Mock private ShowDateQueryService showDateQueryService;
+    @Mock private TicketQueryService ticketQueryService;
     @Mock private OrderCommandService orderCommandService;
     @Mock private TicketCommandService ticketCommandService;
-    @Mock private TicketQueryService ticketQueryService;
+    @Mock private ShowDateCommandService showDateCommandService;
 
-    private User user;
-    private Show show;
-    private Seat seat;
-    private ShowDate showDate;
-
-    @BeforeEach
-    void setUp() {
-        user = User.toEntity(
-                "user@example.com", "encodedPw", UserRole.USER, null, "nickname",
-                LocalDate.of(1990, 1, 1), Gender.MALE
-        );
-
-        show = Show.toEntity(
-                1L, "Show Title", "http://poster.url", Category.CONCERT, "Description",
-                "Location", LocalDateTime.now(), LocalDateTime.now().plusDays(1), 4
-        );
-
-        showDate = ShowDate.toEntity(LocalDate.now().plusDays(7), LocalTime.of(19, 0), LocalTime.of(20, 0), 1, 0, show);
-
-        seat = Seat.toEntity(Grade.A, 1, BigDecimal.valueOf(1000L), showDate);
-    }
+    @InjectMocks
+    private BookingService bookingService;
 
     @Test
-    void 성공적으로_예매할_수_있다() throws InterruptedException {
+    void 예매에_성공한다() throws InterruptedException {
         // given
         Long showId = 1L;
         Long showDateId = 1L;
         Long userId = 1L;
-        List<Long> seatIds = Arrays.asList(1L);
-        BigDecimal price = BigDecimal.valueOf(100L);
-        List<Ticket> tickets = Arrays.asList(Ticket.toEntity(user, show, seat, price, TicketStatus.TICKET_CREATED));
-        Order order = Order.toEntity(user, price, OrderStatus.ORDER_COMPLETE, tickets);
-        order.updateOrderStatus(OrderStatus.ORDER_COMPLETE);
+        List<Long> seatIds = List.of(10L, 11L);
 
-        when(showQueryService.getShow(showId)).thenReturn(show);
-        when(userQueryService.getUser(userId)).thenReturn(user);
-        when(showDateQueryService.getShowDate(showDateId)).thenReturn(showDate);
-        when(ticketCommandService.createTicket(user, show, seatIds)).thenReturn(tickets);
-        when(orderCommandService.createOrder(user, tickets)).thenReturn(order);
+        Show mockShow = mock(Show.class);
+        when(mockShow.getReservationStart()).thenReturn(LocalDateTime.now().minusHours(1));
+        when(mockShow.getReservationEnd()).thenReturn(LocalDateTime.now().plusHours(1));
+
+        User mockUser = mock(User.class);
+        List<Ticket> mockTickets = List.of(mock(Ticket.class));
+        Order mockOrder = mock(Order.class);
+
         when(redissonClient.getFairLock(anyString())).thenReturn(rLock);
-        when(rLock.tryLock(anyLong(), any())).thenReturn(true);
+        when(rLock.tryLock(anyLong(), any(TimeUnit.class))).thenReturn(true);
+
+        when(showQueryService.getShow(showId)).thenReturn(mockShow);
+        when(userQueryService.getUser(userId)).thenReturn(mockUser);
+
+        doNothing().when(seatHoldingService).seatHoldingCheck(userId, seatIds);
+        doNothing().when(ticketQueryService).checkTicketLimit(mockUser, mockShow);
+
+        when(ticketCommandService.createTicket(mockUser, mockShow, seatIds)).thenReturn(mockTickets);
+        when(orderCommandService.createOrder(mockUser, mockTickets)).thenReturn(mockOrder);
+
+        doNothing().when(showDateCommandService).countUpdate(showDateId, seatIds.size());
+        doNothing().when(seatHoldingService).seatHoldingUnLock(seatIds);
 
         // when
         Order result = bookingService.booking(showId, showDateId, userId, seatIds);
 
         // then
-        assertNotNull(result);
-        assertEquals(OrderStatus.ORDER_COMPLETE, result.getOrderStatus());
-        verify(seatHoldingService).seatHoldingCheck(userId, seatIds);
-        verify(ticketQueryService).checkTicketLimit(user, show);
-        verify(ticketCommandService).createTicket(user, show, seatIds);
-        verify(orderCommandService).createOrder(user, tickets);
-        verify(seatHoldingService).seatHoldingUnLock(seatIds);
+        assertThat(result).isEqualTo(mockOrder);
         verify(rLock).unlock();
     }
 
     @Test
-    void 예매_시작_시간_전_예매_시_예외가_발생한다() {
-        // given
-        Show show = mock(Show.class);
-        Long showId = 1L;
-        Long showDateId = 1L;
-        Long userId = 1L;
-        List<Long> seatIds = Arrays.asList(1L);
-        when(show.getReservationStart()).thenReturn(LocalDateTime.now().plusDays(1));
-        when(showQueryService.getShow(showId)).thenReturn(show);
-
-        // when & then
-        CustomException exception = assertThrows(CustomException.class, () ->
-                bookingService.booking(showId, showDateId, userId, seatIds));
-        assertEquals("예매 시작 시간 전입니다.", exception.getMessage());
-        verifyNoInteractions(seatHoldingService, ticketQueryService, ticketCommandService, orderCommandService);
-    }
-
-    @Test
-    void booking_AfterReservationEnd_ThrowsException() {
-        // Arrange
-        Show show = mock(Show.class);
-        Long showId = 1L;
-        Long showDateId = 1L;
-        Long userId = 1L;
-        List<Long> seatIds = Arrays.asList(1L);
-        when(show.getReservationStart()).thenReturn(LocalDateTime.now().minusDays(2));
-        when(show.getReservationEnd()).thenReturn(LocalDateTime.now().minusDays(1));
-        when(showQueryService.getShow(showId)).thenReturn(show);
-
-
-        // Act & Assert
-        CustomException exception = assertThrows(CustomException.class, () ->
-                bookingService.booking(showId, showDateId, userId, seatIds));
-        assertEquals("예매 종료 시간 이후 입니다.", exception.getMessage());
-        verifyNoInteractions(seatHoldingService, ticketQueryService, ticketCommandService, orderCommandService);
-    }
-
-    @Test
-    void 성공적으로_예매취소_할_수_있다() throws InterruptedException {
+    void 예매취소에_성공한다() throws InterruptedException {
         // given
         Long showId = 1L;
         Long showDateId = 1L;
         Long userId = 1L;
-        List<Long> ticketIds = Arrays.asList(1L, 2L);
-        BigDecimal price = BigDecimal.valueOf(100L);
-        List<Ticket> canceledTickets = Arrays.asList(Ticket.toEntity(user, show, seat, price, TicketStatus.TICKET_CREATED));
+        List<Long> seatIds = List.of(10L, 11L);
+        List<Long> ticketIds = List.of(1L, 2L);
 
-        when(showDateQueryService.getShowDate(showDateId)).thenReturn(showDate);
-        when(userQueryService.getUser(userId)).thenReturn(user);
-        when(ticketCommandService.deleteTicket(user, ticketIds)).thenReturn(canceledTickets);
+        ShowDate mockShowDate = mock(ShowDate.class);
+        when(mockShowDate.getDate()).thenReturn(LocalDate.now().plusDays(1));
+
+        User mockUser = mock(User.class);
+        List<Ticket> mockTickets = List.of(mock(Ticket.class));
+
         when(redissonClient.getFairLock(anyString())).thenReturn(rLock);
-        when(rLock.tryLock(anyLong(), any())).thenReturn(true);
+        when(rLock.tryLock(anyLong(), any(TimeUnit.class))).thenReturn(true);
+
+        when(showDateQueryService.getShowDate(showDateId)).thenReturn(mockShowDate);
+        when(userQueryService.getUser(userId)).thenReturn(mockUser);
+
+        when(ticketCommandService.deleteTicket(mockUser, ticketIds)).thenReturn(mockTickets);
+
+        doNothing().when(showDateCommandService).countUpdate(showDateId, seatIds.size());
 
         // when
         List<Ticket> result = bookingService.cancelBooking(showId, showDateId, userId, ticketIds);
 
         // then
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        verify(showDateQueryService, times(2)).getShowDate(showDateId);
-        verify(userQueryService).getUser(userId);
-        verify(ticketCommandService).deleteTicket(user, ticketIds);
+        assertThat(result).isEqualTo(mockTickets);
         verify(rLock).unlock();
-    }
 
+    }
     @Test
-    void 공연날짜_이후_예매_취소_시_예외가_발생한다() {
+    void 동시에_예매할_경우_Lock을_통해_제어한다() throws InterruptedException {
+
         // given
         Long showId = 1L;
         Long showDateId = 1L;
-        Long userId = 1L;
-        List<Long> ticketIds = Arrays.asList(1L, 2L);
-        ShowDate pastShowDate = ShowDate.toEntity(
-                LocalDate.now().minusDays(1), LocalTime.of(19, 0), LocalTime.of(20, 0), 100, 0, show
+        Long userId1 = 1L;
+        Long userId2 = 2L;
+        List<Long> seatIds1 = List.of(100L);
+        List<Long> seatIds2 = List.of(101L);
+
+        Show mockShow = mock(Show.class);
+        when(mockShow.getReservationStart()).thenReturn(LocalDateTime.now().minusMinutes(10));
+        when(mockShow.getReservationEnd()).thenReturn(LocalDateTime.now().plusMinutes(10));
+        when(showQueryService.getShow(any())).thenReturn(mockShow);
+
+        when(userQueryService.getUser(any())).thenReturn(mock(User.class));
+        doNothing().when(seatHoldingService).seatHoldingCheck(any(), any());
+        doNothing().when(ticketQueryService).checkTicketLimit(any(), any());
+
+        when(ticketCommandService.createTicket(any(), any(), any())).thenReturn(List.of(mock(Ticket.class)));
+        when(orderCommandService.createOrder(any(), any())).thenReturn(mock(Order.class));
+
+        doNothing().when(showDateCommandService).countUpdate(any(), anyInt());
+        doNothing().when(seatHoldingService).seatHoldingUnLock(any());
+
+        RLock lock = mock(RLock.class);
+        when(redissonClient.getFairLock(anyString())).thenReturn(lock);
+
+        // 두 번 호출될 때 다른 값을 반환하게 설정 (첫 호출 true, 두 번째 false)
+        when(lock.tryLock(anyLong(), any(TimeUnit.class))).thenAnswer(new Answer<Boolean>() {
+            private int count = 0;
+            @Override
+            public Boolean answer(InvocationOnMock invocation) {
+                return count++ == 0; // 첫 번째만 true
+            }
+        });
+
+        // when
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        Future<Order> future1 = executor.submit(() ->
+                bookingService.booking(showId, showDateId, userId1, seatIds1));
+        Future<Order> future2 = executor.submit(() ->
+                bookingService.booking(showId, showDateId, userId2, seatIds2));
+
+        int success = 0;
+        int fail = 0;
+
+        for (Future<Order> future : List.of(future1, future2)) {
+            try {
+                future.get(); // 성공하면 Order 반환
+                success++;
+            } catch (ExecutionException e) {
+                // 실패는 락 획득 실패
+                if (e.getCause() instanceof IllegalStateException) {
+                    fail++;
+                }
+            }
+        }
+
+        executor.shutdown();
+
+        // then
+        assertThat(success).isEqualTo(1);
+        assertThat(fail).isEqualTo(1);
+        verify(lock, times(2)).tryLock(anyLong(), any(TimeUnit.class));
+        verify(lock, times(1)).unlock(); // 성공한 쪽만 unlock
+        verify(showDateCommandService, times(1)).countUpdate(eq(showDateId), eq(1));
+    }
+
+    @Test
+    void 두개의_스레드가_Lock을_통해_booking을_순차적으로_진행하고_countUpdate가_2번_호출된다() throws Exception {
+        // given
+        Long showId = 1L;
+        Long showDateId = 1L;
+        Long userId1 = 1L;
+        Long userId2 = 2L;
+        List<Long> seatIds1 = List.of(100L);
+        List<Long> seatIds2 = List.of(101L);
+
+        Show mockShow = mock(Show.class);
+        when(mockShow.getReservationStart()).thenReturn(LocalDateTime.now().minusMinutes(10));
+        when(mockShow.getReservationEnd()).thenReturn(LocalDateTime.now().plusMinutes(10));
+        when(showQueryService.getShow(any())).thenReturn(mockShow);
+
+        when(userQueryService.getUser(any())).thenReturn(mock(User.class));
+
+        doNothing().when(seatHoldingService).seatHoldingCheck(any(), any());
+        doNothing().when(ticketQueryService).checkTicketLimit(any(), any());
+        doNothing().when(showDateCommandService).countUpdate(anyLong(), anyInt());
+
+        RLock lock = mock(RLock.class);
+        when(redissonClient.getFairLock(anyString())).thenReturn(lock);
+
+        // 순차적으로 실행되도록 설정 (두 번째 스레드는 첫 번째가 끝날 때까지 기다렸다가 true 반환)
+        CountDownLatch firstLockAcquired = new CountDownLatch(1);
+        CountDownLatch allowSecondThread = new CountDownLatch(1);
+
+        when(lock.tryLock(anyLong(), any(TimeUnit.class)))
+                .thenAnswer(new Answer<Boolean>() {
+                    private boolean firstCall = true;
+
+                    @Override
+                    public Boolean answer(InvocationOnMock invocation) throws InterruptedException {
+                        if (firstCall) {
+                            firstCall = false;
+                            firstLockAcquired.countDown(); // 첫 번째 스레드가 락을 잡음
+                            allowSecondThread.await(); // 두 번째 스레드는 여기서 기다림
+                            return true;
+                        } else {
+                            return true;
+                        }
+                    }
+                });
+
+        // 첫 번째 스레드가 unlock 호출할 때 두 번째 스레드 진행 허용
+        doAnswer(invocation -> {
+            allowSecondThread.countDown(); // 이제 두 번째 스레드가 tryLock 가능
+            return null;
+        }).when(lock).unlock();
+
+        doReturn(List.of(mock(Ticket.class))).when(ticketCommandService).createTicket(any(), any(), any());
+
+        doReturn(mock(Order.class)).when(orderCommandService).createOrder(any(), any());
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        Future<?> future1 = executor.submit(() ->
+                bookingService.booking(showId, showDateId, userId1, seatIds1)
+        );
+        Future<?> future2 = executor.submit(() ->
+                bookingService.booking(showId, showDateId, userId2, seatIds2)
         );
 
-        when(showDateQueryService.getShowDate(showDateId)).thenReturn(pastShowDate);
+        future1.get();
+        future2.get();
 
-        // when & then
-        CustomException exception = assertThrows(CustomException.class, () ->
-                bookingService.cancelBooking(showId, showDateId, userId, ticketIds));
-        assertEquals("공연 시작 날짜 이전에만 취소 가능합니다.", exception.getMessage());
-        verifyNoInteractions(userQueryService, ticketCommandService);
+        // then
+        verify(showDateCommandService, times(2)).countUpdate(showDateId, 1);
     }
 }

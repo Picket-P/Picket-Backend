@@ -23,7 +23,7 @@ public class OrderCommandService {
         BigDecimal totalPrice = tickets.stream()
                 .map(Ticket::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        Order order = Order.toEntity(user, totalPrice, OrderStatus.ORDER_PENDING, tickets);
+        Order order = Order.toEntity(user, totalPrice, OrderStatus.ORDER_COMPLETE, tickets);
         orderRepository.save(order);
         return order;
     }
