@@ -1,9 +1,16 @@
 package com.example.picket.domain.show.service;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
-import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.common.exception.CustomException;
+import com.example.picket.common.service.S3Service;
+import com.example.picket.domain.images.dto.response.ImageResponse;
+import com.example.picket.domain.images.entity.ShowImage;
+import com.example.picket.domain.images.repository.ShowImageRepository;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatCommandService;
@@ -14,16 +21,13 @@ import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,8 @@ public class ShowCommandService {
     private final ShowDateQueryService showDateQueryService;
     private final SeatCommandService seatCommandService;
     private final SeatQueryService seatQueryService;
+    private final S3Service s3Service;
+    private final ShowImageRepository showImageRepository;
 
     // 공연 생성
     @Transactional
@@ -53,7 +59,13 @@ public class ShowCommandService {
                 request.getReservationEnd(),
                 request.getTicketsLimitPerUser()
         );
-        showRepository.save(show);
+
+        show = showRepository.save(show);
+
+        // 포스터 Url 저장
+        ShowImage showImage = showImageRepository.findByImageUrl(request.getPosterUrl())
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 이미지를 찾을 수 없습니다. 다시 업로드 시도를 해주세요."));
+        showImage.updateShow(show.getId());
 
         // 날짜별 공연 정보 및 좌석 생성
         List<ShowDate> showDates = new ArrayList<>();
@@ -97,6 +109,16 @@ public class ShowCommandService {
 
         validateOwnership(authUser, show);  // 소유자 확인
         validateUpdatable(show);            // 수정 가능 상태 확인
+
+        // 포스터 Url 저장
+        ShowImage showImage = showImageRepository.findByImageUrl(request.getPosterUrl())
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 이미지를 찾을 수 없습니다. 다시 업로드 시도를 해주세요."));
+        showImage.updateShow(show.getId());
+
+        if (show.getPosterUrl() != null) {
+            deleteShowImage(show.getPosterUrl());
+            s3Service.delete(show.getPosterUrl());
+        }
 
         show.update(request); // Entity 내 update 로직 실행
         return show;
@@ -186,5 +208,19 @@ public class ShowCommandService {
                 ));
             }
         }
+    }
+
+    //이미지 업로드
+    public String uploadImage(HttpServletRequest request, long contentLength, String contentType) {
+        ImageResponse imageResponse = s3Service.upload(request, contentLength, contentType);
+        ShowImage showImage = ShowImage.toEntity(imageResponse, null);
+        showImageRepository.save(showImage);
+        return imageResponse.getImageUrl();
+    }
+
+    public void deleteShowImage(String imageUrl) {
+        ShowImage showImage = showImageRepository.findByImageUrl(imageUrl)
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 이미지 파일을 찾을 수 없습니다."));
+        showImageRepository.delete(showImage);
     }
 }

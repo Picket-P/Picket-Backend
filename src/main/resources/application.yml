@@ -26,7 +26,7 @@ oauth:
   google:
     client-id: ${CLIENT_ID}
     client-secret: ${CLIENT_SECRET_KEY}
-    redirect-uris :
+    redirect-uris:
       director: http://localhost:8080/api/v2/auth/callback/director
       user: http://localhost:8080/api/v2/auth/callback/user
       admin: http://localhost:8080/api/v2/auth/callback/admin
@@ -43,3 +43,15 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}
+    s3:
+      bucket: ${AWS_S3_IMAGE_BUCKET}
+    region:
+      static: ${AWS_REGION}
+    stack:
+      auto: false
