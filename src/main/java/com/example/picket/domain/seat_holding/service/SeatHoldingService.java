@@ -5,9 +5,6 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.service.ShowQueryService;
-import com.example.picket.domain.ticket.service.TicketQueryService;
-import com.example.picket.domain.user.entity.User;
-import com.example.picket.domain.user.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -50,7 +47,7 @@ public class SeatHoldingService {
             }
 
             successfullyLockedSeats.add(seatId);
-            seatQueryService.getSeatForBooking(seatId).updateSeatStatus(SeatStatus.OCCUPIED);
+            seatQueryService.getSeat(seatId).updateSeatStatus(SeatStatus.OCCUPIED);
         }
     }
 
@@ -79,7 +76,7 @@ public class SeatHoldingService {
             RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
             seatLock.delete();
 
-            seatQueryService.getSeatForBooking(seatId).updateSeatStatus(SeatStatus.AVAILABLE);
+            seatQueryService.getSeat(seatId).updateSeatStatus(SeatStatus.AVAILABLE);
         }
     }
 

@@ -15,7 +15,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,6 +58,36 @@ class ShowDateCommandServiceTest {
 
             // then
             verify(showDateRepository, times(1)).save(showDate);
+        }
+    }
+
+    @Nested
+    class 좌석수_업데이트_테스트 {
+
+        @Test
+        void 좌석수_업데이트_성공_테스트() {
+           // given
+            Long showId = 1L;
+            Long showDateId = 1L;
+
+            Show show = createShow(LocalDateTime.now());
+            setShowId(show, showId);
+
+            ShowDate showDate = createShowDate(
+                    LocalDate.now(),
+                    LocalTime.of(10, 0),
+                    LocalTime.of(14, 0),
+                    show
+            );
+            setShowDateId(showDate, showDateId);
+            given(showDateRepository.findById(showDateId)).willReturn(Optional.of(showDate));
+
+           // when
+           showDateCommandService.countUpdate(showDateId, 1);
+
+           // then
+            assertEquals(showDate.getAvailableSeatCount(), 99);
+            assertEquals(showDate.getReservedSeatCount(), 1);
         }
     }
 

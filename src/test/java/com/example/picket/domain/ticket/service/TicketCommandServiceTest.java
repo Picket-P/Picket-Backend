@@ -62,6 +62,7 @@ class TicketCommandServiceTest {
 
     @Test
     void 티켓을_정상적으로_생성할_수_있다() {
+        // given
         Long seatId = 1L;
 
         when(seatQueryService.getSeat(seatId)).thenReturn(seat);

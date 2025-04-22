@@ -15,16 +15,11 @@ public class SeatQueryService {
 
     private final SeatRepository seatRepository;
 
-    public Seat getSeat(Long id) {
-        return seatRepository.findByIdWithShowDateAndShow(id).orElseThrow(
-                () -> new CustomException(NOT_FOUND, "존재하지 않는 Seat입니다."));
-    }
-
     public List<Seat> getSeatsByShowDate(Long showDateId) {
         return seatRepository.findAllByShowDateId(showDateId);
     }
 
-    public Seat getSeatForBooking(Long id) {
+    public Seat getSeat(Long id) {
         return seatRepository.findById(id).orElseThrow(
                 () -> new CustomException(NOT_FOUND, "존재하지 않는 Seat입니다."));
     }

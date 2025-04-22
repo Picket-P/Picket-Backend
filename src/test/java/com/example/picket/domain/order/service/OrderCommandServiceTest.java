@@ -56,7 +56,7 @@ class OrderCommandServiceTest {
     }
 
     @Test
-    void 티켓을_성공적으로_생성할_수_있다() {
+    void 주문을_성공적으로_생성할_수_있다() {
         // given
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -72,7 +72,7 @@ class OrderCommandServiceTest {
         Order capturedOrder = orderCaptor.getValue();
         assertEquals(user, capturedOrder.getUser());
         assertEquals(BigDecimal.valueOf(25000), capturedOrder.getTotalPrice());
-        assertEquals(OrderStatus.ORDER_PENDING, capturedOrder.getOrderStatus());
+        assertEquals(OrderStatus.ORDER_COMPLETE, capturedOrder.getOrderStatus());
         assertEquals(tickets, capturedOrder.getTicket());
     }
 }
