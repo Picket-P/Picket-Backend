@@ -24,7 +24,7 @@ public class ImageRemoveScheduler {
     private final ShowImageRepository showImageRepository;
     private final S3Service s3Service;
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     @SchedulerLock(name = "IMAGE-REMOVED-SCHEDULER", lockAtLeastFor = "PT1M", lockAtMostFor = "PT5M")
 
     public void cleanUpRemovedImage() {
