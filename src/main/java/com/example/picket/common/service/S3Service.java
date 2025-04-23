@@ -40,7 +40,6 @@ public class S3Service {
             "image/webp"
     );
     private static final long MAX_FILE_SIZE = 8 * 1024 * 1024;
-    private static final String FIXED_CONTENT_TYPE = "image/jpeg";
     private static final int TARGET_WIDTH = 300;
     private static final int TARGET_HEIGHT = 400;
 
@@ -69,8 +68,6 @@ public class S3Service {
         // 고유한 파일 이름 생성
         String key = "images/" + UUID.randomUUID();
         String outputFormat = contentType.substring(contentType.lastIndexOf("/") + 1);
-        System.out.println(contentType);
-        System.out.println(outputFormat);
 
         try (InputStream inputStream = request.getInputStream()) {
             // 이미지를 리사이징하고 JPEG로 변환
