@@ -233,10 +233,13 @@ class UserCommandServiceTest {
             User user = mock(User.class);
             WithdrawUserRequest request = new WithdrawUserRequest();
             ReflectionTestUtils.setField(request, "password", "test");
+            UserImage userImage = mock(UserImage.class);
 
             given(user.getPassword()).willReturn("test");
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(passwordEncoder.matches(request.getPassword(), "test")).willReturn(true);
+            given(userImageRepository.findByImageUrl(any())).willReturn(Optional.of(userImage));
+            doNothing().when(userImageRepository).delete(any());
             // when
             userCommandService.withdrawUserRequest(authUser, request);
             // then

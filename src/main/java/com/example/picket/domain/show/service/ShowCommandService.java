@@ -150,6 +150,8 @@ public class ShowCommandService {
             seatCommandService.deleteAll(seats);
         }
 
+        deleteShowImage(show.getPosterUrl());
+
     }
 
     // 공연 좌석 수 검증

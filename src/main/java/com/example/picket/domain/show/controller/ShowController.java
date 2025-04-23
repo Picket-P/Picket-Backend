@@ -115,7 +115,7 @@ public class ShowController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @AuthPermission(role = UserRole.DIRECTOR)
     @Operation(summary = "공연 포스터 이미지 업로드", description = "공연 포스터 이미지를 업로드할 수 있습니다.")
     @PostMapping("/shows/uploadImage")
     public ResponseEntity<String> uploadImage(HttpServletRequest request,

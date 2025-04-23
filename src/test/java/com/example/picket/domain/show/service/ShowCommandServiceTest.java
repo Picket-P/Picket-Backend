@@ -327,7 +327,7 @@ class ShowCommandServiceTest {
             setShowId(show, showId);
             ReflectionTestUtils.setField(show, "reservationStart", now.plusDays(1));
             ReflectionTestUtils.setField(show, "directorId", authUser.getId());
-
+            ShowImage showImage = mock(ShowImage.class);
             ShowDate showDate = createShowDate(
                     dateNow,
                     LocalTime.of(10, 0),
@@ -342,7 +342,8 @@ class ShowCommandServiceTest {
             given(showDateQueryService.getShowDatesByShowId(showId)).willReturn(List.of(showDate));
             given(seatQueryService.getSeatsByShowDate(showDateId)).willReturn(seats);
             doNothing().when(seatCommandService).deleteAll(seats);
-
+            given(showImageRepository.findByImageUrl(any())).willReturn(Optional.of(showImage));
+            doNothing().when(showImageRepository).delete(any());
             // when
             showCommandService.deleteShow(authUser, showId);
 

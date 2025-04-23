@@ -76,6 +76,7 @@ public class UserCommandService {
             throw new CustomException(UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
 
+        deleteUserImage(user.getProfileUrl());
         userRepository.delete(user);
     }
 
