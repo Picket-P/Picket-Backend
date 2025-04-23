@@ -3,7 +3,6 @@ package com.example.picket.common.service;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-import com.example.picket.common.enums.ImageStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.images.dto.response.ImageResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -87,7 +86,7 @@ public class S3Service {
             // InputStream을 사용하여 S3에 업로드
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(resizedImageBytes));
             log.info("파일 업로드 성공: bucket={}, key={}", bucket, key);
-            return ImageResponse.toDto(getPublicUrl(key), contentType, ImageStatus.PENDING);
+            return ImageResponse.toDto(getPublicUrl(key), contentType);
         } catch (IOException e) {
             log.error("파일 업로드 실패: bucket={}, key={}, cause={}", bucket, key, e.getMessage(), e);
             throw new CustomException(INTERNAL_SERVER_ERROR, "파일 업로드 중 서버 오류가 발생했습니다: " + e.getMessage());

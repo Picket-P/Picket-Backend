@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.picket.common.enums.ImageStatus;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.images.dto.response.ImageResponse;
 import jakarta.servlet.ServletInputStream;
@@ -153,7 +152,6 @@ class S3ServiceTest {
             assertThat(imageResponse.getImageUrl()).startsWith(
                     String.format("https://null.s3.null.amazonaws.com/images/"));
             assertThat(imageResponse.getFileFormat()).isEqualTo(VALID_CONTENT_TYPE);
-            assertThat(imageResponse.getImageStatus()).isEqualTo(ImageStatus.PENDING);
             verify(s3Client, times(1)).putObject(any(PutObjectRequest.class), any(RequestBody.class));
             verify(spyRequest, times(1)).getInputStream();
         }
