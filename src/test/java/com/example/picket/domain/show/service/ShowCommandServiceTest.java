@@ -3,14 +3,24 @@ package com.example.picket.domain.show.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
+import com.example.picket.common.service.S3Service;
+import com.example.picket.domain.images.dto.response.ImageResponse;
+import com.example.picket.domain.images.entity.ShowImage;
+import com.example.picket.domain.images.repository.ShowImageRepository;
 import com.example.picket.domain.seat.dto.request.SeatCreateRequest;
 import com.example.picket.domain.seat.entity.Seat;
 import com.example.picket.domain.seat.service.SeatCommandService;
@@ -56,6 +66,12 @@ class ShowCommandServiceTest {
     @Mock
     SeatQueryService seatQueryService;
 
+    @Mock
+    ShowImageRepository showImageRepository;
+
+    @Mock
+    S3Service s3Service;
+
     @InjectMocks
     ShowCommandService showCommandService;
 
@@ -70,7 +86,7 @@ class ShowCommandServiceTest {
     class 공연_생성_테스트 {
 
         @Test
-        void 공연_생성_성공() throws Exception {
+        void 공연_생성_성공() {
             // given
             Long showId = 1L;
             LocalDateTime now = LocalDateTime.now();
@@ -89,9 +105,12 @@ class ShowCommandServiceTest {
                 return savedShow;
             });
 
-            List<ShowDate> persistedShowDates =  createShowDates(show, request.getDates());
+            ShowImage showImage = mock(ShowImage.class);
+            given(showImageRepository.findByImageUrl(any())).willReturn(Optional.of(showImage));
+
+            List<ShowDate> persistedShowDates = createShowDates(show, request.getDates());
             given(showDateQueryService.getShowDatesByShowId(showId))
-                .willReturn(persistedShowDates);
+                    .willReturn(persistedShowDates);
 
             doNothing().when(showDateCommandService).createShowDatesJdbc(anyList());
             doNothing().when(seatCommandService).createSeatsJdbc(anyList());
@@ -119,24 +138,26 @@ class ShowCommandServiceTest {
             // given
             LocalDateTime now = LocalDateTime.now();
             ShowCreateRequest request = createShowCreateRequest(
-                now.plusDays(1),
-                now.plusDays(2),
-                new ShowDateRequest(
-                    LocalDate.now().plusDays(1),
-                    LocalTime.of(14, 0),
-                    LocalTime.of(16, 0),
-                    50,
-                    List.of(new SeatCreateRequest(Grade.A, 100, BigDecimal.valueOf(50000)))
-                )
+                    now.plusDays(1),
+                    now.plusDays(2),
+                    new ShowDateRequest(
+                            LocalDate.now().plusDays(1),
+                            LocalTime.of(14, 0),
+                            LocalTime.of(16, 0),
+                            50,
+                            List.of(new SeatCreateRequest(Grade.A, 100, BigDecimal.valueOf(50000)))
+                    )
             );
 
             Show show = createShow(request);
             given(showRepository.save(any(Show.class))).willReturn(show);
+            ShowImage showImage = mock(ShowImage.class);
+            given(showImageRepository.findByImageUrl(any())).willReturn(Optional.of(showImage));
 
             // when & then
             assertThatThrownBy(() -> showCommandService.createShow(authUser, request))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("총 좌석 수와 좌석 등급의 좌석 총합이 일치하지 않습니다.");
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("총 좌석 수와 좌석 등급의 좌석 총합이 일치하지 않습니다.");
         }
 
         @Test
@@ -176,6 +197,10 @@ class ShowCommandServiceTest {
             given(showRepository.findById(showId)).willReturn(Optional.of(show));
             given(showDateQueryService.getShowDatesByShowId(showId)).willReturn(Collections.emptyList());
             ShowUpdateRequest request = createShowUpdateRequest(now);
+
+            ShowImage showImage = mock(ShowImage.class);
+            given(showImageRepository.findByImageUrl(any())).willReturn(Optional.of(showImage));
+            doNothing().when(s3Service).delete(any());
 
             // when
             Show result = showCommandService.updateShow(authUser, showId, request);
@@ -304,10 +329,10 @@ class ShowCommandServiceTest {
             ReflectionTestUtils.setField(show, "directorId", authUser.getId());
 
             ShowDate showDate = createShowDate(
-                dateNow,
-                LocalTime.of(10, 0),
-                LocalTime.of(14, 0),
-                show
+                    dateNow,
+                    LocalTime.of(10, 0),
+                    LocalTime.of(14, 0),
+                    show
             );
             ReflectionTestUtils.setField(showDate, "id", showDateId);
 
@@ -380,6 +405,24 @@ class ShowCommandServiceTest {
         }
     }
 
+    @Nested
+    class 공연_이미지_테스트 {
+        @Test
+        void 공연_포스터_이미지_생성_성공() {
+            // given
+            ImageResponse imageResponse = mock(ImageResponse.class);
+            ShowImage showImage = mock(ShowImage.class);
+            given(s3Service.upload(any(), anyLong(), any())).willReturn(imageResponse);
+            given(showImageRepository.save(any())).willReturn(showImage);
+            // when
+            showCommandService.uploadImage(any(), anyLong(), any());
+            // then
+            verify(s3Service, times(1)).upload(any(), anyLong(), any());
+            verify(showImageRepository, times(1)).save(any());
+        }
+    }
+
+
     // 리플렉션
     private void setCreatedAt(Show show, LocalDateTime createdAt) throws Exception {
         ReflectionTestUtils.setField(show, "createdAt", createdAt);
@@ -432,18 +475,18 @@ class ShowCommandServiceTest {
     }
 
     private ShowDate createShowDate(
-        LocalDate now,
-        LocalTime startTime,
-        LocalTime endTime,
-        Show show
+            LocalDate now,
+            LocalTime startTime,
+            LocalTime endTime,
+            Show show
     ) {
         return ShowDate.toEntity(
-            now,
-            startTime,
-            endTime,
-            100,
-            0,
-            show
+                now,
+                startTime,
+                endTime,
+                100,
+                0,
+                show
         );
     }
 
@@ -451,12 +494,12 @@ class ShowCommandServiceTest {
         List<ShowDate> showDates = new ArrayList<>();
         for (int i = 0; i < dateRequests.size(); i++) {
             ShowDate showDate = ShowDate.toEntity(
-                dateRequests.get(i).getDate(),
-                dateRequests.get(i).getStartTime(),
-                dateRequests.get(i).getEndTime(),
-                dateRequests.get(i).getTotalSeatCount(),
-                0,
-                show
+                    dateRequests.get(i).getDate(),
+                    dateRequests.get(i).getStartTime(),
+                    dateRequests.get(i).getEndTime(),
+                    dateRequests.get(i).getTotalSeatCount(),
+                    0,
+                    show
             );
             ReflectionTestUtils.setField(showDate, "id", ((long) i + 1));
             showDates.add(showDate);
@@ -492,22 +535,22 @@ class ShowCommandServiceTest {
     }
 
     private ShowCreateRequest createShowCreateRequest(
-        LocalDateTime reservationStart,
-        LocalDateTime reservationEnd,
-        ShowDateRequest showDateRequest
+            LocalDateTime reservationStart,
+            LocalDateTime reservationEnd,
+            ShowDateRequest showDateRequest
     ) {
         return new ShowCreateRequest(
-            "테스트 공연",
-            "poster.jpg",
-            Category.MUSICAL,
-            "공연 설명",
-            "서울",
-            reservationStart,
-            reservationEnd,
-            2,
-            List.of(
-                showDateRequest
-            )
+                "테스트 공연",
+                "poster.jpg",
+                Category.MUSICAL,
+                "공연 설명",
+                "서울",
+                reservationStart,
+                reservationEnd,
+                2,
+                List.of(
+                        showDateRequest
+                )
         );
     }
 
