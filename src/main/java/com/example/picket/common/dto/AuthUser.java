@@ -5,9 +5,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AuthUser {
+public class AuthUser implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private UserRole userRole;
