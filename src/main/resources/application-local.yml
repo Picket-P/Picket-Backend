@@ -22,11 +22,17 @@ spring:
       host: localhost
       port: 6379
 
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+    timeout: 60m
+
 oauth:
   google:
-    client-id: ${CLIENT_ID}
-    client-secret: ${CLIENT_SECRET_KEY}
-    redirect-uris:
+    client-id: dummy-client-id
+    client-secret: dummy-client-secret
+    redirect-uris :
       director: http://localhost:8080/api/v2/auth/callback/director
       user: http://localhost:8080/api/v2/auth/callback/user
       admin: http://localhost:8080/api/v2/auth/callback/admin

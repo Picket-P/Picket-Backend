@@ -28,14 +28,20 @@ spring:
           max-idle: 8
           min-idle: 0
 
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+    timeout: 60m
+
 oauth:
   google:
     client-id: ${CLIENT_ID}
     client-secret: ${CLIENT_SECRET_KEY}
     redirect-uris:
-      director: https://www.thepickets.com/api/v2/auth/callback/director
-      user: https://www.thepickets.com/api/v2/auth/callback/user
-      admin: https://www.thepickets.com/api/v2/auth/callback/admin
+      director: https://thepickets.com/api/v2/auth/callback/director
+      user: https://thepickets.com/api/v2/auth/callback/user
+      admin: https://thepickets.com/api/v2/auth/callback/admin
     token-uri: https://oauth2.googleapis.com/token
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
 
