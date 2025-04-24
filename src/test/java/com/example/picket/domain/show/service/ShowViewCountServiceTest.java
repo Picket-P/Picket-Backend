@@ -58,11 +58,11 @@ class ShowViewCountServiceTest {
         // given
         Long showId = 1L;
         Long userId = 1L;
-        AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+        AuthUser authUser = AuthUser.create(userId, UserRole.USER);
         String redisKey = String.format("view:show:%d:user:%d", showId, userId);
 
-        Show show = Show.toEntity(showId, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
-            LocalDateTime.now(), LocalDateTime.now().plusDays(1), 2);
+        Show show = Show.create(showId, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
+                LocalDateTime.now(), LocalDateTime.now().plusDays(1), 2);
         ReflectionTestUtils.setField(show, "viewCount", 0);
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
@@ -86,11 +86,11 @@ class ShowViewCountServiceTest {
         // given
         Long showId = 1L;
         Long userId = 1L;
-        AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+        AuthUser authUser = AuthUser.create(userId, UserRole.USER);
         String redisKey = String.format("view:show:%d:user:%d", showId, userId);
 
-        Show show = Show.toEntity(showId, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
-            LocalDateTime.now(), LocalDateTime.now().plusDays(1), 2);
+        Show show = Show.create(showId, "제목1", "포스터1.jpg", Category.MUSICAL, "내용1", "장소1",
+                LocalDateTime.now(), LocalDateTime.now().plusDays(1), 2);
         ReflectionTestUtils.setField(show, "viewCount", 0);
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
@@ -129,7 +129,7 @@ class ShowViewCountServiceTest {
         // given
         Long showId = 1L;
         Long userId = 1L;
-        AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+        AuthUser authUser = AuthUser.create(userId, UserRole.USER);
         String redisKey = String.format("view:show:%d:user:%d", showId, userId);
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
@@ -139,8 +139,8 @@ class ShowViewCountServiceTest {
 
         // when & then
         assertThatThrownBy(() -> showViewCountService.incrementViewCount(authUser, showId))
-            .isInstanceOf(CustomException.class)
-            .hasMessage("해당 공연을 찾을 수 없습니다.");
+                .isInstanceOf(CustomException.class)
+                .hasMessage("해당 공연을 찾을 수 없습니다.");
     }
 
     @Test
@@ -148,7 +148,7 @@ class ShowViewCountServiceTest {
         // given
         Long showId = 1L;
         Long userId = 1L;
-        AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+        AuthUser authUser = AuthUser.create(userId, UserRole.USER);
         String redisKey = String.format("view:show:%d:user:%d", showId, userId);
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
@@ -157,8 +157,8 @@ class ShowViewCountServiceTest {
 
         // when & then
         assertThatThrownBy(() -> showViewCountService.incrementViewCount(authUser, showId))
-            .isInstanceOf(RedisSystemException.class)
-            .hasMessage("Redis connection failed");
+                .isInstanceOf(RedisSystemException.class)
+                .hasMessage("Redis connection failed");
     }
 
 }

@@ -18,7 +18,7 @@ public class LikeResponse {
         this.description = description;
     }
 
-    public static LikeResponse toDto(Long showId, String showTitle, Category category, String description) {
+    public static LikeResponse of(Long showId, String showTitle, Category category, String description) {
         return new LikeResponse(showId, showTitle, category, description);
     }
 }

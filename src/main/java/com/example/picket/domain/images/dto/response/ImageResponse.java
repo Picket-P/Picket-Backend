@@ -12,7 +12,7 @@ public class ImageResponse {
         this.fileFormat = fileFormat;
     }
 
-    public static ImageResponse toDto(String imageUrl, String fileFormat) {
+    public static ImageResponse of(String imageUrl, String fileFormat) {
         return new ImageResponse(imageUrl, fileFormat);
     }
 

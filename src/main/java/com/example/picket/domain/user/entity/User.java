@@ -4,20 +4,12 @@ import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.OAuth;
 import com.example.picket.common.enums.UserRole;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.util.UUID;
-
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -78,12 +70,12 @@ public class User extends BaseEntity {
 
     }
 
-    public static User toEntity(String email, String password, UserRole userRole, String profileUrl, String nickname,
-                                LocalDate birth, Gender gender) {
+    public static User create(String email, String password, UserRole userRole, String profileUrl, String nickname,
+                              LocalDate birth, Gender gender) {
         return new User(email, password, userRole, profileUrl, nickname, birth, gender);
     }
 
-    public static User toOAuthEntity(String email, UserRole userRole, String oauthId, OAuth oauthProvider) {
+    public static User createWithOAuth(String email, UserRole userRole, String oauthId, OAuth oauthProvider) {
         return new User(email, userRole, oauthId, oauthProvider);
     }
 

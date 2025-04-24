@@ -23,7 +23,7 @@ public class LikeShow {
         this.createdAt = createdAt;
     }
 
-    public static LikeShow toEntity(Long showId, String title, Long likeCount, ShowStatus status, LocalDateTime createdAt) {
+    public static LikeShow create(Long showId, String title, Long likeCount, ShowStatus status, LocalDateTime createdAt) {
         LikeShow show = new LikeShow();
         show.showId = showId;
         show.title = title;

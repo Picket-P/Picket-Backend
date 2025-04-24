@@ -36,7 +36,7 @@ public class HotShowRankingScheduler {
             List<Show> topShows = showRepository.findTop10ByStatusNotAndOrderByViewCountDesc(ShowStatus.FINISHED);
             log.debug("RDS에서 조회된 공연 데이터: {}", topShows);
             List<HotShow> hotShows = topShows.stream()
-                    .map(show -> HotShow.toEntity(
+                    .map(show -> HotShow.create(
                             show.getId(),
                             show.getTitle(),
                             show.getViewCount(),

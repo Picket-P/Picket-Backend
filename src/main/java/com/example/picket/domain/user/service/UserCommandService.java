@@ -1,8 +1,5 @@
 package com.example.picket.domain.user.service;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.common.service.S3Service;
@@ -19,6 +16,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +83,7 @@ public class UserCommandService {
     public String uploadImage(HttpServletRequest request, long contentLength, String contentType) {
 
         ImageResponse imageResponse = s3Service.upload(request, contentLength, contentType);
-        UserImage userImage = UserImage.toEntity(imageResponse, null);
+        UserImage userImage = UserImage.create(imageResponse, null);
         userImageRepository.save(userImage);
         return imageResponse.getImageUrl();
     }

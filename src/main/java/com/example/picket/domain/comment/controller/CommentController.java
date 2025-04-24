@@ -11,21 +11,15 @@ import com.example.picket.domain.comment.service.CommentQueryService;
 import com.example.picket.domain.ticket.service.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,7 +42,7 @@ public class CommentController {
                 .hasValidTicket(List.of(comment.getUser().getId()), showId)
                 .contains(comment.getUser().getId());
 
-        return ResponseEntity.ok(CommentResponse.toDto(comment, hasTicket));
+        return ResponseEntity.ok(CommentResponse.of(comment, hasTicket));
     }
 
     @Operation(summary = "댓글 수정", description = "댓글을 수정할 수 있습니다.")
@@ -63,7 +57,7 @@ public class CommentController {
                 .hasValidTicket(List.of(comment.getUser().getId()), showId)
                 .contains(comment.getUser().getId());
 
-        return ResponseEntity.ok(CommentResponse.toDto(comment, hasTicket));
+        return ResponseEntity.ok(CommentResponse.of(comment, hasTicket));
     }
 
     @Operation(summary = "댓글 삭제", description = "댓글을 삭제할 수 있습니다.")
@@ -87,7 +81,7 @@ public class CommentController {
 
         List<Long> validTicketUserIds = ticketQueryService.hasValidTicket(userIds, showId);
 
-        return ResponseEntity.ok(PageCommentResponse.toDto(comments, comment ->
+        return ResponseEntity.ok(PageCommentResponse.of(comments, comment ->
                 validTicketUserIds.contains(comment.getUser().getId())));
     }
 

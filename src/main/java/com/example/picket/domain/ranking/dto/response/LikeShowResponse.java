@@ -22,7 +22,7 @@ public class LikeShowResponse {
         this.createdAt = createdAt;
     }
 
-    public static LikeShowResponse toDto(LikeShow likeShow) {
+    public static LikeShowResponse of(LikeShow likeShow) {
         return new LikeShowResponse(likeShow.getShowId(), likeShow.getTitle(), likeShow.getLikeCount(), likeShow.getStatus(), likeShow.getCreatedAt());
     }
 }

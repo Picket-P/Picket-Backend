@@ -29,14 +29,14 @@ public class OAuthService {
         String accessToken = googleOauthClient.getAccessToken(code, userRole);
         OAuthUser oauthUser = googleOauthClient.getUser(accessToken);
         User user = userQueryService.getUserByEmail(oauthUser.getEmail())
-                .orElseGet( () -> userRepository.save(
-                        User.toOAuthEntity(oauthUser.getEmail(),
+                .orElseGet(() -> userRepository.save(
+                        User.createWithOAuth(oauthUser.getEmail(),
                                 userRole,
                                 oauthUser.getId(),
                                 OAuth.GOOGLE
-                                )));
+                        )));
 
-        AuthUser authUser = AuthUser.toEntity(user.getId(), user.getUserRole());
+        AuthUser authUser = AuthUser.create(user.getId(), user.getUserRole());
         session.setAttribute("authUser", authUser);
         return user;
     }

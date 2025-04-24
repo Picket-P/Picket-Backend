@@ -1,9 +1,5 @@
 package com.example.picket.domain.ticket.service;
 
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.common.enums.TicketStatus;
 import com.example.picket.common.exception.CustomException;
@@ -13,12 +9,13 @@ import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
 import com.example.picket.domain.user.entity.User;
-
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +29,7 @@ public class TicketCommandService {
         return seatIds.stream().map(seatId -> {
             Seat foundSeat = seatQueryService.getSeat(seatId);
             foundSeat.updateSeatStatus(SeatStatus.RESERVED);
-            Ticket ticket = Ticket.toEntity(user, show, foundSeat, foundSeat.getPrice(), TicketStatus.TICKET_CREATED);
+            Ticket ticket = Ticket.create(user, show, foundSeat, foundSeat.getPrice(), TicketStatus.TICKET_CREATED);
             ticketRepository.save(ticket);
             return ticket;
         }).toList();

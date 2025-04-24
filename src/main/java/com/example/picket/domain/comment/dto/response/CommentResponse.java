@@ -33,7 +33,7 @@ public class CommentResponse {
     }
 
 
-    public static CommentResponse toDto(Comment comment, Boolean isTicketBuyer) {
+    public static CommentResponse of(Comment comment, Boolean isTicketBuyer) {
         return new CommentResponse(comment.getUser().getId()
                 , comment.getUser().getNickname()
                 , comment.getId()

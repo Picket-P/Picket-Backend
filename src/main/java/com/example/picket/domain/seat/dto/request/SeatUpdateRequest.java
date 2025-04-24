@@ -33,7 +33,7 @@ public class SeatUpdateRequest {
         this.price = price;
     }
 
-    public static SeatUpdateRequest toDto(String grade, int quantity, BigDecimal price) {
+    public static SeatUpdateRequest of(String grade, int quantity, BigDecimal price) {
         return new SeatUpdateRequest(grade, quantity, price);
     }
 }

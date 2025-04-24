@@ -143,7 +143,7 @@ public class SeatCommandService {
                 .orElse(0); // 현재 좌석이 없으면 0을 기준으로 시작
 
         for (int i = 1; i <= toAdd; i++) {
-            Seat newSeat = Seat.toEntity(grade, nextNumber + i, price, showDate);
+            Seat newSeat = Seat.create(grade, nextNumber + i, price, showDate);
             Seat savedSeat = seatRepository.save(newSeat);
 
             result.add(savedSeat);
@@ -166,7 +166,7 @@ public class SeatCommandService {
     // 종료된 공연 검증
     private void validateEndShow(Show show) {
         boolean hasEnded = showDateQueryService.getShowDatesByShowId(show.getId()).stream()
-            .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
+                .anyMatch(sd -> sd.getDate().atTime(sd.getEndTime()).isBefore(LocalDateTime.now()));
 
         if (hasEnded) {
             throw new CustomException(BAD_REQUEST, "종료된 공연은 수정할 수 없습니다.");

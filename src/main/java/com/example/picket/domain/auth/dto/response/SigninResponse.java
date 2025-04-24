@@ -11,7 +11,7 @@ public class SigninResponse {
         this.nickname = nickname;
     }
 
-    public static SigninResponse toDto(String nickname) {
+    public static SigninResponse of(String nickname) {
         return new SigninResponse(nickname);
     }
 }

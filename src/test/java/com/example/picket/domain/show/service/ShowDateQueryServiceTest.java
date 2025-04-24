@@ -199,7 +199,7 @@ class ShowDateQueryServiceTest {
     }
 
     private Show createShow(LocalDateTime now) {
-        return Show.toEntity(
+        return Show.create(
                 1L,
                 "원래 제목",
                 "origin.jpg",
@@ -218,7 +218,7 @@ class ShowDateQueryServiceTest {
             LocalTime endTime,
             Show show
     ) {
-        return ShowDate.toEntity(
+        return ShowDate.create(
                 now,
                 startTime,
                 endTime,

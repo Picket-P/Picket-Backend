@@ -47,7 +47,7 @@ public class Seat extends BaseEntity {
         this.showDate = showDate;
     }
 
-    public static Seat toEntity(Grade grade, int seatNumber, BigDecimal price, ShowDate showDate) {
+    public static Seat create(Grade grade, int seatNumber, BigDecimal price, ShowDate showDate) {
         return new Seat(grade, seatNumber, price, SeatStatus.AVAILABLE, showDate);
     }
 

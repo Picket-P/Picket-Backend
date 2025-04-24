@@ -1,17 +1,5 @@
 package com.example.picket.domain.show.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Grade;
@@ -31,14 +19,6 @@ import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,6 +27,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ShowCommandServiceTest {
@@ -79,7 +75,7 @@ class ShowCommandServiceTest {
 
     @BeforeEach
     void setUp() {
-        authUser = AuthUser.toEntity(1L, UserRole.DIRECTOR);
+        authUser = AuthUser.create(1L, UserRole.DIRECTOR);
     }
 
     @Nested
@@ -294,7 +290,7 @@ class ShowCommandServiceTest {
             Show show = createShow(now);
             setShowId(show, showId);
 
-            ShowDate showDate = ShowDate.toEntity(LocalDate.now().minusDays(1),
+            ShowDate showDate = ShowDate.create(LocalDate.now().minusDays(1),
                     LocalTime.of(10, 0), LocalTime.of(12, 0), 100, 0, show);
 
             given(showRepository.findById(showId)).willReturn(Optional.of(show));
@@ -434,7 +430,7 @@ class ShowCommandServiceTest {
     }
 
     private Show createShow(LocalDateTime now) {
-        return Show.toEntity(
+        return Show.create(
                 authUser.getId(),
                 "원래 제목",
                 "origin.jpg",
@@ -448,7 +444,7 @@ class ShowCommandServiceTest {
     }
 
     private Show createShow(LocalDateTime reservationStart, LocalDateTime reservationEnd) {
-        return Show.toEntity(
+        return Show.create(
                 authUser.getId(),
                 "원래 제목",
                 "origin.jpg",
@@ -462,7 +458,7 @@ class ShowCommandServiceTest {
     }
 
     private Show createShow(ShowCreateRequest request) {
-        return Show.toEntity(
+        return Show.create(
                 authUser.getId(),
                 request.getTitle(),
                 request.getPosterUrl(),
@@ -481,7 +477,7 @@ class ShowCommandServiceTest {
             LocalTime endTime,
             Show show
     ) {
-        return ShowDate.toEntity(
+        return ShowDate.create(
                 now,
                 startTime,
                 endTime,
@@ -494,7 +490,7 @@ class ShowCommandServiceTest {
     private List<ShowDate> createShowDates(Show show, List<ShowDateRequest> dateRequests) {
         List<ShowDate> showDates = new ArrayList<>();
         for (int i = 0; i < dateRequests.size(); i++) {
-            ShowDate showDate = ShowDate.toEntity(
+            ShowDate showDate = ShowDate.create(
                     dateRequests.get(i).getDate(),
                     dateRequests.get(i).getStartTime(),
                     dateRequests.get(i).getEndTime(),

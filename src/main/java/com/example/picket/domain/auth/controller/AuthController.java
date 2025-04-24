@@ -56,7 +56,7 @@ public class AuthController {
     public ResponseEntity<SigninResponse> signin(HttpSession session, HttpServletResponse response,
                                                  @Valid @RequestBody SigninRequest request) {
         User user = authService.signin(session, response, request.getEmail(), request.getPassword());
-        SigninResponse signinResponse = SigninResponse.toDto(user.getNickname());
+        SigninResponse signinResponse = SigninResponse.of(user.getNickname());
         return ResponseEntity.ok(signinResponse);
     }
 

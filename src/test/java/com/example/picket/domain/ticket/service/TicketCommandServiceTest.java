@@ -46,12 +46,12 @@ class TicketCommandServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = User.toEntity(
+        user = User.create(
                 "user@example.com", "encodedPw", UserRole.USER, null, "nickname",
                 LocalDate.of(1990, 1, 1), Gender.MALE
         );
 
-        show = Show.toEntity(
+        show = Show.create(
                 1L, "Show Title", "http://poster.url", Category.CONCERT, "Description",
                 "Location", LocalDateTime.now(), LocalDateTime.now().plusDays(1), 4
         );
@@ -103,7 +103,7 @@ class TicketCommandServiceTest {
 
     @Test
     void 티켓_삭제_시_본인이_예매하지_않은_티켓을_삭제하려_할_경우_예외가_발생한다() {
-        User anotherUser = User.toEntity(
+        User anotherUser = User.create(
                 "other@example.com", "pw", UserRole.USER, null, "other",
                 LocalDate.of(1991, 2, 2), Gender.FEMALE
         );
@@ -136,8 +136,6 @@ class TicketCommandServiceTest {
         assertEquals(HttpStatus.CONFLICT, exception.getStatus());
         assertEquals("이미 취소된 티켓입니다.", exception.getMessage());
     }
-
-
 
 
 }

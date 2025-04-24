@@ -26,33 +26,33 @@ public class OAuthController {
 
     @GetMapping("/auth/session")
     public ResponseEntity<SessionResponse> getSession(@Auth AuthUser auth) {
-        if(auth == null) {
+        if (auth == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         User user = userQueryService.getUser(auth.getId());
-        return ResponseEntity.ok(SessionResponse.toDto(user.getNickname(), user.getEmail(), user.getUserRole()));
+        return ResponseEntity.ok(SessionResponse.of(user.getNickname(), user.getEmail(), user.getUserRole()));
     }
 
     @GetMapping("/auth/callback/user")
     public ResponseEntity<OAuthSigninResponse> googleUserSignin(@RequestParam("code") String code, HttpSession session) {
 
         User user = oAuthService.getOrCreateUser(session, code, UserRole.USER);
-        return ResponseEntity.ok(OAuthSigninResponse.toDto(user.getNickname(), user.getNickname() == null));
+        return ResponseEntity.ok(OAuthSigninResponse.of(user.getNickname(), user.getNickname() == null));
     }
 
     @GetMapping("/auth/callback/admin")
     public ResponseEntity<OAuthSigninResponse> googleAdminSignin(@RequestParam("code") String code, HttpSession session) {
 
         User user = oAuthService.getOrCreateUser(session, code, UserRole.ADMIN);
-        return ResponseEntity.ok(OAuthSigninResponse.toDto(user.getNickname(), user.getNickname() == null));
+        return ResponseEntity.ok(OAuthSigninResponse.of(user.getNickname(), user.getNickname() == null));
     }
 
     @GetMapping("/auth/callback/director")
     public ResponseEntity<OAuthSigninResponse> googleDirectorSignin(@RequestParam("code") String code, HttpSession session) {
 
         User user = oAuthService.getOrCreateUser(session, code, UserRole.DIRECTOR);
-        return ResponseEntity.ok(OAuthSigninResponse.toDto(user.getNickname(), user.getNickname() == null));
+        return ResponseEntity.ok(OAuthSigninResponse.of(user.getNickname(), user.getNickname() == null));
     }
 
     @PostMapping("/auth/signup")

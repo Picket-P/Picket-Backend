@@ -1,9 +1,5 @@
 package com.example.picket.domain.auth.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.UserRole;
@@ -14,10 +10,13 @@ import com.example.picket.domain.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RequiredArgsConstructor
 @Service
@@ -34,7 +33,7 @@ public class AuthService {
             throw new CustomException(BAD_REQUEST, "이미 가입되어있는 이메일 입니다.");
         }
 
-        User newUser = User.toEntity(email, passwordEncoder.encode(password), userRole, null, nickname, birth, gender);
+        User newUser = User.create(email, passwordEncoder.encode(password), userRole, null, nickname, birth, gender);
 
         userRepository.save(newUser);
     }
@@ -47,7 +46,7 @@ public class AuthService {
             throw new CustomException(UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
 
-        AuthUser authUser = AuthUser.toEntity(user.getId(), user.getUserRole());
+        AuthUser authUser = AuthUser.create(user.getId(), user.getUserRole());
         session.setAttribute("authUser", authUser);
 
         Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());

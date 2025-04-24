@@ -3,7 +3,6 @@ package com.example.picket.domain.seat.dto.response;
 import com.example.picket.common.enums.Grade;
 import com.example.picket.common.enums.SeatStatus;
 import com.example.picket.domain.seat.entity.Seat;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
@@ -21,7 +20,7 @@ public class SeatDetailResponse {
         this.status = seat.getSeatStatus();
     }
 
-    public static SeatDetailResponse toDto(Seat seat) {
+    public static SeatDetailResponse of(Seat seat) {
         return new SeatDetailResponse(seat);
     }
 

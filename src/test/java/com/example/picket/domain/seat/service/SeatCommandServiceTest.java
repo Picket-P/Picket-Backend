@@ -1,7 +1,10 @@
 package com.example.picket.domain.seat.service;
 
 import com.example.picket.common.dto.AuthUser;
-import com.example.picket.common.enums.*;
+import com.example.picket.common.enums.Category;
+import com.example.picket.common.enums.Grade;
+import com.example.picket.common.enums.SeatStatus;
+import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.seat.dto.request.SeatUpdateRequest;
 import com.example.picket.domain.seat.entity.Seat;
@@ -41,7 +44,7 @@ class SeatCommandServiceTest {
     @InjectMocks
     private SeatCommandService seatCommandService;
 
-    private final AuthUser adminUser = AuthUser.toEntity(1L, UserRole.ADMIN);
+    private final AuthUser adminUser = AuthUser.create(1L, UserRole.ADMIN);
 
     @Nested
     class 좌석_수정_테스트 {
@@ -50,10 +53,10 @@ class SeatCommandServiceTest {
         void 좌석이_추가되는_경우_새로운_좌석_저장() {
             // given
             Long showDateId = 1L;
-            Show show = Show.toEntity(1L, "테스트 공연", "image.png", Category.CONCERT, "설명",
+            Show show = Show.create(1L, "테스트 공연", "image.png", Category.CONCERT, "설명",
                     "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1), 1);
             LocalDateTime dateTime = LocalDateTime.now().plusDays(1);
-            ShowDate showDate = ShowDate.toEntity(
+            ShowDate showDate = ShowDate.create(
                     dateTime.toLocalDate(),
                     dateTime.toLocalTime(),
                     dateTime.toLocalTime().plusHours(2),
@@ -64,13 +67,13 @@ class SeatCommandServiceTest {
             Grade grade = Grade.VIP;
             BigDecimal newPrice = BigDecimal.valueOf(10000);
 
-            Seat existingSeat = Seat.toEntity(grade, 1, newPrice, showDate);
+            Seat existingSeat = Seat.create(grade, 1, newPrice, showDate);
 
             given(showDateQueryService.getShowDate(showDateId)).willReturn(showDate);
             given(seatRepository.findAllByShowDateId(showDateId)).willReturn(List.of(existingSeat));
             given(seatRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
 
-            SeatUpdateRequest request = SeatUpdateRequest.toDto(grade.name(), 3, newPrice);
+            SeatUpdateRequest request = SeatUpdateRequest.of(grade.name(), 3, newPrice);
 
             // when
             List<Seat> updatedSeats = seatCommandService.updateSeats(adminUser, showDateId, List.of(request));
@@ -84,10 +87,10 @@ class SeatCommandServiceTest {
         void 좌석이_감소되는_경우_예약되지_않은_좌석만_삭제() {
             // given
             Long showDateId = 1L;
-            Show show = Show.toEntity(1L, "공연", "image.png", Category.CONCERT, "desc",
+            Show show = Show.create(1L, "공연", "image.png", Category.CONCERT, "desc",
                     "장소", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), 1);
 
-            ShowDate showDate = ShowDate.toEntity(
+            ShowDate showDate = ShowDate.create(
                     LocalDate.now().plusDays(2),
                     LocalTime.of(19, 0),
                     LocalTime.of(21, 0),
@@ -95,13 +98,13 @@ class SeatCommandServiceTest {
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
-            Seat seat1 = Seat.toEntity(Grade.VIP, 1, price, showDate);
-            Seat seat2 = Seat.toEntity(Grade.VIP, 2, price, showDate);
+            Seat seat1 = Seat.create(Grade.VIP, 1, price, showDate);
+            Seat seat2 = Seat.create(Grade.VIP, 2, price, showDate);
 
             given(showDateQueryService.getShowDate(showDateId)).willReturn(showDate);
             given(seatRepository.findAllByShowDateId(showDateId)).willReturn(List.of(seat1, seat2));
 
-            SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 1, price);
+            SeatUpdateRequest request = SeatUpdateRequest.of(Grade.VIP.name(), 1, price);
 
             // when
             List<Seat> updated = seatCommandService.updateSeats(adminUser, showDateId, List.of(request));
@@ -114,10 +117,10 @@ class SeatCommandServiceTest {
         void 예약시작_후_좌석_감소_불가() {
             // given
             Long showDateId = 1L;
-            Show show = Show.toEntity(1L, "공연", "image.png", Category.CONCERT, "desc",
+            Show show = Show.create(1L, "공연", "image.png", Category.CONCERT, "desc",
                     "장소", LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2), 1);
 
-            ShowDate showDate = ShowDate.toEntity(
+            ShowDate showDate = ShowDate.create(
                     LocalDate.now().plusDays(1),
                     LocalTime.of(19, 0),
                     LocalTime.of(21, 0),
@@ -125,13 +128,13 @@ class SeatCommandServiceTest {
 
             BigDecimal price = BigDecimal.valueOf(10000);
 
-            Seat seat1 = Seat.toEntity(Grade.VIP, 1, price, showDate);
-            Seat seat2 = Seat.toEntity(Grade.VIP, 2, price, showDate);
+            Seat seat1 = Seat.create(Grade.VIP, 1, price, showDate);
+            Seat seat2 = Seat.create(Grade.VIP, 2, price, showDate);
 
             given(showDateQueryService.getShowDate(showDateId)).willReturn(showDate);
             given(seatRepository.findAllByShowDateId(showDateId)).willReturn(List.of(seat1, seat2));
 
-            SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 1, price);
+            SeatUpdateRequest request = SeatUpdateRequest.of(Grade.VIP.name(), 1, price);
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.updateSeats(adminUser, showDateId, List.of(request)))
@@ -144,7 +147,7 @@ class SeatCommandServiceTest {
         @Test
         void 예매_시작_이후에는_좌석_수_감소_불가() {
             // given
-            Show show = Show.toEntity(
+            Show show = Show.create(
                     1L, "공연", "image.png", Category.CONCERT, "desc",
                     "장소",
                     LocalDateTime.now().minusDays(1),
@@ -152,7 +155,7 @@ class SeatCommandServiceTest {
                     1
             );
 
-            ShowDate showDate = ShowDate.toEntity(
+            ShowDate showDate = ShowDate.create(
                     LocalDate.now().plusDays(1),
                     LocalTime.of(19, 0),
                     LocalTime.of(21, 0),
@@ -163,13 +166,13 @@ class SeatCommandServiceTest {
             given(showDateQueryService.getShowDate(showDate.getId()))
                     .willReturn(showDate);
 
-            Seat reservedSeat = Seat.toEntity(Grade.VIP, 1, price, showDate);
+            Seat reservedSeat = Seat.create(Grade.VIP, 1, price, showDate);
             ReflectionTestUtils.setField(reservedSeat, "seatStatus", SeatStatus.RESERVED);
 
             given(seatRepository.findAllByShowDateId(showDate.getId()))
                     .willReturn(List.of(reservedSeat));
 
-            SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 0, price);
+            SeatUpdateRequest request = SeatUpdateRequest.of(Grade.VIP.name(), 0, price);
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.updateSeats(adminUser, showDate.getId(), List.of(request)))
@@ -180,7 +183,7 @@ class SeatCommandServiceTest {
         @Test
         void 좌석_줄이기_요청시_예약된_좌석_때문에_실패() {
             // given
-            Show show = Show.toEntity(
+            Show show = Show.create(
                     1L, "공연", "image.png", Category.CONCERT, "desc",
                     "장소",
                     LocalDateTime.now().plusDays(1),  // 예매 시작 전
@@ -188,7 +191,7 @@ class SeatCommandServiceTest {
                     1
             );
 
-            ShowDate showDate = ShowDate.toEntity(
+            ShowDate showDate = ShowDate.create(
                     LocalDate.now().plusDays(1),
                     LocalTime.of(19, 0),
                     LocalTime.of(21, 0),
@@ -201,8 +204,8 @@ class SeatCommandServiceTest {
                     .willReturn(showDate);
 
             // 현재 좌석 2개 중 1개는 예약된 상태 (줄일 수 없음)
-            Seat reservedSeat = Seat.toEntity(Grade.VIP, 1, price, showDate);
-            Seat availableSeat = Seat.toEntity(Grade.VIP, 2, price, showDate);
+            Seat reservedSeat = Seat.create(Grade.VIP, 1, price, showDate);
+            Seat availableSeat = Seat.create(Grade.VIP, 2, price, showDate);
 
             ReflectionTestUtils.setField(reservedSeat, "seatStatus", SeatStatus.RESERVED);
             ReflectionTestUtils.setField(availableSeat, "seatStatus", SeatStatus.AVAILABLE);
@@ -211,7 +214,7 @@ class SeatCommandServiceTest {
                     .willReturn(List.of(reservedSeat, availableSeat));
 
             // 요청: 좌석 수 2개 → 0개로 줄이기 (2개 줄여야 하는데 예약된 좌석 때문에 불가)
-            SeatUpdateRequest request = SeatUpdateRequest.toDto(Grade.VIP.name(), 0, price);
+            SeatUpdateRequest request = SeatUpdateRequest.of(Grade.VIP.name(), 0, price);
 
             // when & then
             assertThatThrownBy(() -> seatCommandService.updateSeats(adminUser, showDate.getId(), List.of(request)))
@@ -233,7 +236,7 @@ class SeatCommandServiceTest {
             given(show.getReservationStart()).willReturn(LocalDateTime.now().plusDays(1));
             given(show.getDirectorId()).willReturn(adminUser.getId());
 
-            Seat seat = Seat.toEntity(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
+            Seat seat = Seat.create(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
             given(seatRepository.findById(seatId)).willReturn(Optional.of(seat));
 
             // when
@@ -253,7 +256,7 @@ class SeatCommandServiceTest {
             given(show.getReservationStart()).willReturn(LocalDateTime.now().plusDays(1));
             given(show.getDirectorId()).willReturn(adminUser.getId());
 
-            Seat seat = Seat.toEntity(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
+            Seat seat = Seat.create(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
             ReflectionTestUtils.setField(seat, "seatStatus", SeatStatus.RESERVED);// 좌석 상태를 RESERVED로 설정
 
             given(seatRepository.findById(seatId)).willReturn(Optional.of(seat));
@@ -277,7 +280,7 @@ class SeatCommandServiceTest {
             given(show.getId()).willReturn(showId);
             given(show.getDirectorId()).willReturn(adminUser.getId());
 
-            Seat seat = Seat.toEntity(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
+            Seat seat = Seat.create(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
             given(seatRepository.findById(seatId)).willReturn(Optional.of(seat));
             given(showDateQueryService.getShowDatesByShowId(showId)).willReturn(List.of(showDate));
 
@@ -301,7 +304,7 @@ class SeatCommandServiceTest {
             given(show.getDirectorId()).willReturn(adminUser.getId());
             given(show.getReservationStart()).willReturn(LocalDateTime.now().minusDays(1));
 
-            Seat seat = Seat.toEntity(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
+            Seat seat = Seat.create(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
             given(seatRepository.findById(seatId)).willReturn(Optional.of(seat));
             given(showDateQueryService.getShowDatesByShowId(showId)).willReturn(List.of(showDate));
 
@@ -320,7 +323,7 @@ class SeatCommandServiceTest {
             Show show = mock(Show.class);
             given(showDate.getShow()).willReturn(show);
 
-            Seat seat = Seat.toEntity(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
+            Seat seat = Seat.create(Grade.VIP, 1, BigDecimal.valueOf(10000), showDate);
             given(seatRepository.findById(seatId)).willReturn(Optional.of(seat));
 
             // when & then

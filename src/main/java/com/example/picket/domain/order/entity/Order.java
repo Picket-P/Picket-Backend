@@ -47,8 +47,8 @@ public class Order extends BaseEntity {
         this.ticket = ticket;
     }
 
-    public static Order toEntity(User user, BigDecimal totalPrice, OrderStatus orderStatus, List<Ticket> tickets) {
-        Order order =  new Order(user, totalPrice,orderStatus, tickets);
+    public static Order create(User user, BigDecimal totalPrice, OrderStatus orderStatus, List<Ticket> tickets) {
+        Order order = new Order(user, totalPrice, orderStatus, tickets);
         for (Ticket ticket : tickets) {
             ticket.setOrder(order);
         }

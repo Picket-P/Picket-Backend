@@ -74,8 +74,8 @@ class RankingServiceTest {
                 "{\"category\":\"CONCERT\",\"keywordCount\":50,\"createdAt\":\"2025-04-21T10:00:00\"}"
         );
 
-        PopularKeyword keyword1 = PopularKeyword.toEntity(Category.MUSICAL, 100L, now);
-        PopularKeyword keyword2 = PopularKeyword.toEntity(Category.CONCERT, 50L, now);
+        PopularKeyword keyword1 = PopularKeyword.create(Category.MUSICAL, 100L, now);
+        PopularKeyword keyword2 = PopularKeyword.create(Category.CONCERT, 50L, now);
 
         when(listOperations.range("ranking:popular_keywords", 0, -1)).thenReturn(jsonKeywords);
         when(objectMapper.readValue(jsonKeywords.get(0), PopularKeyword.class)).thenReturn(keyword1);
@@ -128,11 +128,12 @@ class RankingServiceTest {
                 "{\"category\":\"CONCERT\",\"keywordCount\":50,\"createdAt\":\"2025-04-21T10:00:00\"}"
         );
 
-        PopularKeyword keyword1 = PopularKeyword.toEntity(Category.MUSICAL, 100L, now);
+        PopularKeyword keyword1 = PopularKeyword.create(Category.MUSICAL, 100L, now);
 
         when(listOperations.range("ranking:popular_keywords", 0, -1)).thenReturn(jsonKeywords);
         when(objectMapper.readValue(jsonKeywords.get(0), PopularKeyword.class)).thenReturn(keyword1);
-        when(objectMapper.readValue(jsonKeywords.get(1), PopularKeyword.class)).thenThrow(new JsonProcessingException("Error") {});
+        when(objectMapper.readValue(jsonKeywords.get(1), PopularKeyword.class)).thenThrow(new JsonProcessingException("Error") {
+        });
 
         // When
         List<PopularKeywordResponse> result = rankingService.getPopularKeywords();
@@ -167,8 +168,8 @@ class RankingServiceTest {
                 "{\"showId\":2,\"title\":\"Show2\",\"viewCount\":500,\"status\":\"PERFORMANCE_ONGOING\",\"createdAt\":\"2025-04-21T10:00:00\"}"
         );
 
-        HotShow show1 = HotShow.toEntity(1L, "Show1", 1000, ShowStatus.RESERVATION_ONGOING, now);
-        HotShow show2 = HotShow.toEntity(2L, "Show2", 500, ShowStatus.PERFORMANCE_ONGOING, now);
+        HotShow show1 = HotShow.create(1L, "Show1", 1000, ShowStatus.RESERVATION_ONGOING, now);
+        HotShow show2 = HotShow.create(2L, "Show2", 500, ShowStatus.PERFORMANCE_ONGOING, now);
 
         when(listOperations.range("ranking:hot_shows", 0, -1)).thenReturn(jsonShows);
         when(objectMapper.readValue(jsonShows.get(0), HotShow.class)).thenReturn(show1);
@@ -240,11 +241,12 @@ class RankingServiceTest {
                 "{\"showId\":2,\"title\":\"Show2\",\"viewCount\":500,\"status\":\"PERFORMANCE_ONGOING\",\"createdAt\":\"2025-04-21T10:00:00\"}"
         );
 
-        HotShow show1 = HotShow.toEntity(1L, "Show1", 1000, ShowStatus.RESERVATION_ONGOING, now);
+        HotShow show1 = HotShow.create(1L, "Show1", 1000, ShowStatus.RESERVATION_ONGOING, now);
 
         when(listOperations.range("ranking:hot_shows", 0, -1)).thenReturn(jsonShows);
         when(objectMapper.readValue(jsonShows.get(0), HotShow.class)).thenReturn(show1);
-        when(objectMapper.readValue(jsonShows.get(1), HotShow.class)).thenThrow(new JsonProcessingException("Error") {});
+        when(objectMapper.readValue(jsonShows.get(1), HotShow.class)).thenThrow(new JsonProcessingException("Error") {
+        });
 
         // When
         List<HotShowResponse> result = rankingService.getHotShows();
@@ -281,8 +283,8 @@ class RankingServiceTest {
                 "{\"showId\":2,\"title\":\"Show2\",\"likeCount\":300,\"status\":\"PERFORMANCE_ONGOING\",\"createdAt\":\"2025-04-21T10:00:00\"}"
         );
 
-        LikeShow show1 = LikeShow.toEntity(1L, "Show1", 500L, ShowStatus.RESERVATION_ONGOING, now);
-        LikeShow show2 = LikeShow.toEntity(2L , "Show2", 300L, ShowStatus.PERFORMANCE_ONGOING, now);
+        LikeShow show1 = LikeShow.create(1L, "Show1", 500L, ShowStatus.RESERVATION_ONGOING, now);
+        LikeShow show2 = LikeShow.create(2L, "Show2", 300L, ShowStatus.PERFORMANCE_ONGOING, now);
 
         when(listOperations.range("ranking:like_shows", 0, -1)).thenReturn(jsonShows);
         when(objectMapper.readValue(jsonShows.get(0), LikeShow.class)).thenReturn(show1);
@@ -353,11 +355,12 @@ class RankingServiceTest {
                 "{\"showId\":2,\"title\":\"Show2\",\"likeCount\":300,\"status\":\"PERFORMANCE_ONGOING\",\"createdAt\":\"2025-04-21T10:00:00\"}"
         );
 
-        LikeShow show1 = LikeShow.toEntity(1L, "Show1", 500L, ShowStatus.RESERVATION_ONGOING, now);
+        LikeShow show1 = LikeShow.create(1L, "Show1", 500L, ShowStatus.RESERVATION_ONGOING, now);
 
         when(listOperations.range("ranking:like_shows", 0, -1)).thenReturn(jsonShows);
         when(objectMapper.readValue(jsonShows.get(0), LikeShow.class)).thenReturn(show1);
-        when(objectMapper.readValue(jsonShows.get(1), LikeShow.class)).thenThrow(new JsonProcessingException("Error") {});
+        when(objectMapper.readValue(jsonShows.get(1), LikeShow.class)).thenThrow(new JsonProcessingException("Error") {
+        });
 
         // When
         List<LikeShowResponse> result = rankingService.getLikeShows();

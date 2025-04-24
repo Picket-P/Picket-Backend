@@ -51,8 +51,8 @@ class OAuthServiceTest {
         String oAuthId = "google-12345";
         UserRole role = UserRole.USER;
 
-        OAuthUser oauthUser = OAuthUser.toEntity(oAuthId, email);
-        User user = User.toOAuthEntity(email, role, oAuthId, OAuth.GOOGLE);
+        OAuthUser oauthUser = OAuthUser.create(oAuthId, email);
+        User user = User.createWithOAuth(email, role, oAuthId, OAuth.GOOGLE);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         given(googleOauthClient.getAccessToken(anyString(), any(UserRole.class))).willReturn(accessToken);
@@ -76,8 +76,8 @@ class OAuthServiceTest {
         String oAuthId = "new-google-54321";
         UserRole role = UserRole.USER;
 
-        OAuthUser oauthUser = OAuthUser.toEntity(oAuthId, email);
-        User newUser = User.toOAuthEntity(email, role, oAuthId, OAuth.GOOGLE);
+        OAuthUser oauthUser = OAuthUser.create(oAuthId, email);
+        User newUser = User.createWithOAuth(email, role, oAuthId, OAuth.GOOGLE);
         ReflectionTestUtils.setField(newUser, "id", 100L);
 
         given(googleOauthClient.getAccessToken(anyString(), any(UserRole.class))).willReturn(accessToken);
@@ -102,7 +102,7 @@ class OAuthServiceTest {
         LocalDate birth = LocalDate.of(2000, 1, 1);
         Gender gender = Gender.FEMALE;
 
-        User newUser = User.toOAuthEntity("user@example.com" , UserRole.USER ,oAuthId ,OAuth.GOOGLE);
+        User newUser = User.createWithOAuth("user@example.com", UserRole.USER, oAuthId, OAuth.GOOGLE);
         ReflectionTestUtils.setField(newUser, "id", userId);
         given(userQueryService.getUser(anyLong())).willReturn(newUser);
 

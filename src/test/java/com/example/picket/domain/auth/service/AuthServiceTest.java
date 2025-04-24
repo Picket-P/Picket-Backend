@@ -1,14 +1,5 @@
 package com.example.picket.domain.auth.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.UserRole;
@@ -18,8 +9,6 @@ import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.time.LocalDate;
-import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +16,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -112,7 +113,7 @@ class AuthServiceTest {
             LocalDate birth = LocalDate.of(2000, 12, 12);
             Gender gender = Gender.MALE;
             UserRole userRole = UserRole.USER;
-            User user = User.toEntity(email, notMatchPassword, userRole, null, nickname, birth, gender);
+            User user = User.create(email, notMatchPassword, userRole, null, nickname, birth, gender);
             given(userRepository.findByEmail(any())).willReturn(Optional.of(user));
             given(passwordEncoder.matches(any(), any())).willReturn(false);
             // when & then
@@ -131,7 +132,7 @@ class AuthServiceTest {
             LocalDate birth = LocalDate.of(2000, 12, 12);
             Gender gender = Gender.MALE;
             UserRole userRole = UserRole.USER;
-            User user = User.toEntity(email, password, userRole, null, nickname, birth, gender);
+            User user = User.create(email, password, userRole, null, nickname, birth, gender);
             given(userRepository.findByEmail(any())).willReturn(Optional.of(user));
             given(passwordEncoder.matches(any(), any())).willReturn(true);
 

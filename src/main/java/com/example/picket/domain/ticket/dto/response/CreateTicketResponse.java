@@ -37,7 +37,7 @@ public class CreateTicketResponse {
         this.modifiedAt = ticket.getModifiedAt();
     }
 
-    public static CreateTicketResponse toDto(Ticket ticket) {
+    public static CreateTicketResponse of(Ticket ticket) {
         return new CreateTicketResponse(ticket);
     }
 }

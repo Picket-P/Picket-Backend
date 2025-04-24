@@ -22,7 +22,7 @@ public class HotShowResponse {
         this.createdAt = createdAt;
     }
 
-    public static HotShowResponse toDto(HotShow hotShow) {
+    public static HotShowResponse of(HotShow hotShow) {
         return new HotShowResponse(hotShow.getShowId(), hotShow.getTitle(), hotShow.getViewCount(), hotShow.getStatus(), hotShow.getCreatedAt());
     }
 }

@@ -50,44 +50,44 @@ public class ShowDetailResponse {
         this.modifiedAt = modifiedAt;
     }
 
-    public static ShowDetailResponse toDto(Long id, Long directorId, String title, String posterUrl, Category category,
-                                           String description, String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
-                                           Integer ticketsLimitPerUser, int viewCount,
-                                           List<ShowDateDetailResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public static ShowDetailResponse of(Long id, Long directorId, String title, String posterUrl, Category category,
+                                        String description, String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
+                                        Integer ticketsLimitPerUser, int viewCount,
+                                        List<ShowDateDetailResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         return new ShowDetailResponse(
-            id,
-            directorId,
-            title,
-            posterUrl,
-            category,
-            description,
-            location,
-            reservationStart,
-            reservationEnd,
-            ticketsLimitPerUser,
-            viewCount,
-            showDates,
-            createdAt,
-            modifiedAt
+                id,
+                directorId,
+                title,
+                posterUrl,
+                category,
+                description,
+                location,
+                reservationStart,
+                reservationEnd,
+                ticketsLimitPerUser,
+                viewCount,
+                showDates,
+                createdAt,
+                modifiedAt
         );
     }
 
-    public static ShowDetailResponse toDto(Show show, List<ShowDateDetailResponse> showDateDetailResponse) {
+    public static ShowDetailResponse of(Show show, List<ShowDateDetailResponse> showDateDetailResponse) {
         return new ShowDetailResponse(
-            show.getId(),
-            show.getDirectorId(),
-            show.getTitle(),
-            show.getPosterUrl(),
-            show.getCategory(),
-            show.getDescription(),
-            show.getLocation(),
-            show.getReservationStart(),
-            show.getReservationEnd(),
-            show.getTicketsLimitPerUser(),
-            show.getViewCount(),
-            showDateDetailResponse,
-            show.getCreatedAt(),
-            show.getModifiedAt()
+                show.getId(),
+                show.getDirectorId(),
+                show.getTitle(),
+                show.getPosterUrl(),
+                show.getCategory(),
+                show.getDescription(),
+                show.getLocation(),
+                show.getReservationStart(),
+                show.getReservationEnd(),
+                show.getTicketsLimitPerUser(),
+                show.getViewCount(),
+                showDateDetailResponse,
+                show.getCreatedAt(),
+                show.getModifiedAt()
         );
     }
 

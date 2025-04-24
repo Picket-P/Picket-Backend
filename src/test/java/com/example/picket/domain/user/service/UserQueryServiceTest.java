@@ -1,13 +1,5 @@
 package com.example.picket.domain.user.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.UserRole;
@@ -15,16 +7,23 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.user.dto.response.UserResponse;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
-
-import java.time.LocalDate;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class UserQueryServiceTest {
@@ -39,7 +38,7 @@ class UserQueryServiceTest {
     void 존재하지않는_사용자를_조회시_예외처리를_던진다() {
         // given
         Long userId = 1L;
-        AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+        AuthUser authUser = AuthUser.create(userId, UserRole.USER);
 
         given(userRepository.findById(anyLong())).willReturn(Optional.empty());
         // when & then
@@ -50,7 +49,7 @@ class UserQueryServiceTest {
     void 사용자를_조회한다() {
         // given
         Long userId = 1L;
-        AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+        AuthUser authUser = AuthUser.create(userId, UserRole.USER);
         User user = mock();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         // when
@@ -118,11 +117,11 @@ class UserQueryServiceTest {
     }
 
     private User createUser(Long userId) {
-        User user = User.toEntity("user@example.com"
-                ,"test123!"
+        User user = User.create("user@example.com"
+                , "test123!"
                 , UserRole.USER
-                ,null
-                ,"닉네임"
+                , null
+                , "닉네임"
                 , LocalDate.parse("1990-06-25")
                 , Gender.FEMALE);
 

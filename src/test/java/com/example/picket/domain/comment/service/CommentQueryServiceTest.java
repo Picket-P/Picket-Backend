@@ -1,6 +1,9 @@
 package com.example.picket.domain.comment.service;
 
-import com.example.picket.common.enums.*;
+import com.example.picket.common.enums.Category;
+import com.example.picket.common.enums.Gender;
+import com.example.picket.common.enums.Grade;
+import com.example.picket.common.enums.UserRole;
 import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.repository.CommentRepository;
 import com.example.picket.domain.seat.entity.Seat;
@@ -47,7 +50,7 @@ class CommentQueryServiceTest {
     private CommentQueryService commentQueryService;
 
     @Test
-    void 댓글_다건_조회_성공(){
+    void 댓글_다건_조회_성공() {
         // given
         Long userId1 = 1L;
         User user1 = createUser(userId1);
@@ -58,10 +61,10 @@ class CommentQueryServiceTest {
         Long showId = 1L;
         Show show = createShow(user1, showId);
 
-        Comment comment1 = Comment.toEntity("댓글내용1", show, user1);
+        Comment comment1 = Comment.create("댓글내용1", show, user1);
         ReflectionTestUtils.setField(comment1, "id", 1L);
 
-        Comment comment2 = Comment.toEntity("댓글내용2", show, user1);
+        Comment comment2 = Comment.create("댓글내용2", show, user1);
         ReflectionTestUtils.setField(comment2, "id", 2L);
         List<Comment> commentList = Arrays.asList(comment1, comment2);
 
@@ -81,11 +84,11 @@ class CommentQueryServiceTest {
     }
 
     private User createUser(Long userId) {
-        User user = User.toEntity("user@example.com"
-                ,"test123!"
+        User user = User.create("user@example.com"
+                , "test123!"
                 , UserRole.USER
-                ,null
-                ,"닉네임"
+                , null
+                , "닉네임"
                 , LocalDate.parse("1990-06-25")
                 , Gender.FEMALE);
 
@@ -95,8 +98,8 @@ class CommentQueryServiceTest {
     }
 
     private Show createShow(User user, Long showId) {
-        Show show = Show.toEntity(user.getId()
-                ,"제목"
+        Show show = Show.create(user.getId()
+                , "제목"
                 , "포스터url"
                 , Category.CLASSIC
                 , "description"
@@ -113,7 +116,7 @@ class CommentQueryServiceTest {
     }
 
     private ShowDate createShowDate(Show show, Long showDateId) {
-        ShowDate showDate = ShowDate.toEntity(LocalDate.now()
+        ShowDate showDate = ShowDate.create(LocalDate.now()
                 , LocalTime.now()
                 , LocalTime.now().plusHours(1)
                 , 10
@@ -126,7 +129,7 @@ class CommentQueryServiceTest {
     }
 
     private Seat createSeat(ShowDate showDate, Long seatId) {
-        Seat seat = Seat.toEntity(Grade.A
+        Seat seat = Seat.create(Grade.A
                 , 1
                 , new BigDecimal(100000)
                 , showDate);
