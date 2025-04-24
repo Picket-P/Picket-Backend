@@ -1,8 +1,5 @@
 package com.example.picket.domain.like.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.like.entity.Like;
 import com.example.picket.domain.like.repository.LikeRepository;
@@ -10,10 +7,14 @@ import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class LikeCommandService {
             throw new CustomException(BAD_REQUEST, "이미 해당 좋아요를 눌렀습니다.");
         }
 
-        Like like = Like.toEntity(show, user);
+        Like like = Like.create(show, user);
 
         likeRepository.save(like);
     }

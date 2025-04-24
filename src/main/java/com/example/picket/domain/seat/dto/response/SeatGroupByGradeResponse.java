@@ -2,9 +2,10 @@ package com.example.picket.domain.seat.dto.response;
 
 import com.example.picket.common.enums.Grade;
 import com.example.picket.domain.seat.entity.Seat;
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.util.List;
-import lombok.Getter;
 
 @Getter
 public class SeatGroupByGradeResponse {
@@ -18,12 +19,12 @@ public class SeatGroupByGradeResponse {
         this.seats = seats;
     }
 
-    public static SeatGroupByGradeResponse toDto(Grade grade, BigDecimal price, List<Seat> seats) {
+    public static SeatGroupByGradeResponse of(Grade grade, BigDecimal price, List<Seat> seats) {
         return new SeatGroupByGradeResponse(
                 grade,
                 price,
                 seats.stream()
-                        .map(SeatDetailResponse::toDto)
+                        .map(SeatDetailResponse::of)
                         .toList()
         );
     }

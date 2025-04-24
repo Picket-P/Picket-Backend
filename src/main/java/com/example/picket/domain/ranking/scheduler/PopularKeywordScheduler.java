@@ -36,7 +36,7 @@ public class PopularKeywordScheduler {
         if (category != null) {
             log.info("검색 키워드 증가: {}", category.name());
             redisTemplate.opsForZSet().incrementScore(SEARCH_KEYWORD_KEY, category.name(), 1);
-            searchLogRepository.save(SearchLog.toEntity(category));
+            searchLogRepository.save(SearchLog.create(category));
         } else {
             log.warn("카테고리가 null입니다.");
         }
@@ -54,7 +54,7 @@ public class PopularKeywordScheduler {
             log.debug("상위 키워드 조회: {}", topKeywords);
 
             List<PopularKeyword> keywordList = topKeywords.stream()
-                    .map(tuple -> PopularKeyword.toEntity(
+                    .map(tuple -> PopularKeyword.create(
                             Category.valueOf(tuple.getValue()),
                             tuple.getScore().longValue(),
                             now

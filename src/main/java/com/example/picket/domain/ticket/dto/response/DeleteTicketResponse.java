@@ -40,7 +40,7 @@ public class DeleteTicketResponse {
         this.deletedAt = ticket.getDeletedAt();
     }
 
-    public static DeleteTicketResponse toDto(Ticket ticket) {
+    public static DeleteTicketResponse of(Ticket ticket) {
         return new DeleteTicketResponse(ticket);
     }
 }

@@ -31,17 +31,17 @@ public class ShowDateDetailResponse {
         this.seats = seats;
     }
 
-    public static ShowDateDetailResponse toDto(Long id, LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
-                                               Integer reservedSeatCount, Integer availableSeatCount, List<SeatSummaryResponse> seats) {
+    public static ShowDateDetailResponse of(Long id, LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
+                                            Integer reservedSeatCount, Integer availableSeatCount, List<SeatSummaryResponse> seats) {
         return new ShowDateDetailResponse(
-            id,
-            date,
-            startTime,
-            endTime,
-            totalSeatCount,
-            reservedSeatCount,
-            availableSeatCount,
-            seats
+                id,
+                date,
+                startTime,
+                endTime,
+                totalSeatCount,
+                reservedSeatCount,
+                availableSeatCount,
+                seats
         );
     }
 

@@ -48,7 +48,7 @@ public class RankingService {
                         .map(json -> {
                             try {
                                 PopularKeyword keyword = objectMapper.readValue(json, PopularKeyword.class);
-                                return PopularKeywordResponse.toDto(keyword);
+                                return PopularKeywordResponse.of(keyword);
                             } catch (Exception e) {
                                 log.error("검색 키워드 역직렬화 실패: {}", json, e);
                                 return null;
@@ -63,12 +63,12 @@ public class RankingService {
             log.warn("Redis 데이터 사용 불가, RDS로 폴백");
             List<Object[]> topKeywords = searchLogRepository.findTopKeywordsSince(LocalDateTime.now().minusDays(1));
             List<PopularKeywordResponse> fallbackKeywords = topKeywords.stream()
-                    .map(row -> PopularKeyword.toEntity(
+                    .map(row -> PopularKeyword.create(
                             (Category) row[0],
                             (Long) row[1],
                             LocalDateTime.now()
                     ))
-                    .map(PopularKeywordResponse::toDto)
+                    .map(PopularKeywordResponse::of)
                     .toList();
             log.info("RDS에서 {}개 검색 키워드 조회 완료", fallbackKeywords.size());
             return fallbackKeywords;
@@ -86,7 +86,7 @@ public class RankingService {
                         .map(json -> {
                             try {
                                 HotShow show = objectMapper.readValue(json, HotShow.class);
-                                return HotShowResponse.toDto(show);
+                                return HotShowResponse.of(show);
                             } catch (Exception e) {
                                 log.error("공연 역직렬화 실패: {}", json, e);
                                 return null;
@@ -105,14 +105,14 @@ public class RankingService {
                 log.warn("RDS에서 조건에 맞는 공연 데이터가 없습니다. 상태: NOT FINISHED, 정렬: viewCount DESC");
             }
             List<HotShowResponse> fallbackShows = topShows.stream()
-                    .map(show -> HotShow.toEntity(
+                    .map(show -> HotShow.create(
                             show.getId(),
                             show.getTitle(),
                             show.getViewCount(),
                             show.getStatus(),
                             LocalDateTime.now()
                     ))
-                    .map(HotShowResponse::toDto)
+                    .map(HotShowResponse::of)
                     .toList();
             log.info("RDS에서 {}개 인기 공연 조회 완료", fallbackShows.size());
             return fallbackShows;
@@ -130,7 +130,7 @@ public class RankingService {
                         .map(json -> {
                             try {
                                 LikeShow show = objectMapper.readValue(json, LikeShow.class);
-                                return LikeShowResponse.toDto(show);
+                                return LikeShowResponse.of(show);
                             } catch (Exception e) {
                                 log.error("공연 역직렬화 실패: {}", json, e);
                                 return null;
@@ -147,14 +147,14 @@ public class RankingService {
             List<Object[]> topShows = likeRepository.findTop10ShowsByLikeCountAndStatusIn(ACTIVE_STATUSES, pageable);
             log.debug("RDS 좋아요 공연 쿼리 결과: {}", topShows);
             List<LikeShowResponse> fallbackShows = topShows.stream()
-                    .map(row -> LikeShow.toEntity(
+                    .map(row -> LikeShow.create(
                             (Long) row[0],
                             (String) row[1],
                             (Long) row[2],
                             (ShowStatus) row[3],
                             LocalDateTime.now()
                     ))
-                    .map(LikeShowResponse::toDto)
+                    .map(LikeShowResponse::of)
                     .toList();
             log.info("RDS에서 {}개 좋아요 공연 조회 완료", fallbackShows.size());
             return fallbackShows;

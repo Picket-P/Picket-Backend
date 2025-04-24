@@ -28,7 +28,7 @@ public class SearchLog {
         this.searchedAt = LocalDateTime.now();
     }
 
-    public static SearchLog toEntity(Category category) {
+    public static SearchLog create(Category category) {
         return new SearchLog(category);
     }
 }

@@ -9,7 +9,6 @@ import com.example.picket.domain.like.service.LikeQueryService;
 import com.example.picket.domain.show.entity.Show;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,13 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -42,7 +37,7 @@ public class LikeController {
         List<Show> shows = likeQueryService.getLikes(authUser.getId(), page, size);
         Pageable pageable = PageRequest.of(page, size);
         List<LikeResponse> likeResponses = shows.stream().map(
-                show -> LikeResponse.toDto(
+                show -> LikeResponse.of(
                         show.getId(),
                         show.getTitle(),
                         show.getCategory(),
@@ -50,7 +45,7 @@ public class LikeController {
                 )
         ).toList();
         Page<LikeResponse> responses = new PageImpl<>(likeResponses, pageable, likeResponses.size());
-        return ResponseEntity.ok(PageResponse.toDto(responses));
+        return ResponseEntity.ok(PageResponse.of(responses));
     }
 
     @Operation(summary = "좋아요 추가", description = "특정 공연에 좋아요를 추가할 수 있습니다.")

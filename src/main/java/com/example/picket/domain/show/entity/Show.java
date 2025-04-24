@@ -4,20 +4,13 @@ import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "shows")
@@ -87,9 +80,9 @@ public class Show extends BaseEntity {
         this.status = ShowStatus.RESERVATION_PENDING;
     }
 
-    public static Show toEntity(Long directorId, String title, String posterUrl, Category category, String description,
-                                String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
-                                Integer ticketsLimitPerUser) {
+    public static Show create(Long directorId, String title, String posterUrl, Category category, String description,
+                              String location, LocalDateTime reservationStart, LocalDateTime reservationEnd,
+                              Integer ticketsLimitPerUser) {
         return new Show(directorId, title, posterUrl, category, description, location, reservationStart, reservationEnd,
                 ticketsLimitPerUser);
     }

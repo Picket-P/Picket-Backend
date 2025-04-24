@@ -15,7 +15,7 @@ public class OAuthUser {
         this.email = email;
     }
 
-    public static OAuthUser toEntity(String id,  String email) {
+    public static OAuthUser create(String id, String email) {
         return new OAuthUser(id, email);
     }
 }

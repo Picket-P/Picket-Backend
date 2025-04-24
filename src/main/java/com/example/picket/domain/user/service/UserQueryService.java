@@ -1,7 +1,5 @@
 package com.example.picket.domain.user.service;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.user.dto.response.UserResponse;
@@ -12,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class UserQueryService {
                 () -> new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다.")
         );
 
-        return UserResponse.toDto(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(),
+        return UserResponse.of(user.getEmail(), user.getUserRole(), user.getProfileUrl(), user.getNickname(),
                 user.getBirth(), user.getGender());
     }
 

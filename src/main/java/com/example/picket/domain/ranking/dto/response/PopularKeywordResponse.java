@@ -18,7 +18,7 @@ public class PopularKeywordResponse {
         this.createdAt = createdAt;
     }
 
-    public static PopularKeywordResponse toDto(PopularKeyword popularKeyword) {
+    public static PopularKeywordResponse of(PopularKeyword popularKeyword) {
         return new PopularKeywordResponse(popularKeyword.getCategory(), popularKeyword.getKeywordCount(), popularKeyword.getCreatedAt());
     }
 }

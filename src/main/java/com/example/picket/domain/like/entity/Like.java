@@ -3,14 +3,7 @@ package com.example.picket.domain.like.entity;
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +31,7 @@ public class Like extends BaseEntity {
         this.user = user;
     }
 
-    public static Like toEntity(Show show, User user) {
+    public static Like create(Show show, User user) {
         return new Like(show, user);
     }
 }

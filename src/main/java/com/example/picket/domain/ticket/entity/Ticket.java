@@ -62,7 +62,7 @@ public class Ticket extends BaseEntity {
         this.status = status;
     }
 
-    public static Ticket toEntity(User user, Show show, Seat seat, BigDecimal price, TicketStatus status) {
+    public static Ticket create(User user, Show show, Seat seat, BigDecimal price, TicketStatus status) {
         return new Ticket(user, show, seat, price, status);
     }
 }

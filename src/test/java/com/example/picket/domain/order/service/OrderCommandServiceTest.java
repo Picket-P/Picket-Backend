@@ -41,7 +41,7 @@ class OrderCommandServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = User.toEntity(
+        user = User.create(
                 "user@example.com", "encodedPw", UserRole.USER, null, "nickname",
                 LocalDate.of(1990, 1, 1), Gender.MALE
         );

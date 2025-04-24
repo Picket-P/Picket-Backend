@@ -35,7 +35,7 @@ public class Comment extends BaseEntity {
         this.user = user;
     }
 
-    public static Comment toEntity(String content,  Show show, User user) {
+    public static Comment create(String content, Show show, User user) {
         return new Comment(content, show, user);
     }
 

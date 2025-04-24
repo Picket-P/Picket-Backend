@@ -6,7 +6,6 @@ import com.example.picket.domain.booking.dto.request.BookingRequest;
 import com.example.picket.domain.booking.dto.request.CancelBookingRequest;
 import com.example.picket.domain.booking.dto.response.CancelBookingResponse;
 import com.example.picket.domain.booking.service.BookingFacade;
-import com.example.picket.domain.booking.service.BookingService;
 import com.example.picket.domain.order.dto.response.OrderResponse;
 import com.example.picket.domain.order.entity.Order;
 import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/api/v2/")
@@ -36,9 +34,9 @@ public class BookingController {
             @PathVariable Long showDateId,
             @Auth AuthUser authUser,
             @RequestBody BookingRequest dto
-            ) throws InterruptedException {
+    ) throws InterruptedException {
         Order order = bookingFacade.booking(showId, showDateId, authUser.getId(), dto.getSeatIds());
-        OrderResponse orderResponse = OrderResponse.toDto(order);
+        OrderResponse orderResponse = OrderResponse.of(order);
         return ResponseEntity.ok(orderResponse);
     }
 
@@ -51,8 +49,8 @@ public class BookingController {
             @RequestBody CancelBookingRequest dto
     ) throws InterruptedException {
         List<Ticket> canceledTickets = bookingFacade.cancelBooking(showId, showDateId, authUser.getId(), dto.getTicketIds());
-        List<GetTicketResponse> getTicketResponses = canceledTickets.stream().map(GetTicketResponse::toDto).toList();
-        CancelBookingResponse cancelBookingResponse = CancelBookingResponse.toDto(getTicketResponses);
+        List<GetTicketResponse> getTicketResponses = canceledTickets.stream().map(GetTicketResponse::of).toList();
+        CancelBookingResponse cancelBookingResponse = CancelBookingResponse.of(getTicketResponses);
         return ResponseEntity.ok(cancelBookingResponse);
     }
 }

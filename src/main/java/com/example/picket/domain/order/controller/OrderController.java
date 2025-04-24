@@ -5,9 +5,7 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.dto.PageResponse;
 import com.example.picket.domain.order.dto.response.OrderResponse;
 import com.example.picket.domain.order.entity.Order;
-import com.example.picket.domain.order.repository.OrderRepository;
 import com.example.picket.domain.order.service.OrderQueryService;
-import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,7 +31,7 @@ public class OrderController {
             @PathVariable Long orderId,
             @Auth AuthUser authUser) {
         Order order = orderQueryService.getOrder(authUser.getId(), orderId);
-        OrderResponse orderResponse = OrderResponse.toDto(order);
+        OrderResponse orderResponse = OrderResponse.of(order);
         return ResponseEntity.ok(orderResponse);
     }
 
@@ -46,8 +42,8 @@ public class OrderController {
             @RequestParam(defaultValue = "1") int page,
             @Auth AuthUser authUser
     ) {
-        Page<OrderResponse> orderResponse = orderQueryService.getOrders(size, page, authUser.getId()).map(OrderResponse::toDto);
-        PageResponse<OrderResponse> pageOrderResponse = PageResponse.toDto(orderResponse);
+        Page<OrderResponse> orderResponse = orderQueryService.getOrders(size, page, authUser.getId()).map(OrderResponse::of);
+        PageResponse<OrderResponse> pageOrderResponse = PageResponse.of(orderResponse);
         return ResponseEntity.ok(pageOrderResponse);
     }
 }

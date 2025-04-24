@@ -1,12 +1,8 @@
 package com.example.picket.domain.ticket.controller;
 
 import com.example.picket.common.annotation.Auth;
-import com.example.picket.common.annotation.AuthPermission;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.dto.PageResponse;
-import com.example.picket.common.enums.UserRole;
-import com.example.picket.domain.ticket.dto.response.CreateTicketResponse;
-import com.example.picket.domain.ticket.dto.response.DeleteTicketResponse;
 import com.example.picket.domain.ticket.dto.response.GetTicketResponse;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.service.TicketCommandService;
@@ -19,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -40,7 +34,7 @@ public class TicketController {
 //            @PathVariable Long seatId,
 //            @Auth AuthUser authUser) {
 //        Ticket ticket = ticketCommandService.createTicket(authUser.getId(), authUser.getUserRole(), seatId);
-//        return ResponseEntity.ok(CreateTicketResponse.toDto(ticket));
+//        return ResponseEntity.ok(CreateTicketResponse.of(ticket));
 //    }
 
     @Operation(summary = "티켓 다건 조회", description = "티켓을 다건 조회할 수 있습니다.")
@@ -51,8 +45,8 @@ public class TicketController {
             @Auth AuthUser authUser
     ) {
         Page<GetTicketResponse> getTicketResponsePage = ticketQueryService.getTickets(authUser.getId(), size, page)
-                .map(GetTicketResponse::toDto);
-        return ResponseEntity.ok(PageResponse.toDto(getTicketResponsePage));
+                .map(GetTicketResponse::of);
+        return ResponseEntity.ok(PageResponse.of(getTicketResponsePage));
     }
 
     @Operation(summary = "티켓 단건 조회", description = "티켓을 단건 조회할 수 있습니다.")
@@ -62,7 +56,7 @@ public class TicketController {
             @Auth AuthUser authUser
     ) {
         Ticket ticket = ticketQueryService.getTicket(authUser.getId(), ticketId);
-        return ResponseEntity.ok(GetTicketResponse.toDto(ticket));
+        return ResponseEntity.ok(GetTicketResponse.of(ticket));
     }
 
 //    @Operation(summary = "티켓 삭제", description = "티켓을 삭제할 수 있습니다.")
@@ -71,6 +65,6 @@ public class TicketController {
 //            @PathVariable Long ticketId,
 //            @Auth AuthUser authUser) {
 //        Ticket ticket = ticketCommandService.deleteTicket(ticketId, authUser.getId());
-//        return ResponseEntity.ok(DeleteTicketResponse.toDto(ticket));
+//        return ResponseEntity.ok(DeleteTicketResponse.of(ticket));
 //    }
 }

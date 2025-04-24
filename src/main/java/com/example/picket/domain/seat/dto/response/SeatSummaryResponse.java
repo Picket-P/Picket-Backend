@@ -18,7 +18,7 @@ public class SeatSummaryResponse {
         this.available = available;
     }
 
-    public static SeatSummaryResponse toDto(Grade grade, int total, int reserved, int available) {
+    public static SeatSummaryResponse of(Grade grade, int total, int reserved, int available) {
         return new SeatSummaryResponse(grade, total, reserved, available);
     }
 

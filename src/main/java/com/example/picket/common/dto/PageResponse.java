@@ -26,13 +26,13 @@ public class PageResponse<T> {
         this.totalPages = totalPages;
     }
 
-    public static <T> PageResponse<T> toDto(Page<T> page) {
+    public static <T> PageResponse<T> of(Page<T> page) {
         return new PageResponse<T>(
-            page.getContent(),
-            page.getSize(),
-            page.getNumber() + 1,
-            page.getTotalElements(),
-            page.getTotalPages()
+                page.getContent(),
+                page.getSize(),
+                page.getNumber() + 1,
+                page.getTotalElements(),
+                page.getTotalPages()
         );
     }
 }

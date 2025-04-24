@@ -3,11 +3,12 @@ package com.example.picket.domain.show.dto.response;
 import com.example.picket.common.enums.ShowStatus;
 import com.example.picket.domain.show.entity.Show;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,7 +39,7 @@ public class ShowResponse {
     private ShowResponse(Long id, Long directorId, String title, String posterUrl, String category, String description,
                          String location, String reservationStart, String reservationEnd, Integer ticketsLimitPerUser, int viewCount, ShowStatus showStatus,
                          List<ShowDateResponse> showDates, LocalDateTime createdAt, LocalDateTime modifiedAt
-                         ) {
+    ) {
         this.id = id;
         this.directorId = directorId;
         this.title = title;
@@ -57,7 +58,7 @@ public class ShowResponse {
     }
 
     // 공연 + 날짜 리스트 기반 응답 객체 생성
-    public static ShowResponse toDto(Show show, List<ShowDateResponse> showDateResponses) {
+    public static ShowResponse of(Show show, List<ShowDateResponse> showDateResponses) {
         return new ShowResponse(
                 show.getId(),
                 show.getDirectorId(),

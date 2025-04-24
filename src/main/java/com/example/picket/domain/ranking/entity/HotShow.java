@@ -23,7 +23,7 @@ public class HotShow {
         this.createdAt = createdAt;
     }
 
-    public static HotShow toEntity(Long showId, String title, int viewCount, ShowStatus status, LocalDateTime createdAt) {
+    public static HotShow create(Long showId, String title, int viewCount, ShowStatus status, LocalDateTime createdAt) {
         return new HotShow(showId, title, viewCount, status, createdAt);
     }
 }

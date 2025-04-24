@@ -27,7 +27,7 @@ public class ShowDateResponse {
         this.availableSeatCount = showDate.getAvailableSeatCount();
     }
 
-    public static ShowDateResponse toDto(ShowDate showDate) {
+    public static ShowDateResponse of(ShowDate showDate) {
         return new ShowDateResponse(showDate);
     }
 

@@ -19,7 +19,7 @@ public class PopularKeyword {
         this.createdAt = createdAt;
     }
 
-    public static PopularKeyword toEntity(Category category, Long keywordCount, LocalDateTime createdAt) {
+    public static PopularKeyword create(Category category, Long keywordCount, LocalDateTime createdAt) {
         return new PopularKeyword(category, keywordCount, createdAt);
     }
 }

@@ -18,7 +18,7 @@ public class PageCommentResponse {
     private final boolean last;
 
     public PageCommentResponse(List<CommentResponse> content, int page, int size,
-                                long totalElements, int totalPages, boolean last) {
+                               long totalElements, int totalPages, boolean last) {
         this.content = content;
         this.page = page;
         this.size = size;
@@ -27,9 +27,9 @@ public class PageCommentResponse {
         this.last = last;
     }
 
-    public static PageCommentResponse toDto(Page<Comment> comments, Function<Comment, Boolean> ticketChecker) {
+    public static PageCommentResponse of(Page<Comment> comments, Function<Comment, Boolean> ticketChecker) {
         List<CommentResponse> responseList = comments.getContent().stream()
-                .map(comment -> CommentResponse.toDto(comment, ticketChecker.apply(comment)))
+                .map(comment -> CommentResponse.of(comment, ticketChecker.apply(comment)))
                 .toList();
 
         return new PageCommentResponse(

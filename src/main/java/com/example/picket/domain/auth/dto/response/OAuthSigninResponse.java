@@ -13,7 +13,7 @@ public class OAuthSigninResponse {
         this.isNewUser = isNewUser;
     }
 
-    public static OAuthSigninResponse toDto(String nickname, Boolean isNewUser) {
+    public static OAuthSigninResponse of(String nickname, Boolean isNewUser) {
         return new OAuthSigninResponse(nickname, isNewUser);
     }
 }

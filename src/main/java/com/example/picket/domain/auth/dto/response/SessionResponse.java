@@ -16,7 +16,7 @@ public class SessionResponse {
         this.role = role;
     }
 
-    public static SessionResponse toDto(String nickname, String email, UserRole role) {
+    public static SessionResponse of(String nickname, String email, UserRole role) {
         return new SessionResponse(nickname, email, role);
     }
 }

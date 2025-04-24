@@ -66,7 +66,7 @@ class ShowDateCommandServiceTest {
 
         @Test
         void 좌석수_업데이트_성공_테스트() {
-           // given
+            // given
             Long showId = 1L;
             Long showDateId = 1L;
 
@@ -82,17 +82,17 @@ class ShowDateCommandServiceTest {
             setShowDateId(showDate, showDateId);
             given(showDateRepository.findById(showDateId)).willReturn(Optional.of(showDate));
 
-           // when
-           showDateCommandService.countUpdate(showDateId, 1);
+            // when
+            showDateCommandService.countUpdate(showDateId, 1);
 
-           // then
+            // then
             assertEquals(showDate.getAvailableSeatCount(), 99);
             assertEquals(showDate.getReservedSeatCount(), 1);
         }
     }
 
     private Show createShow(LocalDateTime now) {
-        return Show.toEntity(
+        return Show.create(
                 1L,
                 "원래 제목",
                 "origin.jpg",
@@ -111,7 +111,7 @@ class ShowDateCommandServiceTest {
             LocalTime endTime,
             Show show
     ) {
-        return ShowDate.toEntity(
+        return ShowDate.create(
                 now,
                 startTime,
                 endTime,

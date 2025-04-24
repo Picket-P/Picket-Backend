@@ -47,7 +47,7 @@ public class LikeRankingScheduler {
             log.debug("좋아요 공연 쿼리 결과: {}, 상태 필터: {}", topShows, Arrays.toString(ACTIVE_STATUSES));
 
             List<LikeShow> showList = topShows.stream()
-                    .map(row -> LikeShow.toEntity(
+                    .map(row -> LikeShow.create(
                             (Long) row[0],
                             (String) row[1],
                             (Long) row[2],

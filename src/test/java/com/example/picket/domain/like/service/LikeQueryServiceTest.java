@@ -1,11 +1,5 @@
 package com.example.picket.domain.like.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.example.picket.common.enums.Category;
 import com.example.picket.common.enums.Gender;
 import com.example.picket.common.enums.UserRole;
@@ -14,10 +8,6 @@ import com.example.picket.domain.like.repository.LikeRepository;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.user.entity.User;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +16,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class LikeQueryServiceTest {
@@ -68,15 +69,15 @@ class LikeQueryServiceTest {
             int page = 0;
             int size = 10;
 
-            User user = User.toEntity("test@example.com", "!Password1234", UserRole.USER, null, "nickname1",
+            User user = User.create("test@example.com", "!Password1234", UserRole.USER, null, "nickname1",
                     LocalDate.of(2000, 12, 12), Gender.MALE);
-            Show show1 = Show.toEntity(1L, "Show 1", "image1.png", Category.CONCERT, "desc1",
+            Show show1 = Show.create(1L, "Show 1", "image1.png", Category.CONCERT, "desc1",
                     "location1", LocalDateTime.now(), LocalDateTime.now().plusDays(3), 3);
-            Show show2 = Show.toEntity(2L, "Show 2", "image2.png", Category.MUSICAL, "desc2",
+            Show show2 = Show.create(2L, "Show 2", "image2.png", Category.MUSICAL, "desc2",
                     "location2", LocalDateTime.now(), LocalDateTime.now().plusDays(5), 5);
 
-            Like like1 = Like.toEntity(show1, user);
-            Like like2 = Like.toEntity(show2, user);
+            Like like1 = Like.create(show1, user);
+            Like like2 = Like.create(show2, user);
 
             List<Like> likeList = List.of(like1, like2);
             List<Show> showList = List.of(show1, show2);
@@ -101,13 +102,13 @@ class LikeQueryServiceTest {
             int page = 1;
             int size = 1; // 한 페이지에 1개만 조회
 
-            User user = User.toEntity("test@example.com", "!Password1234", UserRole.USER, null, "nickname1",
+            User user = User.create("test@example.com", "!Password1234", UserRole.USER, null, "nickname1",
                     LocalDate.of(2000, 12, 12), Gender.MALE);
 
-            Show show1 = Show.toEntity(1L, "Show 1", "image1.png", Category.CONCERT, "desc1",
+            Show show1 = Show.create(1L, "Show 1", "image1.png", Category.CONCERT, "desc1",
                     "location1", LocalDateTime.now(), LocalDateTime.now().plusDays(3), 3);
 
-            Like like1 = Like.toEntity(show1, user);
+            Like like1 = Like.create(show1, user);
 
             List<Like> likeList = List.of(like1); // 한 개만 반환
             List<Show> showList = List.of(show1);

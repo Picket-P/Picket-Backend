@@ -17,7 +17,7 @@ public class AuthUser {
         this.userRole = userRole;
     }
 
-    public static AuthUser toEntity(Long id, UserRole userRole) {
+    public static AuthUser create(Long id, UserRole userRole) {
         return new AuthUser(id, userRole);
     }
 }

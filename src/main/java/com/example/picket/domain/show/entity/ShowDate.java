@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -61,8 +62,8 @@ public class ShowDate extends BaseEntity {
         this.show = show;
     }
 
-    public static ShowDate toEntity(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
-                                    Integer reservedSeatCount, Show show) {
+    public static ShowDate create(LocalDate date, LocalTime startTime, LocalTime endTime, Integer totalSeatCount,
+                                  Integer reservedSeatCount, Show show) {
         return new ShowDate(date, startTime, endTime, totalSeatCount, reservedSeatCount, show);
     }
 

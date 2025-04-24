@@ -25,64 +25,64 @@ public class ShowDateQueryDslRepositoryImpl implements ShowDateQueryDslRepositor
     public List<ShowDateDetailResponse> getShowDateDetailResponseById(Long showId) {
 
         List<Tuple> tuples = queryFactory
-            .select(
-                showDate,
-                seat.grade,
-                seat.seatStatus
-            )
-            .from(showDate)
-            .leftJoin(seat).on(seat.showDate.eq(showDate))
-            .where(showDate.show.id.eq(showId))
-            .fetch();
+                .select(
+                        showDate,
+                        seat.grade,
+                        seat.seatStatus
+                )
+                .from(showDate)
+                .leftJoin(seat).on(seat.showDate.eq(showDate))
+                .where(showDate.show.id.eq(showId))
+                .fetch();
 
         if (tuples.isEmpty()) {
             return List.of();
         }
 
         Map<Long, List<Tuple>> showDateGroups = tuples.stream()
-            .collect(Collectors.groupingBy(tuple -> tuple.get(showDate).getId()));
+                .collect(Collectors.groupingBy(tuple -> tuple.get(showDate).getId()));
 
         return showDateGroups.entrySet().stream()
-            .map(entry -> {
-                Long dateId = entry.getKey();
-                List<Tuple> dateTuples = entry.getValue();
-                ShowDate showDateEntity = dateTuples.get(0).get(showDate);
+                .map(entry -> {
+                    Long dateId = entry.getKey();
+                    List<Tuple> dateTuples = entry.getValue();
+                    ShowDate showDateEntity = dateTuples.get(0).get(showDate);
 
-                Map<Grade, Long> seatCountsByGrade = dateTuples.stream()
-                    .filter(t -> t.get(seat.grade) != null)
-                    .collect(Collectors.groupingBy(
-                        tuple -> tuple.get(seat.grade),
-                        Collectors.counting()
-                    ));
+                    Map<Grade, Long> seatCountsByGrade = dateTuples.stream()
+                            .filter(t -> t.get(seat.grade) != null)
+                            .collect(Collectors.groupingBy(
+                                    tuple -> tuple.get(seat.grade),
+                                    Collectors.counting()
+                            ));
 
-                Map<Grade, Long> reservedCountsByGrade = dateTuples.stream()
-                    .filter(tuple -> tuple.get(seat.grade) != null && tuple.get(seat.seatStatus) == SeatStatus.RESERVED)
-                    .collect(Collectors.groupingBy(
-                        tuple -> tuple.get(seat.grade),
-                        Collectors.counting()
-                    ));
+                    Map<Grade, Long> reservedCountsByGrade = dateTuples.stream()
+                            .filter(tuple -> tuple.get(seat.grade) != null && tuple.get(seat.seatStatus) == SeatStatus.RESERVED)
+                            .collect(Collectors.groupingBy(
+                                    tuple -> tuple.get(seat.grade),
+                                    Collectors.counting()
+                            ));
 
-                List<SeatSummaryResponse> seatSummaryResponses = seatCountsByGrade.entrySet().stream()
-                    .map(gradeEntry -> {
-                        Grade grade = gradeEntry.getKey();
-                        int total = gradeEntry.getValue().intValue();
-                        int reserved = reservedCountsByGrade.getOrDefault(grade, 0L).intValue();
-                        int available = total - reserved;
-                        return SeatSummaryResponse.toDto(grade, total, reserved, available);
-                    })
-                    .toList();
+                    List<SeatSummaryResponse> seatSummaryResponses = seatCountsByGrade.entrySet().stream()
+                            .map(gradeEntry -> {
+                                Grade grade = gradeEntry.getKey();
+                                int total = gradeEntry.getValue().intValue();
+                                int reserved = reservedCountsByGrade.getOrDefault(grade, 0L).intValue();
+                                int available = total - reserved;
+                                return SeatSummaryResponse.of(grade, total, reserved, available);
+                            })
+                            .toList();
 
-                return ShowDateDetailResponse.toDto(
-                    showDateEntity.getId(),
-                    showDateEntity.getDate(),
-                    showDateEntity.getStartTime(),
-                    showDateEntity.getEndTime(),
-                    showDateEntity.getTotalSeatCount(),
-                    showDateEntity.getReservedSeatCount(),
-                    showDateEntity.getAvailableSeatCount(),
-                    seatSummaryResponses
-                );
-            })
-            .toList();
+                    return ShowDateDetailResponse.of(
+                            showDateEntity.getId(),
+                            showDateEntity.getDate(),
+                            showDateEntity.getStartTime(),
+                            showDateEntity.getEndTime(),
+                            showDateEntity.getTotalSeatCount(),
+                            showDateEntity.getReservedSeatCount(),
+                            showDateEntity.getAvailableSeatCount(),
+                            seatSummaryResponses
+                    );
+                })
+                .toList();
     }
 }

@@ -1,15 +1,5 @@
 package com.example.picket.domain.user.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.enums.UserRole;
 import com.example.picket.common.exception.CustomException;
@@ -23,7 +13,6 @@ import com.example.picket.domain.user.dto.request.UpdateUserRequest;
 import com.example.picket.domain.user.dto.request.WithdrawUserRequest;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
-import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +20,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserCommandServiceTest {
@@ -56,7 +54,7 @@ class UserCommandServiceTest {
         void 존재하지않는_사용자를_조회시_예외처리를_던진다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             UpdateUserRequest request = mock();
 
             given(userRepository.findById(anyLong())).willReturn(Optional.empty());
@@ -70,7 +68,7 @@ class UserCommandServiceTest {
         void 유저정보_업데이트_시_입력한_비밀번호가_잘못되면_예외처리를_던진다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             UpdateUserRequest request = mock();
             User user = mock();
             given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
@@ -83,7 +81,7 @@ class UserCommandServiceTest {
         void 사용자가_프로필을_변경할_수_있다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             UpdateUserRequest request = new UpdateUserRequest();
             ReflectionTestUtils.setField(request, "password", "test");
             ReflectionTestUtils.setField(request, "nickname", "test");
@@ -150,7 +148,7 @@ class UserCommandServiceTest {
         void 비밀번호_업데이트_시_존재하지_않는_사용자를_조회하면_예외처리를_던진다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             UpdatePasswordRequest request = mock();
 
             given(userRepository.findById(anyLong())).willReturn(Optional.empty());
@@ -164,7 +162,7 @@ class UserCommandServiceTest {
         void 비밀번호_업데이트_시_입력한_비밀번호가_잘못되면_예외처리를_던진다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             UpdatePasswordRequest request = mock();
             User user = mock();
             given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
@@ -177,7 +175,7 @@ class UserCommandServiceTest {
         void 사용자의_비밀번호를_변경할_수_있다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             UpdatePasswordRequest request = new UpdatePasswordRequest();
             ReflectionTestUtils.setField(request, "password", "test");
             ReflectionTestUtils.setField(request, "newPassword", "test2");
@@ -202,7 +200,7 @@ class UserCommandServiceTest {
         void 유저탈퇴_시_존재하지_않는_사용자를_조회하면_예외처리를_던진다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             WithdrawUserRequest request = mock();
 
             given(userRepository.findById(anyLong())).willReturn(Optional.empty());
@@ -216,7 +214,7 @@ class UserCommandServiceTest {
         void 유저탈퇴_시_입력한_비밀번호가_잘못되면_예외처리를_던진다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             WithdrawUserRequest request = mock();
             User user = mock();
             given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
@@ -229,7 +227,7 @@ class UserCommandServiceTest {
         void 사용자는_탈퇴를_할_수_있다() {
             // given
             Long userId = 1L;
-            AuthUser authUser = AuthUser.toEntity(userId, UserRole.USER);
+            AuthUser authUser = AuthUser.create(userId, UserRole.USER);
             User user = mock(User.class);
             WithdrawUserRequest request = new WithdrawUserRequest();
             ReflectionTestUtils.setField(request, "password", "test");

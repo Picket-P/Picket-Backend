@@ -1,18 +1,19 @@
 package com.example.picket.domain.comment.service;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.comment.dto.request.CommentRequest;
 import com.example.picket.domain.comment.entity.Comment;
 import com.example.picket.domain.comment.repository.CommentRepository;
 import com.example.picket.domain.show.service.ShowQueryService;
 import com.example.picket.domain.user.service.UserQueryService;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class CommentCommandService {
     @Transactional
     public Comment createComment(Long userId, Long showId, CommentRequest commentRequest) {
 
-        return commentRepository.save(Comment.toEntity(commentRequest.getContent()
+        return commentRepository.save(Comment.create(commentRequest.getContent()
                 , showQueryService.getShow(showId)
                 , userQueryService.getUser(userId))
         );

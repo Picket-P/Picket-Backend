@@ -1,9 +1,5 @@
 package com.example.picket.domain.show.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.example.picket.common.annotation.Auth;
 import com.example.picket.common.dto.AuthUser;
 import com.example.picket.common.exception.CustomException;
@@ -22,12 +18,15 @@ import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +47,7 @@ public class ShowCommandService {
         validateShowTimes(request);
 
         // 공연 생성 및 저장
-        Show show = Show.toEntity(
+        Show show = Show.create(
                 authUser.getId(),
                 request.getTitle(),
                 request.getPosterUrl(),
@@ -72,7 +71,7 @@ public class ShowCommandService {
         for (var dateRequest : request.getDates()) {
             validateSeatCount(dateRequest); // 좌석 수 검증
 
-            ShowDate showDate = ShowDate.toEntity(
+            ShowDate showDate = ShowDate.create(
                     dateRequest.getDate(),
                     dateRequest.getStartTime(),
                     dateRequest.getEndTime(),
@@ -202,7 +201,7 @@ public class ShowCommandService {
     private void createSeatsForShowDate(ShowDate showDate, List<SeatCreateRequest> seatRequests, List<Seat> seats) {
         for (SeatCreateRequest seatRequest : seatRequests) {
             for (int i = 1; i <= seatRequest.getSeatCount(); i++) {
-                seats.add(Seat.toEntity(
+                seats.add(Seat.create(
                         seatRequest.getGrade(),
                         i,
                         seatRequest.getPrice(),
@@ -215,7 +214,7 @@ public class ShowCommandService {
     //이미지 업로드
     public String uploadImage(HttpServletRequest request, long contentLength, String contentType) {
         ImageResponse imageResponse = s3Service.upload(request, contentLength, contentType);
-        ShowImage showImage = ShowImage.toEntity(imageResponse, null);
+        ShowImage showImage = ShowImage.create(imageResponse, null);
         showImageRepository.save(showImage);
         return imageResponse.getImageUrl();
     }

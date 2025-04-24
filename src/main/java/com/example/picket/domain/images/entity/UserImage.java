@@ -2,12 +2,7 @@ package com.example.picket.domain.images.entity;
 
 import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.domain.images.dto.response.ImageResponse;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,7 +32,7 @@ public class UserImage extends BaseEntity {
         this.userId = userId;
     }
 
-    public static UserImage toEntity(ImageResponse imageResponse, Long userId) {
+    public static UserImage create(ImageResponse imageResponse, Long userId) {
         return new UserImage(imageResponse.getImageUrl(), imageResponse.getFileFormat(), userId);
     }
 

@@ -24,7 +24,7 @@ public class UserResponse {
         this.gender = gender;
     }
 
-    public static UserResponse toDto(String email, UserRole userRole, String profileUrl, String nickname, LocalDate birth, Gender gender) {
+    public static UserResponse of(String email, UserRole userRole, String profileUrl, String nickname, LocalDate birth, Gender gender) {
         return new UserResponse(email, userRole, profileUrl, nickname, birth, gender);
     }
 }
