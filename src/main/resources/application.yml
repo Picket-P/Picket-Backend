@@ -55,3 +55,10 @@ cloud:
       static: ${AWS_REGION}
     stack:
       auto: false
+
+aws:
+  region: ${AWS_REGION}
+  ses:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    send-mail-from: ${ADMIN_EMAIL}
