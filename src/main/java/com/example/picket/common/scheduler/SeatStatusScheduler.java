@@ -20,7 +20,7 @@ public class SeatStatusScheduler {
     private final SeatRepository seatRepository;
     private final StringRedisTemplate redisTemplate;
 
-    @Scheduled(cron = "0 5 * * * *") // 5분마다 실행
+    @Scheduled(cron = "0 */5 * * * *") // 5분마다 실행
     @SchedulerLock(name = "SEATSTATUS-SCHEDULER",
             lockAtLeastFor = "PT1M", lockAtMostFor = "PT5M")
     public void cleanUpOccupiedSeats() {
