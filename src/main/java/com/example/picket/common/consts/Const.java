@@ -21,8 +21,9 @@ public interface Const {
             "POST", new String[]{
                     "/api/v*/auth/signup/*",
                     "/api/v*/auth/signin",
+                    "/api/v*/auth/verify-code",
                     "/swagger-ui/*",
-                    "/v3/api-docs/**"
+                    "/v3/api-docs/**",
             },
             "PUT", new String[]{
 
