@@ -74,6 +74,10 @@ dependencies {
     // AWS
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.1.1'
 
+    // AWS SES
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'software.amazon.awssdk:ses:2.29.46'
+
     // S3
     implementation "software.amazon.awssdk:s3:2.31.0"
 
