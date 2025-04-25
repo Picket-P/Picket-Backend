@@ -1,8 +1,11 @@
 package com.example.picket.domain.auth.controller;
 
 import com.example.picket.common.enums.UserRole;
+import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.auth.dto.request.SigninRequest;
 import com.example.picket.domain.auth.dto.request.SignupRequest;
+import com.example.picket.domain.auth.dto.request.VerifyCodeRequest;
+import com.example.picket.domain.auth.dto.response.SignupResponse;
 import com.example.picket.domain.auth.dto.response.SigninResponse;
 import com.example.picket.domain.auth.service.AuthService;
 import com.example.picket.domain.user.entity.User;
@@ -19,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -27,28 +32,51 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "회원가입", description = "유저 역할을 가진 회원가입을 할 수 있습니다.")
+    @Operation(summary = "이메일 인증 코드 발송", description = "회원가입 정보 입력 후 이메일로 인증 코드를 발송합니다.")
+    @PostMapping("/auth/send-verification")
+    public ResponseEntity<?> sendVerificationCode(@Valid @RequestBody VerifyCodeRequest request) {
+        try {
+            authService.sendVerificationCode(request.getEmail());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (CustomException e) {
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "회원가입 정보 입력", description = "유저 역할을 가진 회원가입 정보를 입력합니다. 회원가입은 이메일 인증 후 완료됩니다.")
     @PostMapping("/auth/signup/user")
-    public ResponseEntity<Void> signupUser(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request.getEmail(), request.getPassword(), request.getNickname(), request.getBirth(),
-                request.getGender(), UserRole.USER);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<SignupResponse> signupUser(@Valid @RequestBody SignupRequest request) {
+        String tempUserId = authService.registerUserInfo(request.getEmail(), request.getPassword(),
+                request.getNickname(), request.getBirth(), request.getGender(), UserRole.USER);
+        return ResponseEntity.ok(new SignupResponse(tempUserId, request.getEmail()));
     }
 
-    @Operation(summary = "회원가입", description = "디렉터 역할을 가진 회원가입을 할 수 있습니다.")
+    @Operation(summary = "회원가입 정보 입력", description = "디렉터 역할을 가진 회원가입 정보를 입력합니다. 회원가입은 이메일 인증 후 완료됩니다.")
     @PostMapping("/auth/signup/director")
-    public ResponseEntity<Void> signupDirector(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request.getEmail(), request.getPassword(), request.getNickname(), request.getBirth(),
-                request.getGender(), UserRole.DIRECTOR);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<SignupResponse> signupDirector(@Valid @RequestBody SignupRequest request) {
+        String tempUserId = authService.registerUserInfo(request.getEmail(), request.getPassword(),
+                request.getNickname(), request.getBirth(), request.getGender(), UserRole.DIRECTOR);
+        return ResponseEntity.ok(new SignupResponse(tempUserId, request.getEmail()));
     }
 
-    @Operation(summary = "회원가입", description = "관리자 역할을 가진 회원가입을 할 수 있습니다.")
+    @Operation(summary = "회원가입 정보 입력", description = "관리자 역할을 가진 회원가입 정보를 입력합니다. 회원가입은 이메일 인증 후 완료됩니다.")
     @PostMapping("/auth/signup/admin")
-    public ResponseEntity<Void> signupAdmin(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request.getEmail(), request.getPassword(), request.getNickname(), request.getBirth(),
-                request.getGender(), UserRole.ADMIN);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<SignupResponse> signupAdmin(@Valid @RequestBody SignupRequest request) {
+        String tempUserId = authService.registerUserInfo(request.getEmail(), request.getPassword(),
+                request.getNickname(), request.getBirth(), request.getGender(), UserRole.ADMIN);
+        return ResponseEntity.ok(new SignupResponse(tempUserId, request.getEmail()));
+    }
+
+    @Operation(summary = "이메일 인증 코드 확인", description = "발송된 이메일 인증 코드를 확인하고 회원가입을 완료합니다.")
+    @PostMapping("/auth/verify-code")
+    public ResponseEntity<Void> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
+        boolean isVerified = authService.verifyCodeAndCompleteSignup(request.getEmail(), request.getVerificationCode());
+        if (isVerified) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
