@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "payments")
 @Getter
@@ -25,7 +27,7 @@ public class Payment {
     private String tossOrderName;
 
     @Column(nullable = false)
-    private String tossAmount;
+    private BigDecimal tossAmount;
 
     @Column(nullable = false)
     private String tossStatus;
@@ -38,7 +40,7 @@ public class Payment {
         this.order = order;
     }
 
-    public Payment(String tossPaymentKey, String tossOrderId, String tossOrderName, String tossAmount, String tossStatus) {
+    public Payment(String tossPaymentKey, String tossOrderId, String tossOrderName, BigDecimal tossAmount, String tossStatus) {
         this.tossPaymentKey = tossPaymentKey;
         this.tossOrderId = tossOrderId;
         this.tossOrderName = tossOrderName;
@@ -46,7 +48,7 @@ public class Payment {
         this.tossStatus = tossStatus;
     }
 
-    public static Payment create(String tossPaymentKey, String tossOrderId, String tossOrderName, String tossAmount, String tossStatus) {
+    public static Payment create(String tossPaymentKey, String tossOrderId, String tossOrderName, BigDecimal tossAmount, String tossStatus) {
         return new Payment(tossPaymentKey, tossOrderId, tossOrderName, tossAmount, tossStatus);
     }
 }
