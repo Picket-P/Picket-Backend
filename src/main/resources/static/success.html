@@ -17,6 +17,22 @@
     const orderId = urlParams.get("orderId");
     const amount = urlParams.get("amount");
 
+    // async function temporarySave() {
+    //     const requestData = {
+    //         orderId: orderId,
+    //         amount: amount,
+    //     };
+    //
+    //     const response = await fetch("/api/v2/payments/temporary-save", {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(requestData),
+    //     });
+    // }
+    //
+    // temporarySave();
     // async function confirm() {
     //     const requestData = {
     //         paymentKey: paymentKey,
@@ -45,13 +61,13 @@
     // }
     // confirm();
     //
-    // const paymentKeyElement = document.getElementById("paymentKey");
-    // const orderIdElement = document.getElementById("orderId");
-    // const amountElement = document.getElementById("amount");
-    //
-    // orderIdElement.textContent = "주문번호: " + orderId;
-    // amountElement.textContent = "결제 금액: " + amount;
-    // paymentKeyElement.textContent = "paymentKey: " + paymentKey;
+    const paymentKeyElement = document.getElementById("paymentKey");
+    const orderIdElement = document.getElementById("orderId");
+    const amountElement = document.getElementById("amount");
+
+    orderIdElement.textContent = "주문번호: " + orderId;
+    amountElement.textContent = "결제 금액: " + amount;
+    paymentKeyElement.textContent = "paymentKey: " + paymentKey;
 </script>
 </body>
 </html>
