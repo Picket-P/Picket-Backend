@@ -35,7 +35,7 @@ public class BookingController {
             @Auth AuthUser authUser,
             @RequestBody BookingRequest dto
     ) throws InterruptedException {
-        Order order = bookingFacade.booking(showId, showDateId, authUser.getId(), dto.getSeatIds());
+        Order order = bookingFacade.booking(showId, showDateId, authUser.getId(), dto.getSeatIds(), dto.getPaymentKey(), dto.getOrderId(), dto.getAmount());
         OrderResponse orderResponse = OrderResponse.of(order);
         return ResponseEntity.ok(orderResponse);
     }
