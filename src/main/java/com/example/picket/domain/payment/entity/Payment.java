@@ -27,7 +27,7 @@ public class Payment {
     private String tossOrderName;
 
     @Column(nullable = false)
-    private BigDecimal tossAmount;
+    private Number tossAmount;
 
     @Column(nullable = false)
     private String tossStatus;
@@ -40,15 +40,16 @@ public class Payment {
         this.order = order;
     }
 
-    public Payment(String tossPaymentKey, String tossOrderId, String tossOrderName, BigDecimal tossAmount, String tossStatus) {
+    public Payment(String tossPaymentKey, String tossOrderId, String tossOrderName, Number tossAmount, String tossStatus, Order order) {
         this.tossPaymentKey = tossPaymentKey;
         this.tossOrderId = tossOrderId;
         this.tossOrderName = tossOrderName;
         this.tossAmount = tossAmount;
         this.tossStatus = tossStatus;
+        this.order = order;
     }
 
-    public static Payment create(String tossPaymentKey, String tossOrderId, String tossOrderName, BigDecimal tossAmount, String tossStatus) {
-        return new Payment(tossPaymentKey, tossOrderId, tossOrderName, tossAmount, tossStatus);
+    public static Payment create(String tossPaymentKey, String tossOrderId, String tossOrderName, Number tossAmount, String tossStatus, Order order) {
+        return new Payment(tossPaymentKey, tossOrderId, tossOrderName, tossAmount, tossStatus, order);
     }
 }
