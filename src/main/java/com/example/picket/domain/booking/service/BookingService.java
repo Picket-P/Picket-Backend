@@ -6,7 +6,6 @@ import com.example.picket.domain.order.entity.Order;
 import com.example.picket.domain.order.service.OrderCommandService;
 import com.example.picket.domain.payment.entity.Payment;
 import com.example.picket.domain.payment.service.PaymentService;
-import com.example.picket.domain.seat.service.SeatQueryService;
 import com.example.picket.domain.seat_holding.service.SeatHoldingService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -19,14 +18,10 @@ import com.example.picket.domain.ticket.service.TicketQueryService;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -36,7 +31,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -144,15 +138,102 @@ public class BookingService {
 
     @Transactional
     public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, Long paymentId, List<Long> ticketIds, String cancelReason) throws InterruptedException {
-        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
-        checkCancelBookingTime(foundShowDate);
 
-        User foundUser = userQueryService.getUser(userId);
-        List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
+        BigDecimal amountToCancel = ticketQueryService.addUpTicketPrice(ticketIds);
 
-        showDateCommandService.countUpdate(showDateId, ticketIds.size());
+        Payment payment = paymentService.getPayment(paymentId);
+        String foundTossPaymentKey = payment.getTossPaymentKey();
+        BigDecimal payedAmount = payment.getTossAmount();
+        Order order = payment.getOrder();
 
-        return canceledTickets;
+        // 결제 취소 API 호출
+        String baseUrl = "https://api.tosspayments.com/v1/payments/";
+        String cancelUrl = baseUrl + foundTossPaymentKey + "/cancel";
+        String encodedSecretKey = "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes());
+
+        // 요청 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", encodedSecretKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        if (payedAmount.equals(amountToCancel)) {
+            // 요청 바디 설정
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("cancelReason", cancelReason);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            RestTemplate restTemplate = new RestTemplate();
+
+            // API 호출
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    cancelUrl,
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
+            );
+
+            Map<String, Object> responseBody = response.getBody();
+            String tossPaymentKey = (String) responseBody.get("paymentKey");
+            String tossOrderId = (String) responseBody.get("orderId");
+            String tossOrderName = (String) responseBody.get("orderName");
+            String tossStatus = (String) responseBody.get("status");
+            Number totalAmount = (Number) responseBody.get("totalAmount");
+            BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
+
+            order.updateOrderStatus(OrderStatus.ORDER_CANCELED);
+
+            paymentService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
+
+            ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+            checkCancelBookingTime(foundShowDate);
+
+            User foundUser = userQueryService.getUser(userId);
+            List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
+
+            showDateCommandService.countUpdate(showDateId, ticketIds.size());
+
+            return canceledTickets;
+
+
+        } else {
+            // 요청 바디 설정
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("cancelReason", cancelReason);
+            requestBody.put("cancelAmount", (Number) amountToCancel);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            RestTemplate restTemplate = new RestTemplate();
+
+            // API 호출
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    cancelUrl,
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
+            );
+
+            Map<String, Object> responseBody = response.getBody();
+            String tossPaymentKey = (String) responseBody.get("paymentKey");
+            String tossOrderId = (String) responseBody.get("orderId");
+            String tossOrderName = (String) responseBody.get("orderName");
+            String tossStatus = (String) responseBody.get("status");
+            Number totalAmount = (Number) responseBody.get("totalAmount");
+            BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
+
+            order.updateTotalPrice(tossTotalAmount);
+
+            paymentService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
+
+            ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+            checkCancelBookingTime(foundShowDate);
+
+            User foundUser = userQueryService.getUser(userId);
+            List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
+
+            showDateCommandService.countUpdate(showDateId, ticketIds.size());
+
+            return canceledTickets;
+        }
     }
 
     private void checkBookingTime(Show show) {

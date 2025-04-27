@@ -5,6 +5,8 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.ticket.entity.Ticket;
 import com.example.picket.domain.ticket.repository.TicketRepository;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.example.picket.domain.user.entity.User;
@@ -63,5 +65,10 @@ public class TicketQueryService {
        if (reservedTicketCount >= show.getTicketsLimitPerUser()) {
            throw new CustomException(CONFLICT, "예매 가능한 티켓 수를 초과합니다.");
        }
+   }
+
+   @Transactional(readOnly = true)
+   public BigDecimal addUpTicketPrice(List<Long> ticketIds) {
+       return ticketRepository.sumPricesByTicketIds(ticketIds);
    }
 }

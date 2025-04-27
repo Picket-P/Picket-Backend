@@ -41,6 +41,10 @@ public class Order extends BaseEntity {
         this.orderStatus = status;
     }
 
+    public void updateTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
     private Order(User user, BigDecimal totalPrice, OrderStatus orderStatus, List<Ticket> ticket) {
         this.user = user;
         this.totalPrice = totalPrice;
