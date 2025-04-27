@@ -8,7 +8,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 public enum OrderStatus {
     ORDER_PENDING("결제 대기"),
-    ORDER_COMPLETE("주문 완료");
+    ORDER_COMPLETE("주문 완료"),
+    ORDER_CANCELED("주문 취소");
 
     private final String description;
 
