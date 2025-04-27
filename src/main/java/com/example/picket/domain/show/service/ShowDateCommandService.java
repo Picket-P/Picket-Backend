@@ -28,10 +28,16 @@ public class ShowDateCommandService {
         showDateJdbcRepository.saveAllJdbc(showDates);
     }
 
-    public void countUpdate(Long showDateId, int count) {
+    public void countUpdateOnBooking(Long showDateId, int count) {
         ShowDate foundShowDate = showDateRepository.findById(showDateId)
                 .orElseThrow(() -> new CustomException(NOT_FOUND, "공연 날짜를 찾을 수 없습니다."));
         foundShowDate.updateCountOnBooking(count);
+    }
+
+    public void countUpdateOnCancellation(Long showDateId, int count) {
+        ShowDate foundShowDate = showDateRepository.findById(showDateId)
+                .orElseThrow(() -> new CustomException(NOT_FOUND, "공연 날짜를 찾을 수 없습니다."));
+        foundShowDate.updateCountOnCancellation(count);
     }
 
 }

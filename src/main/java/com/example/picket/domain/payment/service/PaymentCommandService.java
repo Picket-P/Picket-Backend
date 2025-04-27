@@ -15,7 +15,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentService {
+public class PaymentCommandService {
 
     private static final String KEY_PREFIX = "PAYMENT-INFO:USER:";
     private final StringRedisTemplate redisTemplate;
@@ -35,10 +35,5 @@ public class PaymentService {
     public Payment create(String paymentKey, String orderId, String orderName, String status, BigDecimal totalAmount, Order order) {
         Payment payment = Payment.create(paymentKey, orderId, orderName, totalAmount, status, order);
         return paymentRepository.save(payment);
-    }
-
-    public Payment getPayment(Long paymentId) {
-        return paymentRepository.findById(paymentId).orElseThrow(
-                () -> new CustomException(NOT_FOUND, "존재하지 않는 Payment입니다."));
     }
 }
