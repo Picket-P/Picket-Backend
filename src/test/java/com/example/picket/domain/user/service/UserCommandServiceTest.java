@@ -126,7 +126,6 @@ class UserCommandServiceTest {
 
             doNothing().when(userImage).updateUser(anyLong());
             doNothing().when(user).update(any(), any());
-            doNothing().when(s3Service).delete(any());
 
             // when
             User response = userCommandService.updateUser(authUser, request);
@@ -137,7 +136,6 @@ class UserCommandServiceTest {
             verify(passwordEncoder, times(1)).matches(any(), any());
             verify(userImageRepository, times(2)).findByImageUrl(any());
             verify(userImage, times(1)).updateUser(anyLong());
-            verify(s3Service, times(1)).delete(existingProfileUrl);
             verify(user, times(1)).update(nickname, newProfileUrl);
         }
     }
@@ -237,7 +235,6 @@ class UserCommandServiceTest {
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(passwordEncoder.matches(request.getPassword(), "test")).willReturn(true);
             given(userImageRepository.findByImageUrl(any())).willReturn(Optional.of(userImage));
-            doNothing().when(userImageRepository).delete(any());
             // when
             userCommandService.withdrawUserRequest(authUser, request);
             // then
@@ -252,12 +249,12 @@ class UserCommandServiceTest {
             // given
             ImageResponse imageResponse = mock(ImageResponse.class);
             UserImage userImage = mock(UserImage.class);
-            given(s3Service.upload(any(), anyLong(), any())).willReturn(imageResponse);
+            given(s3Service.upload(any())).willReturn(imageResponse);
             given(userImageRepository.save(any())).willReturn(userImage);
             // when
-            userCommandService.uploadImage(any(), anyLong(), any());
+            userCommandService.uploadImage(any());
             // then
-            verify(s3Service, times(1)).upload(any(), anyLong(), any());
+            verify(s3Service, times(1)).upload(any());
             verify(userImageRepository, times(1)).save(any());
         }
     }

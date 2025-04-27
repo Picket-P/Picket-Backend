@@ -116,7 +116,6 @@ public class ShowCommandService {
 
         if (show.getPosterUrl() != null) {
             deleteShowImage(show.getPosterUrl());
-            s3Service.delete(show.getPosterUrl());
         }
 
         show.update(request); // Entity 내 update 로직 실행
@@ -212,8 +211,8 @@ public class ShowCommandService {
     }
 
     //이미지 업로드
-    public String uploadImage(HttpServletRequest request, long contentLength, String contentType) {
-        ImageResponse imageResponse = s3Service.upload(request, contentLength, contentType);
+    public String uploadImage(HttpServletRequest request) {
+        ImageResponse imageResponse = s3Service.upload(request);
         ShowImage showImage = ShowImage.create(imageResponse, null);
         showImageRepository.save(showImage);
         return imageResponse.getImageUrl();
@@ -222,6 +221,6 @@ public class ShowCommandService {
     public void deleteShowImage(String imageUrl) {
         ShowImage showImage = showImageRepository.findByImageUrl(imageUrl)
                 .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 이미지 파일을 찾을 수 없습니다."));
-        showImageRepository.delete(showImage);
+        showImage.updateDeletedAt(LocalDateTime.now());
     }
 }
