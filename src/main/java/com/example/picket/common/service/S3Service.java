@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.exception.SdkServiceException;
@@ -15,9 +14,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -40,8 +36,6 @@ public class S3Service {
             "image/webp"
     );
     private static final long MAX_FILE_SIZE = 8 * 1024 * 1024;
-    private static final int TARGET_WIDTH = 300;
-    private static final int TARGET_HEIGHT = 400;
 
     private final S3Client s3Client;
 
@@ -52,8 +46,10 @@ public class S3Service {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    public ImageResponse upload(HttpServletRequest request, long contentLength,
-                                String contentType) {
+    public ImageResponse upload(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        long contentLength = request.getContentLength();
+
         // 이미지 확장자 검증
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
             throw new CustomException(BAD_REQUEST, "지원되지 않는 파일 형식입니다. 허용 Content-Type: " + ALLOWED_CONTENT_TYPES);
@@ -67,25 +63,18 @@ public class S3Service {
 
         // 고유한 파일 이름 생성
         String key = "images/" + UUID.randomUUID();
-        String outputFormat = contentType.substring(contentType.lastIndexOf("/") + 1);
 
         try (InputStream inputStream = request.getInputStream()) {
-            // 이미지를 리사이징하고 JPEG로 변환
-            byte[] resizedImageBytes = resizeAndConvertToJpeg(inputStream, outputFormat);
-
-            // 리사이징된 이미지 크기
-            long resizedContentLength = resizedImageBytes.length;
-
             // S3 업로드 요청 생성
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
                     .contentType(contentType)
-                    .contentLength(resizedContentLength)
+                    .contentLength(contentLength)
                     .build();
 
             // InputStream을 사용하여 S3에 업로드
-            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(resizedImageBytes));
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, inputStream.available()));
             log.info("파일 업로드 성공: bucket={}, key={}", bucket, key);
             return ImageResponse.of(getPublicUrl(key), contentType);
         } catch (IOException e) {
@@ -115,26 +104,4 @@ public class S3Service {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
     }
 
-    private byte[] resizeAndConvertToJpeg(InputStream inputStream, String outputFormat) throws IOException {
-        // InputStream을 BufferedImage로 변환
-        BufferedImage originalImage = ImageIO.read(inputStream);
-
-        // 이미지를 300x400으로 리사이징
-        BufferedImage resizedImage = Scalr.resize(originalImage,
-                Scalr.Method.QUALITY,
-                Scalr.Mode.FIT_TO_WIDTH,
-                TARGET_WIDTH,
-                TARGET_HEIGHT,
-                Scalr.OP_ANTIALIAS);
-
-        // BufferedImage를 JPEG로 변환
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            ImageIO.write(resizedImage, outputFormat, baos);
-            return baos.toByteArray();
-        } finally {
-            // 메모리 해제
-            originalImage.flush();
-            resizedImage.flush();
-        }
-    }
 }

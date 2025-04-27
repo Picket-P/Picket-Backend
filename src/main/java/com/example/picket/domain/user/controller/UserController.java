@@ -10,7 +10,6 @@ import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserCommandService;
 import com.example.picket.domain.user.service.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -64,11 +63,7 @@ public class UserController {
     @Operation(summary = "유저 프로필 이미지 업로드", description = "유저 프로필 이미지 업로드 API입니다")
     @PostMapping("/users/uploadImage")
     public ResponseEntity<String> uploadImage(
-            HttpServletRequest request,
-            @Parameter(description = "파일의 크기", required = true, example = "1024")
-            @RequestHeader("Content-Length") long contentLength,
-            @Parameter(description = "요청 이미지의 타입", required = true, example = "image/jpeg")
-            @RequestHeader(value = "Content-Type", defaultValue = "application/octet-stream") String contentType) {
-        return ResponseEntity.ok(userService.uploadImage(request, contentLength, contentType));
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.uploadImage(request));
     }
 }

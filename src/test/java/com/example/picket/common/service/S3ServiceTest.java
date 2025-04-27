@@ -1,25 +1,9 @@
 package com.example.picket.common.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.images.dto.response.ImageResponse;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +19,20 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class S3ServiceTest {
 
@@ -47,7 +45,6 @@ class S3ServiceTest {
     @InjectMocks
     S3Service s3Service;
 
-    private static final long VALID_CONTENT_LENGTH = 1024L;
     private static final String VALID_CONTENT_TYPE = "image/jpeg";
     private static final long MAX_FILE_SIZE = 8 * 1024 * 1024;
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
@@ -64,11 +61,10 @@ class S3ServiceTest {
         @Test
         void 이미지_업로드_시_확장자가_null일_경우_실패() {
             // given
-            long contentLength = 1234L;
-            String contentType = null;
+            given(request.getContentType()).willReturn(null);
 
             // when & then
-            assertThatThrownBy(() -> s3Service.upload(request, contentLength, contentType))
+            assertThatThrownBy(() -> s3Service.upload(request))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("지원되지 않는 파일 형식입니다. 허용 Content-Type: " + ALLOWED_CONTENT_TYPES);
         }
@@ -76,11 +72,10 @@ class S3ServiceTest {
         @Test
         void 이미지_업로드_시_확장자가_지원되는_타입이_아닐_경우_실패() {
             // given
-            long contentLength = 1234L;
-            String contentType = "image/asdf";
+            given(request.getContentType()).willReturn(null);
 
             // when & then
-            assertThatThrownBy(() -> s3Service.upload(request, contentLength, contentType))
+            assertThatThrownBy(() -> s3Service.upload(request))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("지원되지 않는 파일 형식입니다. 허용 Content-Type: " + ALLOWED_CONTENT_TYPES);
         }
@@ -88,10 +83,10 @@ class S3ServiceTest {
         @Test
         void 이미지_업로드_시_파일_크기가_8MB보다_클_경우_실패() {
             // given
-            long contentLength = 9 * 1024 * 1024;
-
+            given(request.getContentType()).willReturn("image/jpeg");
+            given(request.getContentLength()).willReturn(10 * 1024 * 1024);
             // when & then
-            assertThatThrownBy(() -> s3Service.upload(request, contentLength, VALID_CONTENT_TYPE))
+            assertThatThrownBy(() -> s3Service.upload(request))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("파일 크기가 8MB를 초과했습니다. 최대 크기: " + MAX_FILE_SIZE / (1024 * 1024) + "MB");
         }
@@ -107,13 +102,14 @@ class S3ServiceTest {
             HttpServletRequest spyRequest = Mockito.spy(HttpServletRequest.class);
             ServletInputStream servletInputStream = new DelegatingServletInputStream(
                     new ByteArrayInputStream(imageBytes));
+            doReturn("image/jpeg").when(spyRequest).getContentType();
             doReturn(servletInputStream).when(spyRequest).getInputStream();
 
             when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
                     .thenThrow(SdkServiceException.builder().message("S3 upload failed").build());
 
             // when & then
-            assertThatThrownBy(() -> s3Service.upload(spyRequest, imageBytes.length, VALID_CONTENT_TYPE))
+            assertThatThrownBy(() -> s3Service.upload(spyRequest))
                     .isInstanceOf(CustomException.class)
                     .hasMessageContaining("S3 업로드 중 오류가 발생했습니다");
             verify(s3Client, times(1)).putObject(any(PutObjectRequest.class), any(RequestBody.class));
@@ -123,10 +119,12 @@ class S3ServiceTest {
         @Test
         void 이미지_업로드_시_파일_업로드_중_IOException_발생할_경우_실패() throws IOException {
             // given
+            given(request.getContentType()).willReturn("image/jpeg");
+            given(request.getContentLength()).willReturn(5 * 1024 * 1024);
             when(request.getInputStream()).thenThrow(new IOException("Input stream error"));
 
             // when & then
-            assertThatThrownBy(() -> s3Service.upload(request, VALID_CONTENT_LENGTH, VALID_CONTENT_TYPE))
+            assertThatThrownBy(() -> s3Service.upload(request))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("파일 업로드 중 서버 오류가 발생했습니다: Input stream error");
         }
@@ -142,10 +140,11 @@ class S3ServiceTest {
             HttpServletRequest spyRequest = Mockito.spy(HttpServletRequest.class);
             ServletInputStream servletInputStream = new DelegatingServletInputStream(
                     new ByteArrayInputStream(imageBytes));
+            doReturn("image/jpeg").when(spyRequest).getContentType();
             doReturn(servletInputStream).when(spyRequest).getInputStream();
 
             // when
-            ImageResponse imageResponse = s3Service.upload(spyRequest, imageBytes.length, VALID_CONTENT_TYPE);
+            ImageResponse imageResponse = s3Service.upload(spyRequest);
 
             // then
             assertThat(imageResponse).isNotNull();

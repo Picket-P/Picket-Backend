@@ -40,7 +40,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -196,7 +195,6 @@ class ShowCommandServiceTest {
 
             ShowImage showImage = mock(ShowImage.class);
             given(showImageRepository.findByImageUrl(any())).willReturn(Optional.of(showImage));
-            doNothing().when(s3Service).delete(any());
 
             // when
             Show result = showCommandService.updateShow(authUser, showId, request);
@@ -339,7 +337,6 @@ class ShowCommandServiceTest {
             given(seatQueryService.getSeatsByShowDate(showDateId)).willReturn(seats);
             doNothing().when(seatCommandService).deleteAll(seats);
             given(showImageRepository.findByImageUrl(any())).willReturn(Optional.of(showImage));
-            doNothing().when(showImageRepository).delete(any());
             // when
             showCommandService.deleteShow(authUser, showId);
 
@@ -409,12 +406,12 @@ class ShowCommandServiceTest {
             // given
             ImageResponse imageResponse = mock(ImageResponse.class);
             ShowImage showImage = mock(ShowImage.class);
-            given(s3Service.upload(any(), anyLong(), any())).willReturn(imageResponse);
+            given(s3Service.upload(any())).willReturn(imageResponse);
             given(showImageRepository.save(any())).willReturn(showImage);
             // when
-            showCommandService.uploadImage(any(), anyLong(), any());
+            showCommandService.uploadImage(any());
             // then
-            verify(s3Service, times(1)).upload(any(), anyLong(), any());
+            verify(s3Service, times(1)).upload(any());
             verify(showImageRepository, times(1)).save(any());
         }
     }

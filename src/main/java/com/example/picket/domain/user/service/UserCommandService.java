@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -45,7 +47,6 @@ public class UserCommandService {
 
         if (user.getProfileUrl() != null) {
             deleteUserImage(user.getProfileUrl());
-            s3Service.delete(user.getProfileUrl());
         }
 
         user.update(request.getNickname(), request.getProfileUrl());
@@ -80,9 +81,9 @@ public class UserCommandService {
         userRepository.delete(user);
     }
 
-    public String uploadImage(HttpServletRequest request, long contentLength, String contentType) {
+    public String uploadImage(HttpServletRequest request) {
 
-        ImageResponse imageResponse = s3Service.upload(request, contentLength, contentType);
+        ImageResponse imageResponse = s3Service.upload(request);
         UserImage userImage = UserImage.create(imageResponse, null);
         userImageRepository.save(userImage);
         return imageResponse.getImageUrl();
@@ -91,6 +92,6 @@ public class UserCommandService {
     public void deleteUserImage(String imageUrl) {
         UserImage userImage = userImageRepository.findByImageUrl(imageUrl)
                 .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 이미지 파일을 찾을 수 없습니다."));
-        userImageRepository.delete(userImage);
+        userImage.updateDeletedAt(LocalDateTime.now());
     }
 }

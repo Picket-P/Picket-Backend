@@ -113,6 +113,6 @@ public class ShowController {
     public ResponseEntity<String> uploadImage(HttpServletRequest request,
                                               @RequestHeader("Content-Length") long contentLength,
                                               @RequestHeader(value = "Content-Type", defaultValue = "application/octet-stream") String contentType) {
-        return ResponseEntity.ok(showCommandService.uploadImage(request, contentLength, contentType));
+        return ResponseEntity.ok(showCommandService.uploadImage(request));
     }
 }

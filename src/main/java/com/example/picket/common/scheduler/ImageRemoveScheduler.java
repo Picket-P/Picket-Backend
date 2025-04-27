@@ -37,29 +37,29 @@ public class ImageRemoveScheduler {
     }
 
     private void deleteRemovedUserImages(LocalDateTime dayBefore) {
-        List<UserImage> userImagesToRemove = userImageRepository.findByUserIdIsNullAndCreatedAtBefore(dayBefore);
+        List<UserImage> userImagesToRemove = userImageRepository.findByOrphan(dayBefore);
         for (UserImage image : userImagesToRemove) {
-            try {
-                s3Service.delete(image.getImageUrl());
-            } catch (Exception e) {
-                log.error("S3에서 유저 프로필 이미지 삭제 실패: {}, 오류: {}", image.getImageUrl(), e.getMessage());
-            }
-        }
-        userImageRepository.deleteByUserIdIsNullAndCreatedAtBefore(dayBefore);
-        log.info("{}개의 유저 프로필 이미지가 S3에서 삭제되었습니다.", userImagesToRemove.size());
-    }
-
-    private void deleteRemovedShowImages(LocalDateTime dayBefore) {
-        List<ShowImage> removedShowImages = showImageRepository.findByShowIdIsNullAndCreatedAtBefore(dayBefore);
-        for (ShowImage image : removedShowImages) {
             try {
                 s3Service.delete(image.getImageUrl());
             } catch (Exception e) {
                 log.error("S3에서 공연 포스터 이미지 삭제 실패: {}, 오류: {}", image.getImageUrl(), e.getMessage());
             }
         }
-        showImageRepository.deleteByShowIdIsNullAndCreatedAtBefore(dayBefore);
-        log.info("{}개의 공연 포스터 이미지가 S3에서 삭제되었습니다.", removedShowImages.size());
+        userImageRepository.deletedOrphanShowImage(dayBefore);
+        log.info("{}개의 유저 프로필 이미지가 S3에서 삭제되었습니다.", userImagesToRemove.size());
+    }
+
+    private void deleteRemovedShowImages(LocalDateTime dayBefore) {
+        List<ShowImage> showImagesToRemove = showImageRepository.findByOrphan(dayBefore);
+        for (ShowImage image : showImagesToRemove) {
+            try {
+                s3Service.delete(image.getImageUrl());
+            } catch (Exception e) {
+                log.error("S3에서 공연 포스터 이미지 삭제 실패: {}, 오류: {}", image.getImageUrl(), e.getMessage());
+            }
+        }
+        showImageRepository.deletedOrphanShowImage(dayBefore);
+        log.info("{}개의 공연 포스터 이미지가 S3에서 삭제되었습니다.", showImagesToRemove.size());
     }
 
 }
