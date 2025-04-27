@@ -13,6 +13,15 @@
 <button class="button" id="payment-button" style="margin-top: 30px">결제하기</button>
 
 <script>
+    // 랜덤한 주문 ID 생성 함수
+    function generateRandomOrderId() {
+        // 현재 시간을 밀리초로 가져와 문자열로 변환
+        const timestamp = new Date().getTime().toString();
+        // 랜덤 문자열 생성 (영문 대소문자와 숫자 조합)
+        const randomChars = Math.random().toString(36).substring(2, 10);
+        // 타임스탬프와 랜덤 문자를 합쳐서 고유한 ID 생성
+        return randomChars + timestamp.substring(timestamp.length - 6);
+    }
     main();
 
     async function main() {
@@ -47,8 +56,9 @@
 
         // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
         button.addEventListener("click", async function () {
+            const orderId = generateRandomOrderId();
             await widgets.requestPayment({
-                orderId: "xseyiILfBVbthKjKbKaEH",
+                orderId: orderId,
                 orderName: "토스 티셔츠 외 2건",
                 successUrl: window.location.origin + "/success.html",
                 failUrl: window.location.origin + "/fail.html",

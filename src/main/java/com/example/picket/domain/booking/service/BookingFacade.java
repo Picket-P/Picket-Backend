@@ -33,13 +33,13 @@ public class BookingFacade {
         }
     }
 
-    public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, List<Long> ticketIds) throws InterruptedException {
+    public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, Long paymentId, List<Long> ticketIds, String cancelReason) throws InterruptedException {
         String lockKey = KEY_PREFIX + showDateId;
         RLock lock = redissonClient.getFairLock(lockKey);
 
         if (lock.tryLock(10, TimeUnit.SECONDS)) {
             try {
-                return bookingService.cancelBooking(showId, showDateId, userId, ticketIds);
+                return bookingService.cancelBooking(showId, showDateId, userId, paymentId, ticketIds, cancelReason);
             } finally {
                 lock.unlock();
             }

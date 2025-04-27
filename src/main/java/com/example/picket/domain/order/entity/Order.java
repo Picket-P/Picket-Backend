@@ -30,6 +30,7 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal totalPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus orderStatus;
 
