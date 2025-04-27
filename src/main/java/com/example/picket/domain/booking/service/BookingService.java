@@ -5,7 +5,8 @@ import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.order.entity.Order;
 import com.example.picket.domain.order.service.OrderCommandService;
 import com.example.picket.domain.payment.entity.Payment;
-import com.example.picket.domain.payment.service.PaymentService;
+import com.example.picket.domain.payment.service.PaymentCommandService;
+import com.example.picket.domain.payment.service.PaymentQueryService;
 import com.example.picket.domain.seat_holding.service.SeatHoldingService;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
@@ -48,39 +49,42 @@ public class BookingService {
     private final OrderCommandService orderCommandService;
     private final TicketCommandService ticketCommandService;
     private final ShowDateCommandService showDateCommandService;
-    private final PaymentService paymentService;
+    private final PaymentCommandService paymentCommandService;
+    private final PaymentQueryService paymentQueryService;
 
     private final StringRedisTemplate stringRedisTemplate;
-    private static final String KEY_PREFIX = "PAYMENT-INFO:USER:";
+
     private static final String SECRET_KEY = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6";
-    private static final String TOSS_API_URL = "https://api.tosspayments.com/v1/payments/confirm";
+    private static final String TOSS_PAY_BASE_URL = "https://api.tosspayments.com/v1/payments/";
     private static final String PAYMENT_INFO_KEY_PREFIX = "PAYMENT-INFO:USER:";
+
 
     @Transactional
     public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds, String paymentKey, String orderId, Number amount) throws InterruptedException {
 
-        String key = KEY_PREFIX + userId;
-        //orderId, amount 비교
+        // Redis에서 결제 인증 정보(orderId, amount) 가져오기
+        String key = PAYMENT_INFO_KEY_PREFIX + userId;
         String orderIdFromRedis = (String) stringRedisTemplate.opsForHash().get(key, "orderId");
         String amountFromRedis = (String) stringRedisTemplate.opsForHash().get(key, "amount");
 
+        // Redis에 저장된 orderId와 요청값(orderId)이 다르면 예외 발생
         if (orderIdFromRedis == null || !orderIdFromRedis.equals(orderId)) {
             throw new CustomException(BAD_REQUEST, "결제 인증 정보(orderId)가 변경되었습니다.");
         }
 
+        // Redis에 저장된 amount와 요청값(amount)이 다르면 예외 발생
         if (amountFromRedis == null || !amountFromRedis.equals(amount.toString())) {
             throw new CustomException(BAD_REQUEST, "결제 인증 정보(amount)가 변경되었습니다.");
         }
 
-        // 승인 API 호출
+        // 토스페이 결제 승인 요청 준비
+        String TOSS_PAY_CONFIRM_URL =TOSS_PAY_BASE_URL + "/confirm";
         String encodedSecretKey = "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes());
 
-        // 요청 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", encodedSecretKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // 요청 바디 설정
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);
         requestBody.put("amount", amount);
@@ -89,19 +93,20 @@ public class BookingService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
         RestTemplate restTemplate = new RestTemplate();
 
-        // API 호출
+        // 토스페이에 결제 승인 요청 API 호출
         ResponseEntity<Map> response = restTemplate.exchange(
-                TOSS_API_URL,
+                TOSS_PAY_CONFIRM_URL,
                 HttpMethod.POST,
                 entity,
                 Map.class
         );
 
         if (response.getStatusCode() == HttpStatus.OK) {
-            String paymentInfoKey = PAYMENT_INFO_KEY_PREFIX + userId.toString();
-            stringRedisTemplate.delete(paymentInfoKey);
 
-            // 결제 성공 비즈니스 로직 구현
+            // 결제 승인이 완료되었으므로 Redis에 저장된 인증정보 삭제
+            stringRedisTemplate.delete(key);
+
+            // 결제 승인 응답 데이터 파싱
             Map<String, Object> responseBody = response.getBody();
             String tossPaymentKey = (String) responseBody.get("paymentKey");
             String tossOrderId = (String) responseBody.get("orderId");
@@ -110,22 +115,23 @@ public class BookingService {
             Number totalAmount = (Number) responseBody.get("totalAmount");
             BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
 
-            Show foundShow = showQueryService.getShow(showId); // select
+            // 예매 로직
+            Show foundShow = showQueryService.getShow(showId);
             checkBookingTime(foundShow);
 
-            User foundUser = userQueryService.getUser(userId); // select
+            User foundUser = userQueryService.getUser(userId);
 
             seatHoldingService.seatHoldingCheck(userId, seatIds);
 
-            ticketQueryService.checkTicketLimit(foundUser, foundShow); // select
+            ticketQueryService.checkTicketLimit(foundUser, foundShow);
 
-            List<Ticket> tickets = ticketCommandService.createTicket(foundUser, foundShow, seatIds); // insert
+            List<Ticket> tickets = ticketCommandService.createTicket(foundUser, foundShow, seatIds);
 
-            Order order = orderCommandService.createOrder(foundUser, tickets); // insert
+            Order order = orderCommandService.createOrder(foundUser, tickets);
 
-            paymentService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
+            paymentCommandService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
 
-            showDateCommandService.countUpdate(showDateId, seatIds.size()); // update
+            showDateCommandService.countUpdateOnBooking(showDateId, seatIds.size());
 
             seatHoldingService.seatHoldingUnLock(seatIds);
 
@@ -139,101 +145,77 @@ public class BookingService {
     @Transactional
     public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, Long paymentId, List<Long> ticketIds, String cancelReason) throws InterruptedException {
 
+        // 취소할 티켓들의 총 가격 계산
         BigDecimal amountToCancel = ticketQueryService.addUpTicketPrice(ticketIds);
 
-        Payment payment = paymentService.getPayment(paymentId);
+        // 결제 정보 조회
+        Payment payment = paymentQueryService.getPayment(paymentId);
         String foundTossPaymentKey = payment.getTossPaymentKey();
-        BigDecimal payedAmount = payment.getTossAmount();
-        Order order = payment.getOrder();
+        Order foundOrder = payment.getOrder();
 
-        // 결제 취소 API 호출
-        String baseUrl = "https://api.tosspayments.com/v1/payments/";
-        String cancelUrl = baseUrl + foundTossPaymentKey + "/cancel";
+        // 토스페이 결제 취소 요청 준비
+        String TOSS_PAY_CANCEL_URL = TOSS_PAY_BASE_URL + foundTossPaymentKey + "/cancel";
         String encodedSecretKey = "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes());
 
-        // 요청 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", encodedSecretKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        if (payedAmount.equals(amountToCancel)) {
-            // 요청 바디 설정
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("cancelReason", cancelReason);
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("cancelReason", cancelReason);
+        requestBody.put("cancelAmount", (Number) amountToCancel);
 
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-            RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+        RestTemplate restTemplate = new RestTemplate();
 
-            // API 호출
-            ResponseEntity<Map> response = restTemplate.exchange(
-                    cancelUrl,
-                    HttpMethod.POST,
-                    entity,
-                    Map.class
-            );
+        // 토스페이에 결제 취소 요청 API 호출
+        ResponseEntity<Map> response = restTemplate.exchange(
+                TOSS_PAY_CANCEL_URL,
+                HttpMethod.POST,
+                entity,
+                Map.class
+        );
 
-            Map<String, Object> responseBody = response.getBody();
-            String tossPaymentKey = (String) responseBody.get("paymentKey");
-            String tossOrderId = (String) responseBody.get("orderId");
-            String tossOrderName = (String) responseBody.get("orderName");
-            String tossStatus = (String) responseBody.get("status");
-            Number totalAmount = (Number) responseBody.get("totalAmount");
-            BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
+        // 결제 취소 응답 데이터 파싱
+        Map<String, Object> responseBody = response.getBody();
+        String tossPaymentKey = (String) responseBody.get("paymentKey");
+        String tossOrderId = (String) responseBody.get("orderId");
+        String tossOrderName = (String) responseBody.get("orderName");
+        String tossStatus = (String) responseBody.get("status");
+        List<Map<String, Object>> cancels = (List<Map<String, Object>>) responseBody.get("cancels");
 
-            order.updateOrderStatus(OrderStatus.ORDER_CANCELED);
-
-            paymentService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
-
-            ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
-            checkCancelBookingTime(foundShowDate);
-
-            User foundUser = userQueryService.getUser(userId);
-            List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
-
-            showDateCommandService.countUpdate(showDateId, ticketIds.size());
-
-            return canceledTickets;
-
-
-        } else {
-            // 요청 바디 설정
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("cancelReason", cancelReason);
-            requestBody.put("cancelAmount", (Number) amountToCancel);
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-            RestTemplate restTemplate = new RestTemplate();
-
-            // API 호출
-            ResponseEntity<Map> response = restTemplate.exchange(
-                    cancelUrl,
-                    HttpMethod.POST,
-                    entity,
-                    Map.class
-            );
-
-            Map<String, Object> responseBody = response.getBody();
-            String tossPaymentKey = (String) responseBody.get("paymentKey");
-            String tossOrderId = (String) responseBody.get("orderId");
-            String tossOrderName = (String) responseBody.get("orderName");
-            String tossStatus = (String) responseBody.get("status");
-            Number totalAmount = (Number) responseBody.get("totalAmount");
-            BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
-
-            order.updateTotalPrice(tossTotalAmount);
-
-            paymentService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
-
-            ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
-            checkCancelBookingTime(foundShowDate);
-
-            User foundUser = userQueryService.getUser(userId);
-            List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
-
-            showDateCommandService.countUpdate(showDateId, ticketIds.size());
-
-            return canceledTickets;
+        // cancels 리스트에서 이번 요청의 실제 취소된 금액 가져오기
+        BigDecimal cancelAmount = BigDecimal.ZERO;
+        if (cancels != null && !cancels.isEmpty()) {
+            Map<String, Object> firstCancel = cancels.get(cancels.size()-1);
+            Number cancelAmountNumber = (Number) firstCancel.get("cancelAmount");
+            cancelAmount = new BigDecimal(cancelAmountNumber.toString());
         }
+
+        // Order 갱신
+        BigDecimal foundTotalPrice = foundOrder.getTotalPrice();
+        BigDecimal totalPriceToSave = foundTotalPrice.subtract(cancelAmount);
+
+        if (totalPriceToSave.compareTo(BigDecimal.ZERO) == 0) {
+            foundOrder.updateTotalPrice(totalPriceToSave);
+            foundOrder.updateOrderStatus(OrderStatus.ORDER_CANCELED);
+        } else {
+            foundOrder.updateTotalPrice(totalPriceToSave);
+        }
+
+        // 예매 취소 로직
+        paymentCommandService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, cancelAmount, foundOrder);
+
+        ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
+        checkCancelBookingTime(foundShowDate);
+
+        User foundUser = userQueryService.getUser(userId);
+        List<Ticket> canceledTickets = ticketCommandService.deleteTicket(foundUser, ticketIds);
+
+        showDateCommandService.countUpdateOnCancellation(showDateId,ticketIds.size());
+
+        return canceledTickets;
+
     }
 
     private void checkBookingTime(Show show) {

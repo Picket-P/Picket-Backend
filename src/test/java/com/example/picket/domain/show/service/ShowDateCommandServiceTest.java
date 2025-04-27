@@ -83,7 +83,7 @@ class ShowDateCommandServiceTest {
             given(showDateRepository.findById(showDateId)).willReturn(Optional.of(showDate));
 
             // when
-            showDateCommandService.countUpdate(showDateId, 1);
+            showDateCommandService.countUpdateOnBooking(showDateId, 1);
 
             // then
             assertEquals(showDate.getAvailableSeatCount(), 99);

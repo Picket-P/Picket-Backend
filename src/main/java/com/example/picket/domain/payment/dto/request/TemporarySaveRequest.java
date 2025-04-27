@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 @Getter
 public class TemporarySaveRequest {
 
-    @Schema(description = "orderId")
+    @Schema(description = "임시 저장할 orderId")
     @NotNull(message = "orderId는 필수 입력값입니다.")
     private String orderId;
 
-    @Schema(description = "amount", example = "300")
+    @Schema(description = "임시 저장할 amount")
     @NotNull(message = "amount는 필수 입력값입니다.")
     private BigDecimal amount;
 
