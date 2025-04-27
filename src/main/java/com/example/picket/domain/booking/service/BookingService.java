@@ -60,6 +60,7 @@ public class BookingService {
     private static final String KEY_PREFIX = "PAYMENT-INFO:USER:";
     private static final String SECRET_KEY = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6";
     private static final String TOSS_API_URL = "https://api.tosspayments.com/v1/payments/confirm";
+    private static final String PAYMENT_INFO_KEY_PREFIX = "PAYMENT-INFO:USER:";
 
     @Transactional
     public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds, String paymentKey, String orderId, Number amount) throws InterruptedException {
@@ -69,15 +70,9 @@ public class BookingService {
         String orderIdFromRedis = (String) stringRedisTemplate.opsForHash().get(key, "orderId");
         String amountFromRedis = (String) stringRedisTemplate.opsForHash().get(key, "amount");
 
-        System.out.println(orderIdFromRedis);
-        System.out.println(amountFromRedis);
-        System.out.println(amount.toString());
-
-        // orderId 검증
         if (orderIdFromRedis == null || !orderIdFromRedis.equals(orderId)) {
             throw new CustomException(BAD_REQUEST, "결제 인증 정보(orderId)가 변경되었습니다.");
         }
-
 
         if (amountFromRedis == null || !amountFromRedis.equals(amount.toString())) {
             throw new CustomException(BAD_REQUEST, "결제 인증 정보(amount)가 변경되었습니다.");
@@ -109,13 +104,17 @@ public class BookingService {
         );
 
         if (response.getStatusCode() == HttpStatus.OK) {
+            String paymentInfoKey = PAYMENT_INFO_KEY_PREFIX + userId.toString();
+            stringRedisTemplate.delete(paymentInfoKey);
+
             // 결제 성공 비즈니스 로직 구현
             Map<String, Object> responseBody = response.getBody();
             String tossPaymentKey = (String) responseBody.get("paymentKey");
             String tossOrderId = (String) responseBody.get("orderId");
             String tossOrderName = (String) responseBody.get("orderName");
             String tossStatus = (String) responseBody.get("status");
-            Number tossTotalAmount = (Number) responseBody.get("totalAmount");
+            Number totalAmount = (Number) responseBody.get("totalAmount");
+            BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
 
             Show foundShow = showQueryService.getShow(showId); // select
             checkBookingTime(foundShow);
@@ -144,7 +143,7 @@ public class BookingService {
     }
 
     @Transactional
-    public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, List<Long> ticketIds) throws InterruptedException {
+    public List<Ticket> cancelBooking(Long showId, Long showDateId, Long userId, Long paymentId, List<Long> ticketIds, String cancelReason) throws InterruptedException {
         ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
         checkCancelBookingTime(foundShowDate);
 

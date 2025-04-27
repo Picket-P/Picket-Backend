@@ -1,5 +1,6 @@
 package com.example.picket.domain.payment.service;
 
+import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.order.entity.Order;
 import com.example.picket.domain.payment.entity.Payment;
 import com.example.picket.domain.payment.repository.PaymentRepository;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -18,10 +21,10 @@ public class PaymentService {
     private final StringRedisTemplate redisTemplate;
     private final PaymentRepository paymentRepository;
 
-    public void temporarySavePaymentInfo(String orderId, Number amount, Long userId) {
+    public void temporarySavePaymentInfo(String orderId, BigDecimal amount, Long userId) {
         String userIdToSave = KEY_PREFIX + userId.toString();
         String orderIdToSave = orderId;
-        Number amountToSave = amount;
+        BigDecimal amountToSave = amount;
 
         redisTemplate.opsForHash().put(userIdToSave, "orderId", orderIdToSave);
         redisTemplate.opsForHash().put(userIdToSave, "amount", amountToSave.toString());
@@ -29,8 +32,13 @@ public class PaymentService {
         redisTemplate.expire(userIdToSave, 600, TimeUnit.SECONDS);
     }
 
-    public Payment create(String paymentKey, String orderId, String orderName, String status, Number totalAmount, Order order) {
+    public Payment create(String paymentKey, String orderId, String orderName, String status, BigDecimal totalAmount, Order order) {
         Payment payment = Payment.create(paymentKey, orderId, orderName, totalAmount, status, order);
         return paymentRepository.save(payment);
+    }
+
+    public Payment getPayment(Long paymentId) {
+        return paymentRepository.findById(paymentId).orElseThrow(
+                () -> new CustomException(NOT_FOUND, "존재하지 않는 Payment입니다."));
     }
 }

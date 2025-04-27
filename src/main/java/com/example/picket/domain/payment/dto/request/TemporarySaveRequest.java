@@ -15,7 +15,7 @@ public class TemporarySaveRequest {
 
     @Schema(description = "amount", example = "300")
     @NotNull(message = "amount는 필수 입력값입니다.")
-    private Number amount;
+    private BigDecimal amount;
 
     public TemporarySaveRequest(String orderId, BigDecimal amount) {
         this.orderId = orderId;
