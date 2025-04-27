@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import java.util.Optional;
@@ -46,4 +47,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     int updateTicketStatusByShowId(@Param("showId") Long showId,
                                    @Param("currentStatus") TicketStatus currentStatus,
                                    @Param("newStatus") TicketStatus newStatus);
+
+    @Query("SELECT SUM(t.price) FROM Ticket t WHERE t.id IN :ticketIds")
+    BigDecimal sumPricesByTicketIds(@Param("ticketIds") List<Long> ticketIds);
 }
