@@ -41,14 +41,15 @@ public class BookingController {
     }
 
     @Operation(summary = "예매취소", description = "예매된 티켓을 취소할 수 있습니다.")
-    @DeleteMapping("show/{showId}/show-date/{showDateId}/booking")
+    @DeleteMapping("show/{showId}/show-date/{showDateId}/booking/{paymentId}")
     public ResponseEntity<CancelBookingResponse> cancelBooking(
             @PathVariable Long showId,
             @PathVariable Long showDateId,
+            @PathVariable Long paymentId,
             @Auth AuthUser authUser,
             @RequestBody CancelBookingRequest dto
     ) throws InterruptedException {
-        List<Ticket> canceledTickets = bookingFacade.cancelBooking(showId, showDateId, authUser.getId(), dto.getTicketIds());
+        List<Ticket> canceledTickets = bookingFacade.cancelBooking(showId, showDateId, authUser.getId(), paymentId, dto.getTicketIds(), dto.getCancelReason());
         List<GetTicketResponse> getTicketResponses = canceledTickets.stream().map(GetTicketResponse::of).toList();
         CancelBookingResponse cancelBookingResponse = CancelBookingResponse.of(getTicketResponses);
         return ResponseEntity.ok(cancelBookingResponse);
