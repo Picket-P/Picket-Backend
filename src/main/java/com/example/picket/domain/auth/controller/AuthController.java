@@ -32,18 +32,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "이메일 인증 코드 발송", description = "회원가입 정보 입력 후 이메일로 인증 코드를 발송합니다.")
-    @PostMapping("/auth/send-verification")
-    public ResponseEntity<?> sendVerificationCode(@Valid @RequestBody VerifyCodeRequest request) {
-        try {
-            authService.sendVerificationCode(request.getEmail());
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(Map.of("message", e.getMessage()));
-        }
-    }
-
     @Operation(summary = "회원가입 정보 입력", description = "유저 역할을 가진 회원가입 정보를 입력합니다. 회원가입은 이메일 인증 후 완료됩니다.")
     @PostMapping("/auth/signup/user")
     public ResponseEntity<SignupResponse> signupUser(@Valid @RequestBody SignupRequest request) {

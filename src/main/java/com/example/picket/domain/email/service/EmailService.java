@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.ses.model.SesException;
 
 import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -21,6 +22,11 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @Service
 @RequiredArgsConstructor
 public class EmailService {
+
+    private static final String VERIFICATION_KEY_PREFIX = "verification:";
+    private static final String VERIFIED_KEY_PREFIX = "verified:";
+    private static final int VERIFICATION_EXPIRY_MINUTES = 5;
+    private static final int VERIFIED_STATUS_EXPIRY_MINUTES = 30;
 
     @Value("${aws.ses.send-mail-from}")
     private String sender;
@@ -38,44 +44,70 @@ public class EmailService {
     public String sendVerificationEmail(String recipientEmail) {
         String verificationCode = generateVerificationCode();
 
-        // Redis에 인증 코드 저장 (5분 TTL)
+        // Redis에 인증 코드 저장
+        saveVerificationCode(recipientEmail, verificationCode);
+
+        // 메일 콘텐츠 생성
+        String content = createEmailContent(verificationCode);
+
+        // 메일 발송
+        sendEmail(recipientEmail, "회원가입 인증 코드", content);
+
+        return verificationCode;
+    }
+
+    // 인증 코드 검증
+    public boolean verifyCode(String email, String code) {
+        return Optional.ofNullable(redisTemplate.opsForValue().get(VERIFICATION_KEY_PREFIX + email))
+                .filter(storedCode -> storedCode.equals(code))
+                .map(storedCode -> {
+                    markEmailAsVerified(email);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    // Redis에 인증 코드 저장
+    private void saveVerificationCode(String email, String code) {
         redisTemplate.opsForValue().set(
-                "verification:" + recipientEmail,
-                verificationCode,
-                5,
+                VERIFICATION_KEY_PREFIX + email,
+                code,
+                VERIFICATION_EXPIRY_MINUTES,
                 TimeUnit.MINUTES
         );
+    }
 
+    // 이메일을 인증 완료로 표시
+    private void markEmailAsVerified(String email) {
+        redisTemplate.opsForValue().set(
+                VERIFIED_KEY_PREFIX + email,
+                "true",
+                VERIFIED_STATUS_EXPIRY_MINUTES,
+                TimeUnit.MINUTES
+        );
+    }
+
+    // 이메일 콘텐츠 생성
+    private String createEmailContent(String verificationCode) {
         Context context = new Context();
         context.setVariable("verificationCode", verificationCode);
+        return templateEngine.process("verification-email", context);
+    }
 
-        String content = templateEngine.process("verification-email", context);
-
+    // 실제 이메일 발송 처리
+    private void sendEmail(String recipientEmail, String subject, String content) {
         EmailInfo emailInfo = new EmailInfo(
                 sender,
                 Collections.singletonList(recipientEmail),
-                "회원가입 인증 코드",
+                subject,
                 content
         );
 
         try {
             SendEmailRequest request = emailInfo.toSendEmailRequest();
             sesClient.sendEmail(request);
-            return verificationCode;
         } catch (SesException e) {
             throw new CustomException(INTERNAL_SERVER_ERROR, "이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
-    }
-
-    // 인증 코드 검증
-    public boolean verifyCode(String email, String code) {
-        String storedCode = redisTemplate.opsForValue().get("verification:" + email);
-
-        if (storedCode != null && storedCode.equals(code)) {
-            redisTemplate.opsForValue().set("verified:" + email, "true", 30, TimeUnit.MINUTES);
-            return true;
-        }
-
-        return false;
     }
 }

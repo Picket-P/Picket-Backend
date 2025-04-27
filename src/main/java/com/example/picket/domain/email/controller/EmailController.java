@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,12 +26,12 @@ public class EmailController {
     @Operation(summary = "인증 이메일 재전송", description = "인증 코드를 이메일로 다시 전송합니다.")
     @PostMapping("/resend")
     public ResponseEntity<?> resendVerificationEmail(@Valid @RequestBody EmailResendRequest request) {
-        try {
-            emailService.sendVerificationEmail(request.getEmail());
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(Map.of("message", e.getMessage()));
-        }
+        return Optional.ofNullable(request.getEmail())
+                .map(email -> {
+                    emailService.sendVerificationEmail(email);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                })
+                .orElseGet(() -> ResponseEntity.badRequest()
+                        .body(Map.of("message", "이메일 정보가 필요합니다.")));
     }
 }
