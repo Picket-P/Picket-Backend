@@ -18,7 +18,7 @@ public class BookingFacade {
     private final RedissonClient redissonClient;
     private final String KEY_PREFIX = "BOOKING-LOCK:SHOW-DATE:";
 
-    public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds, String paymentKey, String orderId, Number amount) throws InterruptedException {
+    public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds, String paymentKey, String orderId, BigDecimal amount) throws InterruptedException {
         String lockKey = KEY_PREFIX + showDateId;
         RLock lock = redissonClient.getFairLock(lockKey);
 

@@ -25,5 +25,5 @@ public class BookingRequest {
 
     @Schema(description = "결제할 amount")
     @NotNull(message = "amount는 필수 입력값입니다.")
-    private Number amount;
+    private BigDecimal amount;
 }
