@@ -1,6 +1,5 @@
 package com.example.picket.domain.payment.service;
 
-import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.order.entity.Order;
 import com.example.picket.domain.payment.entity.Payment;
 import com.example.picket.domain.payment.repository.PaymentRepository;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
-
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +29,7 @@ public class PaymentCommandService {
         redisTemplate.expire(userIdToSave, 600, TimeUnit.SECONDS);
     }
 
-    public Payment create(String paymentKey, String orderId, String orderName, String status, BigDecimal totalAmount, Order order) {
+    public Payment createPayment(String paymentKey, String orderId, String orderName, String status, BigDecimal totalAmount, Order order) {
         Payment payment = Payment.create(paymentKey, orderId, orderName, totalAmount, status, order);
         return paymentRepository.save(payment);
     }

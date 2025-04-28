@@ -129,7 +129,7 @@ public class BookingService {
 
             Order order = orderCommandService.createOrder(foundUser, tickets);
 
-            paymentCommandService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
+            paymentCommandService.createPayment(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
 
             showDateCommandService.countUpdateOnBooking(showDateId, seatIds.size());
 
@@ -204,7 +204,7 @@ public class BookingService {
         }
 
         // 예매 취소 로직
-        paymentCommandService.create(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, cancelAmount, foundOrder);
+        paymentCommandService.createPayment(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, cancelAmount, foundOrder);
 
         ShowDate foundShowDate = showDateQueryService.getShowDate(showDateId);
         checkCancelBookingTime(foundShowDate);
