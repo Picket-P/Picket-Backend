@@ -10,7 +10,29 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: 🧪 Run Gradle Build & Tests
-
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_DATABASE: jdbc:mysql://localhost:3306/picket-mysql
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent "
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     steps:
       # 1. 최신 코드 체크아웃
       - name: 📦 Checkout Repository

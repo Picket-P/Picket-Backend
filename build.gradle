@@ -43,7 +43,7 @@ dependencies {
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+    testRuntimeOnly 'com.h2database:h2'
     // QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
@@ -89,9 +89,9 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-bootRun {
+/*bootRun {
     systemProperty 'spring.profiles.active', 'local'
-}
+}*/
 
 bootJar {
     archiveBaseName.set('picket')
