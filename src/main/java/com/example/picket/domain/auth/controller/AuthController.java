@@ -1,12 +1,11 @@
 package com.example.picket.domain.auth.controller;
 
 import com.example.picket.common.enums.UserRole;
-import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.auth.dto.request.SigninRequest;
 import com.example.picket.domain.auth.dto.request.SignupRequest;
 import com.example.picket.domain.auth.dto.request.VerifyCodeRequest;
-import com.example.picket.domain.auth.dto.response.SignupResponse;
 import com.example.picket.domain.auth.dto.response.SigninResponse;
+import com.example.picket.domain.auth.dto.response.SignupResponse;
 import com.example.picket.domain.auth.service.AuthService;
 import com.example.picket.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,11 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v2")
 @Tag(name = "인증/인가 API", description = "회원가입, 로그인, 로그아웃 API입니다.")
 public class AuthController {
 
