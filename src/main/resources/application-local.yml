@@ -38,3 +38,22 @@ oauth:
       admin: http://localhost:8080/api/v2/auth/callback/admin
     token-uri: https://oauth2.googleapis.com/token
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+
+cloud:
+  aws:
+    credentials:
+      access-key: dummy-access-key
+      secret-key: dummy-secret-key
+    s3:
+      bucket: dummy-s3-bucket
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+aws:
+  region: ap-northeast-2
+  ses:
+    access-key: dummy-ses-access-key
+    secret-key: dummy-ses-secret-key
+    send-mail-from: dummy@example.com
