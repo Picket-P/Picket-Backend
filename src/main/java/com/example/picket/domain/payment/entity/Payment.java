@@ -1,5 +1,6 @@
 package com.example.picket.domain.payment.entity;
 
+import com.example.picket.common.entity.BaseEntity;
 import com.example.picket.domain.order.entity.Order;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 @Table(name = "payments")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Payment {
+public class Payment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
