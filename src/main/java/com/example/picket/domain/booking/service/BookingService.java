@@ -24,6 +24,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -53,6 +55,7 @@ public class BookingService {
     private final PaymentQueryService paymentQueryService;
 
     private final StringRedisTemplate stringRedisTemplate;
+    private final WebClient webClient;
 
     private static final String SECRET_KEY = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6";
     private static final String TOSS_PAY_BASE_URL = "https://api.tosspayments.com/v1/payments/";
@@ -60,7 +63,7 @@ public class BookingService {
 
 
     @Transactional
-    public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds, String paymentKey, String orderId, Number amount) throws InterruptedException {
+    public Order booking(Long showId, Long showDateId, Long userId, List<Long> seatIds, String paymentKey, String orderId, BigDecimal amount) throws InterruptedException {
 
         // Redis에서 결제 인증 정보(orderId, amount) 가져오기
         String key = PAYMENT_INFO_KEY_PREFIX + userId;
@@ -78,68 +81,58 @@ public class BookingService {
         }
 
         // 토스페이 결제 승인 요청 준비
-        String TOSS_PAY_CONFIRM_URL =TOSS_PAY_BASE_URL + "/confirm";
         String encodedSecretKey = "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", encodedSecretKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);
         requestBody.put("amount", amount);
         requestBody.put("paymentKey", paymentKey);
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-        RestTemplate restTemplate = new RestTemplate();
+        // 토스페이에 결제 승인 요청 API 호출 (WebClient 사용)
+        Map responseBody = webClient.post()
+                .uri(TOSS_PAY_BASE_URL + "/confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", encodedSecretKey)
+                .bodyValue(requestBody)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> {
+                    return Mono.error(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "결제 승인에 실패하였습니다."));
+                })
+                .bodyToMono(Map.class)
+                .block();
 
-        // 토스페이에 결제 승인 요청 API 호출
-        ResponseEntity<Map> response = restTemplate.exchange(
-                TOSS_PAY_CONFIRM_URL,
-                HttpMethod.POST,
-                entity,
-                Map.class
-        );
+        // 결제 승인이 완료되었으므로 Redis에 저장된 인증정보 삭제
+        stringRedisTemplate.delete(key);
 
-        if (response.getStatusCode() == HttpStatus.OK) {
+        // 결제 승인 응답 데이터 파싱
+        String tossPaymentKey = (String) responseBody.get("paymentKey");
+        String tossOrderId = (String) responseBody.get("orderId");
+        String tossOrderName = (String) responseBody.get("orderName");
+        String tossStatus = (String) responseBody.get("status");
+        Number totalAmount = (Number) responseBody.get("totalAmount");
+        BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
 
-            // 결제 승인이 완료되었으므로 Redis에 저장된 인증정보 삭제
-            stringRedisTemplate.delete(key);
+        // 예매 로직
+        Show foundShow = showQueryService.getShow(showId);
+        checkBookingTime(foundShow);
 
-            // 결제 승인 응답 데이터 파싱
-            Map<String, Object> responseBody = response.getBody();
-            String tossPaymentKey = (String) responseBody.get("paymentKey");
-            String tossOrderId = (String) responseBody.get("orderId");
-            String tossOrderName = (String) responseBody.get("orderName");
-            String tossStatus = (String) responseBody.get("status");
-            Number totalAmount = (Number) responseBody.get("totalAmount");
-            BigDecimal tossTotalAmount = new BigDecimal(totalAmount.toString());
+        User foundUser = userQueryService.getUser(userId);
 
-            // 예매 로직
-            Show foundShow = showQueryService.getShow(showId);
-            checkBookingTime(foundShow);
+        seatHoldingService.seatHoldingCheck(userId, seatIds);
 
-            User foundUser = userQueryService.getUser(userId);
+        ticketQueryService.checkTicketLimit(foundUser, foundShow);
 
-            seatHoldingService.seatHoldingCheck(userId, seatIds);
+        List<Ticket> tickets = ticketCommandService.createTicket(foundUser, foundShow, seatIds);
 
-            ticketQueryService.checkTicketLimit(foundUser, foundShow);
+        Order order = orderCommandService.createOrder(foundUser, tickets);
 
-            List<Ticket> tickets = ticketCommandService.createTicket(foundUser, foundShow, seatIds);
+        paymentCommandService.createPayment(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
 
-            Order order = orderCommandService.createOrder(foundUser, tickets);
+        showDateCommandService.countUpdateOnBooking(showDateId, seatIds.size());
 
-            paymentCommandService.createPayment(tossPaymentKey, tossOrderId, tossOrderName, tossStatus, tossTotalAmount, order);
+        seatHoldingService.seatHoldingUnLock(seatIds);
 
-            showDateCommandService.countUpdateOnBooking(showDateId, seatIds.size());
-
-            seatHoldingService.seatHoldingUnLock(seatIds);
-
-            return order;
-        } else {
-
-            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "결제 승인에 실패하였습니다.");
-        }
+        return order;
     }
 
     @Transactional
@@ -154,30 +147,26 @@ public class BookingService {
         Order foundOrder = payment.getOrder();
 
         // 토스페이 결제 취소 요청 준비
-        String TOSS_PAY_CANCEL_URL = TOSS_PAY_BASE_URL + foundTossPaymentKey + "/cancel";
         String encodedSecretKey = "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", encodedSecretKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("cancelReason", cancelReason);
-        requestBody.put("cancelAmount", (Number) amountToCancel);
+        requestBody.put("cancelAmount", amountToCancel);
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-        RestTemplate restTemplate = new RestTemplate();
-
-        // 토스페이에 결제 취소 요청 API 호출
-        ResponseEntity<Map> response = restTemplate.exchange(
-                TOSS_PAY_CANCEL_URL,
-                HttpMethod.POST,
-                entity,
-                Map.class
-        );
+        // 토스페이에 결제 취소 요청 API 호출 (WebClient 사용)
+        Map responseBody = webClient.post()
+                .uri(TOSS_PAY_BASE_URL + "/" + foundTossPaymentKey + "/cancel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", encodedSecretKey)
+                .bodyValue(requestBody)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> {
+                    return Mono.error(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "결제 취소에 실패하였습니다."));
+                })
+                .bodyToMono(Map.class)
+                .block();
 
         // 결제 취소 응답 데이터 파싱
-        Map<String, Object> responseBody = response.getBody();
         String tossPaymentKey = (String) responseBody.get("paymentKey");
         String tossOrderId = (String) responseBody.get("orderId");
         String tossOrderName = (String) responseBody.get("orderName");
