@@ -1,5 +1,10 @@
 package com.example.picket.integration.session;
 
+import com.example.picket.common.enums.Gender;
+import com.example.picket.common.enums.UserRole;
+import com.example.picket.config.PasswordEncoder;
+import com.example.picket.domain.user.entity.User;
+import com.example.picket.domain.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,23 +20,31 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class RedisSessionTest {
+
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
@@ -39,20 +52,14 @@ public class RedisSessionTest {
     private Cookie[] cookies;
 
     @BeforeEach
-    void 회원가입_및_이메일_로그인_요청_및_세션_저장() throws Exception {
-        //회원가입
-        mockMvc.perform(post("/api/v1/auth/signup/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"test@example.com\"" +
-                                ",\"password\":\"Test123!!\"" +
-                                ", \"nickname\": \"테스터\"" +
-                                ", \"birth\": \"2000-12-12\"" +
-                                ", \"gender\": \"MALE\"}")
-                )
-                .andExpect(status().isOk());
+    void setUp() throws Exception {
+        // 1. User를 DB에 직접 저장
+        User user = User.create("test@example.com", passwordEncoder.encode("Test123!!"), UserRole.USER,
+                null, "테스터", LocalDate.of(2000, 12, 12), Gender.MALE);
+        userRepository.save(user);
 
-        // 로그인
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/signin")
+        // 2. 로그인 API만 호출해서 세션 확보
+        MvcResult result = mockMvc.perform(post("/api/v2/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"test@example.com\",\"password\":\"Test123!!\"}"))
                 .andExpect(status().isOk())
@@ -63,8 +70,9 @@ public class RedisSessionTest {
 
     @AfterEach
     void tearDown() {
+        // Redis 전체 비우기
         RedisConnection connection = redisConnectionFactory.getConnection();
-        connection.flushAll(); // 테스트 후 Redis 전체 비우기
+        connection.flushAll();
     }
 
     @Test
@@ -79,12 +87,11 @@ public class RedisSessionTest {
         RedisConnection connection = redisConnectionFactory.getConnection();
         String sessionId = extractSessionIdFromCookie(cookies);
 
-        // TTL이 줄어들도록 대기
-        Thread.sleep(5000);
+        Thread.sleep(5000); // TTL 줄어들게 대기
         Long ttlBefore = connection.ttl(("spring:session:sessions:" + sessionId).getBytes());
         System.out.println("TTL Before = " + ttlBefore);
 
-        mockMvc.perform(get("/api/v1/users").cookie(cookies))
+        mockMvc.perform(get("/api/v2/users").cookie(cookies))
                 .andExpect(status().isOk());
 
         Long ttlAfter = connection.ttl(("spring:session:sessions:" + sessionId).getBytes());
@@ -99,13 +106,13 @@ public class RedisSessionTest {
         RedisConnection connection = redisConnectionFactory.getConnection();
         connection.del(("spring:session:sessions:" + sessionId).getBytes());
 
-        mockMvc.perform(get("/api/v1/auth/users").cookie(cookies))
+        mockMvc.perform(get("/api/v2/auth/users").cookie(cookies))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void 로그아웃_호출시_Redis_세션_삭제() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/signout").cookie(cookies))
+        mockMvc.perform(post("/api/v2/auth/signout").cookie(cookies))
                 .andExpect(status().isOk());
 
         String sessionId = extractSessionIdFromCookie(cookies);
