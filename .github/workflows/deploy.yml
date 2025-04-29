@@ -92,6 +92,7 @@ jobs:
           echo "AWS_REDIS_PORT=${{ secrets.AWS_REDIS_PORT }}" >> .env
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "CLIENT_SECRET_KEY=${{ secrets.CLIENT_SECRET_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
           echo "AWS_S3_IMAGE_BUCKET=${{ secrets.AWS_S3_IMAGE_BUCKET }}" >> .env
           echo "AWS_S3_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }}" >> .env
           echo "AWS_S3_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> .env
