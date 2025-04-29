@@ -9,6 +9,10 @@
 <div id="payment-method"></div>
 <!-- 이용약관 UI -->
 <div id="agreement"></div>
+<!-- 주문 ID 표시 -->
+<div style="margin-top:20px;">
+    <strong>주문 ID:</strong> <span id="order-id"></span>
+</div>
 <!-- 결제하기 버튼 -->
 <button class="button" id="payment-button" style="margin-top: 30px">결제하기</button>
 
@@ -27,6 +31,7 @@
     async function main() {
         const button = document.getElementById("payment-button");
         const coupon = document.getElementById("coupon-box");
+        const orderIdSpan = document.getElementById("order-id"); // 추가: order-id span 가져오기
         // ------  결제위젯 초기화 ------
         const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
         const tossPayments = TossPayments(clientKey);
@@ -55,9 +60,13 @@
             widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" }),
         ]);
 
+        // 페이지 로드 시 orderId 미리 생성하고 보여주기
+        let currentOrderId = generateRandomOrderId();
+        orderIdSpan.textContent = currentOrderId;
+
         // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
         button.addEventListener("click", async function () {
-            const orderId = generateRandomOrderId();
+            const orderId = currentOrderId;
             await widgets.requestPayment({
                 orderId: orderId,
                 orderName: "2026 FIFA 월드컵 아시아 3차 예선 요르단전 수원월드컵경기장 E17",
