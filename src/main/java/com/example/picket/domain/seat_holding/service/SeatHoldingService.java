@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -34,50 +34,50 @@ public class SeatHoldingService {
 
         checkSeatLimit(showId, seatIds);
 
-        List<Long> successfullyLockedSeats = new ArrayList<>();
+        List<Long> lockedSeats = seatIds.stream()
+                .filter(seatId -> {
+                    RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
+                    boolean success = seatLock.setIfAbsent(userId.toString(), HOLDING_DURATION);
+                    return success;
+                })
+                .collect(Collectors.toList());
 
-        for (Long seatId : seatIds) {
-            RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
-
-            boolean success = seatLock.setIfAbsent(userId.toString(), HOLDING_DURATION);
-
-            if (!success) {
-                rollback(successfullyLockedSeats);
-                throw new CustomException(CONFLICT, "이미 선점된 좌석입니다.");
-            }
-
-            successfullyLockedSeats.add(seatId);
-            seatQueryService.getSeat(seatId).updateSeatStatus(SeatStatus.OCCUPIED);
+        if (lockedSeats.size() != seatIds.size()) {
+            rollback(lockedSeats);
+            throw new CustomException(CONFLICT, "이미 선점된 좌석입니다.");
         }
+
+        lockedSeats.forEach(seatId ->
+                seatQueryService.getSeat(seatId).updateSeatStatus(SeatStatus.OCCUPIED)
+        );
     }
 
     @Transactional
     public void seatHoldingUnLock(List<Long> seatIds) {
-        for (Long seatId : seatIds) {
+        seatIds.forEach(seatId -> {
             RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
             seatLock.delete();
-        }
+        });
     }
 
     @Transactional
     public void seatHoldingCheck(Long userId, List<Long> seatIds) {
-        for (Long seatId : seatIds) {
+        seatIds.forEach(seatId -> {
             RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
             String strUserId = seatLock.get();
 
             if (strUserId == null || !strUserId.equals(userId.toString())) {
                 throw new CustomException(FORBIDDEN, "좌석 선점이 만료되었습니다. 좌석을 선점한 사용자가 아닙니다.");
             }
-        }
+        });
     }
 
     private void rollback(List<Long> seatIds) {
-        for (Long seatId : seatIds) {
+        seatIds.forEach(seatId -> {
             RBucket<String> seatLock = redissonClient.getBucket(KEY_PREFIX + seatId);
             seatLock.delete();
-
             seatQueryService.getSeat(seatId).updateSeatStatus(SeatStatus.AVAILABLE);
-        }
+        });
     }
 
     private void checkSeatLimit(Long showId, List<Long> seatIds) {
