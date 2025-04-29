@@ -1,4 +1,4 @@
-package com.example.picket.common.Controller;
+package com.example.picket.common.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
