@@ -11,19 +11,23 @@ import com.example.picket.domain.show.dto.request.ShowCreateRequest;
 import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.dto.response.ShowDateDetailResponse;
 import com.example.picket.domain.show.dto.response.ShowDetailResponse;
+import com.example.picket.domain.show.dto.response.ShowImageResponse;
 import com.example.picket.domain.show.dto.response.ShowResponse;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.service.ShowCommandService;
 import com.example.picket.domain.show.service.ShowDateQueryService;
 import com.example.picket.domain.show.service.ShowQueryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -108,11 +112,22 @@ public class ShowController {
     }
 
     @AuthPermission(role = UserRole.DIRECTOR)
-    @Operation(summary = "공연 포스터 이미지 업로드", description = "공연 포스터 이미지를 업로드할 수 있습니다.")
-    @PostMapping("/shows/uploadImage")
-    public ResponseEntity<String> uploadImage(HttpServletRequest request,
-                                              @RequestHeader("Content-Length") long contentLength,
-                                              @RequestHeader(value = "Content-Type", defaultValue = "application/octet-stream") String contentType) {
-        return ResponseEntity.ok(showCommandService.uploadImage(request));
+    @Operation(summary = "공연 포스터 이미지 업로드", description = "공연 포스터 이미지를 AWS S3에 업로드합니다. 이 API는 DIRECTOR 역할의 사용자만 호출할 수 있습니다.")
+    @PostMapping(value = "/shows/uploadImage", consumes = "multipart/form-data")
+    public ResponseEntity<ShowImageResponse> uploadImage(@Parameter(
+            description = "업로드할 이미지 파일",
+            required = true,
+            name = "multipartFile",
+            content = @Content(
+                    mediaType = "multipart/form-data",
+                    schema = @Schema(
+                            type = "string",
+                            format = "binary",
+                            description = "지원 형식: JPEG, PNG, GIF, WEBP. 최대 크기: 8MB. 예: image.png",
+                            example = "image.png"
+                    )
+            )
+    ) @RequestParam("multipartFile") MultipartFile multipartFile) {
+        return ResponseEntity.ok(ShowImageResponse.of(showCommandService.uploadImage(multipartFile)));
     }
 }

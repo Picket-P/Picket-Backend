@@ -64,6 +64,14 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "회원가입(이메일 인증 X)", description = "유저 역할을 가진 회원가입 정보를 입력합니다. 특정 이메일만 인증이 가능하므로, 회원가입의 경우 해당 API 사용을 권장합니다.")
+    @PostMapping("/auth/signup/user/notemail")
+    public ResponseEntity<SignupResponse> signupUserWithoutVerify(@Valid @RequestBody SignupRequest request) {
+        authService.signup(request.getEmail(), request.getPassword(),
+                request.getNickname(), request.getBirth(), request.getGender(), UserRole.USER);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
     @PostMapping("/auth/signin")
     public ResponseEntity<SigninResponse> signin(HttpSession session, HttpServletResponse response,

@@ -5,16 +5,20 @@ import com.example.picket.common.dto.AuthUser;
 import com.example.picket.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.picket.domain.user.dto.request.UpdateUserRequest;
 import com.example.picket.domain.user.dto.request.WithdrawUserRequest;
+import com.example.picket.domain.user.dto.response.UserImageResponse;
 import com.example.picket.domain.user.dto.response.UserResponse;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.service.UserCommandService;
 import com.example.picket.domain.user.service.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,9 +65,21 @@ public class UserController {
     }
 
     @Operation(summary = "유저 프로필 이미지 업로드", description = "유저 프로필 이미지 업로드 API입니다")
-    @PostMapping("/users/uploadImage")
-    public ResponseEntity<String> uploadImage(
-            HttpServletRequest request) {
-        return ResponseEntity.ok(userService.uploadImage(request));
+    @PostMapping(value = "/users/uploadImage", consumes = "multipart/form-data")
+    public ResponseEntity<UserImageResponse> uploadImage(@Parameter(
+            description = "업로드할 이미지 파일",
+            required = true,
+            name = "multipartFile",
+            content = @Content(
+                    mediaType = "multipart/form-data",
+                    schema = @Schema(
+                            type = "string",
+                            format = "binary",
+                            description = "지원 형식: JPEG, PNG, GIF, WEBP. 최대 크기: 8MB. 예: image.png",
+                            example = "image.png"
+                    )
+            )
+    ) @RequestParam("multipartFile") MultipartFile multipartFile) {
+        return ResponseEntity.ok(UserImageResponse.of(userService.uploadImage(multipartFile)));
     }
 }

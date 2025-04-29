@@ -12,10 +12,10 @@ import com.example.picket.domain.user.dto.request.UpdateUserRequest;
 import com.example.picket.domain.user.dto.request.WithdrawUserRequest;
 import com.example.picket.domain.user.entity.User;
 import com.example.picket.domain.user.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -81,9 +81,8 @@ public class UserCommandService {
         userRepository.delete(user);
     }
 
-    public String uploadImage(HttpServletRequest request) {
-
-        ImageResponse imageResponse = s3Service.upload(request);
+    public String uploadImage(MultipartFile multipartFile) {
+        ImageResponse imageResponse = s3Service.upload(multipartFile);
         UserImage userImage = UserImage.create(imageResponse, null);
         userImageRepository.save(userImage);
         return imageResponse.getImageUrl();

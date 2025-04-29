@@ -13,17 +13,17 @@ public interface Const {
                     "/api/v*/shows/*",
                     "/api/v*/shows/*/comments",
                     "/swagger-ui/*",
-                    "/v3/api-docs/**",
-                    "/api/v2/auth/session",
-                    "/api/v2/auth/callback/*",
-                    "/api/v2/auth/signup",
+                    "/v*/api-docs/**",
+                    "/api/v*/auth/session",
+                    "/api/v*/auth/callback/*",
+                    "/api/v*/auth/signup",
             },
             "POST", new String[]{
                     "/api/v*/auth/signup/*",
                     "/api/v*/auth/signin",
                     "/api/v*/auth/verify-code",
                     "/swagger-ui/*",
-                    "/v3/api-docs/**",
+                    "/v*/api-docs/**",
             },
             "PUT", new String[]{
 

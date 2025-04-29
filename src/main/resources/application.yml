@@ -17,6 +17,12 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   data:
     redis:
       host: localhost
@@ -28,6 +34,7 @@ spring:
       namespace: spring:session
     timeout: 60m
 
+#Google OAuth
 oauth:
   google:
     client-id: ${CLIENT_ID}
@@ -50,6 +57,7 @@ server:
     mbeanregistry:
       enabled: true
 
+# AWS S3
 cloud:
   aws:
     credentials:
@@ -62,9 +70,10 @@ cloud:
     stack:
       auto: false
 
+# AWS SES
 aws:
   region: ${AWS_REGION}
   ses:
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
-    send-mail-from: ${ADMIN_EMAIL}
+    access-key: ${AWS_SES_ACCESS_KEY}
+    secret-key: ${AWS_SES_SECRET_KEY}
+    send-mail-from: ${AWS_SES_ADMIN_EMAIL}

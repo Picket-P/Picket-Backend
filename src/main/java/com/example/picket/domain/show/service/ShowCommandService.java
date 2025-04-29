@@ -17,10 +17,10 @@ import com.example.picket.domain.show.dto.request.ShowUpdateRequest;
 import com.example.picket.domain.show.entity.Show;
 import com.example.picket.domain.show.entity.ShowDate;
 import com.example.picket.domain.show.repository.ShowRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -211,8 +211,8 @@ public class ShowCommandService {
     }
 
     //이미지 업로드
-    public String uploadImage(HttpServletRequest request) {
-        ImageResponse imageResponse = s3Service.upload(request);
+    public String uploadImage(MultipartFile multipartFile) {
+        ImageResponse imageResponse = s3Service.upload(multipartFile);
         ShowImage showImage = ShowImage.create(imageResponse, null);
         showImageRepository.save(showImage);
         return imageResponse.getImageUrl();
