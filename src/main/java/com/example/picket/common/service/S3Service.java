@@ -2,12 +2,12 @@ package com.example.picket.common.service;
 
 import com.example.picket.common.exception.CustomException;
 import com.example.picket.domain.images.dto.response.ImageResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -15,7 +15,6 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -46,16 +45,21 @@ public class S3Service {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    public ImageResponse upload(HttpServletRequest request) {
-        String contentType = request.getContentType();
-        long contentLength = request.getContentLength();
+    public ImageResponse upload(MultipartFile multipartFile) {
+
+        // 파일 null 체크
+        if (multipartFile == null || multipartFile.isEmpty()) {
+            throw new CustomException(BAD_REQUEST, "업로드할 파일이 없습니다.");
+        }
 
         // 이미지 확장자 검증
+        String contentType = multipartFile.getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
             throw new CustomException(BAD_REQUEST, "지원되지 않는 파일 형식입니다. 허용 Content-Type: " + ALLOWED_CONTENT_TYPES);
         }
 
         // 파일 크기 검증
+        long contentLength = multipartFile.getSize();
         if (contentLength > MAX_FILE_SIZE) {
             throw new CustomException(BAD_REQUEST,
                     "파일 크기가 8MB를 초과했습니다. 최대 크기: " + MAX_FILE_SIZE / (1024 * 1024) + "MB");
@@ -64,17 +68,16 @@ public class S3Service {
         // 고유한 파일 이름 생성
         String key = "images/" + UUID.randomUUID();
 
-        try (InputStream inputStream = request.getInputStream()) {
+        try {
             // S3 업로드 요청 생성
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
                     .contentType(contentType)
-                    .contentLength(contentLength)
                     .build();
 
             // InputStream을 사용하여 S3에 업로드
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, inputStream.available()));
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(multipartFile.getInputStream(), contentLength));
             log.info("파일 업로드 성공: bucket={}, key={}", bucket, key);
             return ImageResponse.of(getPublicUrl(key), contentType);
         } catch (IOException e) {

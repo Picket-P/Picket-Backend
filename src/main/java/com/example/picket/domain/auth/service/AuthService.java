@@ -115,6 +115,18 @@ public class AuthService {
         redisTemplate.delete("verified:" + email);
     }
 
+    public void signup(String email, String password, String nickname, LocalDate birth, Gender gender,
+                       UserRole userRole) {
+
+        if (userRepository.existsByEmail(email)) {
+            throw new CustomException(BAD_REQUEST, "이미 가입되어있는 이메일입니다.");
+        }
+
+        User newUser = User.create(email, passwordEncoder.encode(password), userRole, null, nickname, birth, gender);
+
+        userRepository.save(newUser);
+    }
+
     public User signin(HttpSession session, HttpServletResponse response, String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(NOT_FOUND, "해당 유저를 찾을 수 없습니다."));

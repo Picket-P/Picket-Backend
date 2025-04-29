@@ -17,6 +17,12 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   data:
     redis:
       host: localhost
@@ -28,17 +34,19 @@ spring:
       namespace: spring:session
     timeout: 60m
 
+#Google OAuth
 oauth:
   google:
     client-id: dummy-client-id
     client-secret: dummy-client-secret
-    redirect-uris :
+    redirect-uris:
       director: http://localhost:8080/api/v2/auth/callback/director
       user: http://localhost:8080/api/v2/auth/callback/user
       admin: http://localhost:8080/api/v2/auth/callback/admin
     token-uri: https://oauth2.googleapis.com/token
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
 
+# AWS S3
 cloud:
   aws:
     credentials:
@@ -51,6 +59,7 @@ cloud:
     stack:
       auto: false
 
+# AWS SES
 aws:
   region: ap-northeast-2
   ses:
