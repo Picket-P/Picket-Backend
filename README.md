@@ -4,7 +4,7 @@
 
 ---
 
-## 🎫프로젝트 소개
+## 🎫프 로젝트 소개
 
 ### Ticket을 Pick하다. **Picket**
 
@@ -12,7 +12,7 @@
 
 ---
 
-## 🎫프로젝트 관련 링크
+## 🎫 프로젝트 관련 링크
 
 ### **홈페이지 링크**
 
@@ -24,25 +24,25 @@
 
 ---
 
-## 🏭시스템 아키텍쳐
+## 🏭 시스템 아키텍쳐
 
 ![Architecture](https://github.com/user-attachments/assets/26d9d16a-2b5b-496b-856d-acca08c39d35)
 
 ---
 
-## ☁️ERD
+## ☁️ ERD
 
 ![ERD](https://github.com/user-attachments/assets/ad58863d-7d77-4cb8-a80d-ed1fd5ea6fed)
 
 ---
 
-## 📊Flow Chart
+## 📊 Flow Chart
 
 ### [Picket Flow Chart](https://drive.google.com/file/d/1hdFirnBUWCUMk00rMdylvT__R0JurqMI/view)
 
 ---
 
-## 🔧사용 기술
+## 🔧 사용 기술
 
 ### 🛠️ Backend
 
@@ -80,7 +80,7 @@
 ![JMeter](https://img.shields.io/badge/JMeter-D9411E?style=flat-square&logo=apache-jmeter&logoColor=white)
 ![Locust](https://img.shields.io/badge/Locust-3C9C41?style=flat-square&logo=locust&logoColor=white)
 
-### 🧑🏻‍💼 Collaboration Tools
+### ‍💼 Collaboration Tools
 
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)
 ![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat-square&logo=slack&logoColor=white)
@@ -98,7 +98,7 @@
 
 ---
 
-## 📝Convention
+## 📝 Convention
 
 ### [Code Convetion](https://github.com/Picket-P/Picket-Backend/wiki/%5BConvention%5D-Code-Convention)
 
@@ -126,7 +126,7 @@
 
 ---
 
-## 🧭기술적 의사 결정 및 성능 개선
+## 🧭 기술적 의사 결정 및 성능 개선
 
 ### [@Scheduler를 활용하여 일정 주기마다 데이터 갱신하기 (랭킹, 공연 티켓 상태)](https://github.com/Picket-P/Picket-Backend/wiki/%5B기술적-의사-결정%5D-@Scheduler%EB%A5%BC-%ED%99%9C%EC%9A%A9%ED%95%98%EC%97%AC%C2%A0%EC%9D%BC%EC%A0%95-%EC%A3%BC%EA%B8%B0%EB%A7%88%EB%8B%A4-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EA%B0%B1%EC%8B%A0%ED%95%98%EA%B8%B0-(%EB%9E%AD%ED%82%B9,-%EA%B3%B5%EC%97%B0-%ED%8B%B0%EC%BC%93-%EC%83%81%ED%83%9C))
 
@@ -156,7 +156,7 @@
 
 ---
 
-## 😵‍💫트러블 슈팅
+## 😵‍ 트러블 슈팅
 
 ### [Async 사용시 AOP 프록시 동작으로 인한 Async 동작 안되는 현상](https://github.com/Picket-P/Picket-Backend/wiki/%5B%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85%5D-Async-%EC%82%AC%EC%9A%A9%EC%8B%9C-AOP-%ED%94%84%EB%A1%9D%EC%8B%9C-%EB%8F%99%EC%9E%91%EC%9C%BC%EB%A1%9C-%EC%9D%B8%ED%95%9C-Async-%EB%8F%99%EC%9E%91-%EC%95%88%EB%90%98%EB%8A%94-%ED%98%84%EC%83%81)
 
@@ -176,19 +176,19 @@
 
 ---
 
-## 👥팀원 소개
+## 👥 팀원 소개
 
 |     | 이미지                                                                                       | 역할  | 구현                                                                                                      | GITHUB                           | BLOG                              |
 |-----|-------------------------------------------------------------------------------------------|-----|---------------------------------------------------------------------------------------------------------|----------------------------------|-----------------------------------|
 | 전탁  | ![Image](https://github.com/user-attachments/assets/59dd920f-7aa5-44da-b93f-228ed2460cc3) | 리더  | 인증/인가 구현 <br> AWS 인프라 구축 <br> CI/CD 구현 <br> S3 구현 및 최적화                                                 | https://github.com/JEONTAK       | https://velog.io/@tak980418/posts |
 | 최지혜 | ![Image](https://github.com/user-attachments/assets/1918bfb0-16f0-492c-913d-f36acf8088ba) | 부리더 | 댓글 기능 구현 <br> Google OAuth 2.0 인증 도입 <br> Redis 기반 세션 저장소 전환                                            | https://github.com/cjh0412       | https://velog.io/@jyedev/posts    |
 | 문유빈 | ![Image](https://github.com/user-attachments/assets/b1634866-abcc-4985-9e80-9baea59260f7) | 멤버  | 예매 CRUD 구현 <br> 예매 동시성 문제 해결 <br> 선점 좌석 정리 스케줄러 구현 <br> 토스페이먼츠 결제 연동                                    | https://github.com/YUBIN-githubb | https://yubin-code.tistory.com/   |
-| 조민경 | ![Image](https://github.com/user-attachments/assets/3697e6a1-b845-4b08-8bcf-61259fd26983) | 멤버  | -                                                                                                       | https://github.com/JoeMinKyung   | https://velog.io/@mk3701/posts    |
+| 조민경 |                                                                                           | 멤버  | -                                                                                                       | https://github.com/JoeMinKyung   | https://velog.io/@mk3701/posts    |
 | 전지호 | ![Image](https://github.com/user-attachments/assets/3697e6a1-b845-4b08-8bcf-61259fd26983) | 멤버  | 공연 및 좌석 로직 리팩토링 <br> 모니터링 도구(Spring Actuator, Prometheus, Grafana) 도입 <br> Redis를 활용한 조회 수 어뷰징 방지 기능 구현 | https://github.com/wjswlgh96     | https://velog.io/@wjswlgh96/posts |
 
 ---
 
-## 📋블로그 정리
+## 📋 블로그 정리
 
 **사용한 기술에 대하여 블로그로 정리해보았습니다.**
 
@@ -216,3 +216,15 @@
 | 전지호 | [Bulk Insert(JdbcTemplate)로 성능 향상 시키기](https://velog.io/@wjswlgh96/Spring-Bulk-Insert%EB%A1%9C-%EC%84%B1%EB%8A%A5-%ED%96%A5%EC%83%81-%EC%8B%9C%ED%82%A4%EA%B8%B0)                                                                                                                                                                                                    |
 | 전지호 | [Docker-Compose를 사용하여 Local 환경에 Prometheus, Grafana를 등록하고 애플리케이션 모니터링 해보기](https://velog.io/@wjswlgh96/Spring-Docker-Compose%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EC%97%AC-Prometheus-Grafana%EB%A5%BC-%EB%93%B1%EB%A1%9D%ED%95%98%EA%B3%A0-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%ED%95%B4%EB%B3%B4%EA%B8%B0) |
 | 전지호 | [Redis를 이용해 조회수 어뷰징 방지 해보기](https://velog.io/@wjswlgh96/Spring-Redis%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%94-%EC%A1%B0%ED%9A%8C%EC%88%98-%EC%96%B4%EB%B7%B0%EC%A7%95-%EB%B0%A9%EC%A7%80-%ED%95%B4%EB%B3%B4%EA%B8%B0)                                                                                                                                                    |
+
+---
+
+## 🏗️ Local 환경 빌드
+
+### [로컬 환경에서의 Build](https://github.com/Picket-P/Picket-Backend/wiki/%EB%A1%9C%EC%BB%AC-%ED%99%98%EA%B2%BD%EC%97%90%EC%84%9C%EC%9D%98-Build)
+
+---
+
+## 🏗️ Local 환경 모니터링
+
+### [Local 환경에서의 모니터링 빌드](https://github.com/Picket-P/Picket-Backend/wiki/%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C%EC%9D%98-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95)
