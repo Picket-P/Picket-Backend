@@ -180,6 +180,8 @@
 
 ### [통합 테스트에서 세션 쿠키가 누락된 원인](https://github.com/Picket-P/Picket-Backend/wiki/%5B%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85%5D%ED%86%B5%ED%95%A9-%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%97%90%EC%84%9C-%EC%84%B8%EC%85%98-%EC%BF%A0%ED%82%A4%EA%B0%80-%EB%88%84%EB%9D%BD%EB%90%9C-%EC%9B%90%EC%9D%B8)
 
+### [동시성 테스트](https://github.com/Picket-P/Picket-Backend/wiki/%5B%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85%5D-%EB%8F%99%EC%8B%9C%EC%84%B1-%ED%85%8C%EC%8A%A4%ED%8A%B8)
+
 ---
 
 ## 👥 팀원 소개
@@ -234,3 +236,9 @@
 ## 🏗️ Local 환경 모니터링
 
 ### [Local 환경에서의 모니터링 빌드](https://github.com/Picket-P/Picket-Backend/wiki/%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C%EC%9D%98-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95)
+
+---
+
+## 💸 결제 테스트 방법
+
+### [결제 테스트 방법](https://github.com/Picket-P/Picket-Backend/wiki/%EA%B2%B0%EC%A0%9C-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EB%B0%A9%EB%B2%95)
