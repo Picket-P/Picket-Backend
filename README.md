@@ -191,7 +191,7 @@
 | 전탁  | ![Image](https://github.com/user-attachments/assets/59dd920f-7aa5-44da-b93f-228ed2460cc3) | 리더  | 인증/인가 구현 <br> AWS 인프라 구축 <br> CI/CD 구현 <br> S3 구현 및 최적화                                                 | https://github.com/JEONTAK       | https://velog.io/@tak980418/posts |
 | 최지혜 | ![Image](https://github.com/user-attachments/assets/1918bfb0-16f0-492c-913d-f36acf8088ba) | 부리더 | 댓글 기능 구현 <br> Google OAuth 2.0 인증 도입 <br> Redis 기반 세션 저장소 전환                                            | https://github.com/cjh0412       | https://velog.io/@jyedev/posts    |
 | 문유빈 | ![Image](https://github.com/user-attachments/assets/b1634866-abcc-4985-9e80-9baea59260f7) | 멤버  | 예매 CRUD 구현 <br> 예매 동시성 문제 해결 <br> 선점 좌석 정리 스케줄러 구현 <br> 토스페이먼츠 결제 연동                                    | https://github.com/YUBIN-githubb | https://yubin-code.tistory.com/   |
-| 조민경 |                                                                                           | 멤버  | -                                                                                                       | https://github.com/JoeMinKyung   | https://velog.io/@mk3701/posts    |
+| 조민경 | ![Image](https://github.com/user-attachments/assets/d53f574c-bf08-43dd-bac5-2a9b386d1262) | 멤버  | 공연, 좌석 CRUD <br> 조회수/좋아요/인기 검색어 랭킹 시스템 <br> 공연/좌석 상태 변경 scheduler <br> AWS SES로 이메일 인증 코드 발송            | https://github.com/JoeMinKyung   | https://velog.io/@mk3701/posts    |
 | 전지호 | ![Image](https://github.com/user-attachments/assets/3697e6a1-b845-4b08-8bcf-61259fd26983) | 멤버  | 공연 및 좌석 로직 리팩토링 <br> 모니터링 도구(Spring Actuator, Prometheus, Grafana) 도입 <br> Redis를 활용한 조회 수 어뷰징 방지 기능 구현 | https://github.com/wjswlgh96     | https://velog.io/@wjswlgh96/posts |
 
 ---
