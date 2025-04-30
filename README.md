@@ -174,6 +174,12 @@
 
 ### [트랜잭션 범위와 락 범위 불일치](https://github.com/Picket-P/Picket-Backend/wiki/%5B%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85%5D-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EB%B2%94%EC%9C%84%EC%99%80-%EB%9D%BD-%EB%B2%94%EC%9C%84-%EB%B6%88%EC%9D%BC%EC%B9%98)
 
+### [OAuth 인증 시 redirect_uri_mismatch 오류 해결](https://github.com/Picket-P/Picket-Backend/wiki/%5B%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85%5D-OAuth-%EC%9D%B8%EC%A6%9D-%EC%8B%9C%C2%A0redirect_uri_mismatch%C2%A0%EC%98%A4%EB%A5%98-%ED%95%B4%EA%B2%B0)
+
+### [OAuth 테스트 환경 문제 해결](https://github.com/Picket-P/Picket-Backend/wiki/%5B%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85%5D-OAuth-%ED%85%8C%EC%8A%A4%ED%8A%B8-%ED%99%98%EA%B2%BD-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0)
+
+### [통합 테스트에서 세션 쿠키가 누락된 원인](https://github.com/Picket-P/Picket-Backend/wiki/%5B%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85%5D%ED%86%B5%ED%95%A9-%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%97%90%EC%84%9C-%EC%84%B8%EC%85%98-%EC%BF%A0%ED%82%A4%EA%B0%80-%EB%88%84%EB%9D%BD%EB%90%9C-%EC%9B%90%EC%9D%B8)
+
 ---
 
 ## 👥 팀원 소개
