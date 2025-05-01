@@ -1,8 +1,6 @@
 package com.example.picket.common.scheduler;
 
 import com.example.picket.common.service.S3Service;
-import com.example.picket.domain.images.entity.ShowImage;
-import com.example.picket.domain.images.entity.UserImage;
 import com.example.picket.domain.images.repository.ShowImageRepository;
 import com.example.picket.domain.images.repository.UserImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +23,7 @@ public class ImageRemoveScheduler {
     private final ShowImageRepository showImageRepository;
     private final S3Service s3Service;
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     @SchedulerLock(name = "IMAGE-REMOVED-SCHEDULER", lockAtLeastFor = "PT1M", lockAtMostFor = "PT5M")
 
     public void cleanUpRemovedImage() {
@@ -37,29 +35,32 @@ public class ImageRemoveScheduler {
     }
 
     private void deleteRemovedUserImages(LocalDateTime dayBefore) {
-        List<UserImage> userImagesToRemove = userImageRepository.findByOrphan(dayBefore);
-        for (UserImage image : userImagesToRemove) {
+        AtomicInteger count = new AtomicInteger();
+        userImageRepository.findByOrphan(dayBefore).forEach(image -> {
             try {
                 s3Service.delete(image.getImageUrl());
+                userImageRepository.delete(image);
+                count.getAndIncrement();
             } catch (Exception e) {
                 log.error("S3에서 공연 포스터 이미지 삭제 실패: {}, 오류: {}", image.getImageUrl(), e.getMessage());
             }
-        }
-        userImageRepository.deletedOrphanShowImage(dayBefore);
-        log.info("{}개의 유저 프로필 이미지가 S3에서 삭제되었습니다.", userImagesToRemove.size());
+        });
+        log.info("{}개의 유저 프로필 이미지가 S3에서 삭제되었습니다.", count);
     }
 
     private void deleteRemovedShowImages(LocalDateTime dayBefore) {
-        List<ShowImage> showImagesToRemove = showImageRepository.findByOrphan(dayBefore);
-        for (ShowImage image : showImagesToRemove) {
+        AtomicInteger count = new AtomicInteger();
+        showImageRepository.findByOrphan(dayBefore).forEach(image -> {
             try {
                 s3Service.delete(image.getImageUrl());
+                showImageRepository.delete(image);
+                count.getAndIncrement();
             } catch (Exception e) {
                 log.error("S3에서 공연 포스터 이미지 삭제 실패: {}, 오류: {}", image.getImageUrl(), e.getMessage());
             }
-        }
-        showImageRepository.deletedOrphanShowImage(dayBefore);
-        log.info("{}개의 공연 포스터 이미지가 S3에서 삭제되었습니다.", showImagesToRemove.size());
+        });
+
+        log.info("{}개의 공연 포스터 이미지가 S3에서 삭제되었습니다.", count);
     }
 
 }

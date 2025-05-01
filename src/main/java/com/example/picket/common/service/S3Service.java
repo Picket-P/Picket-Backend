@@ -91,12 +91,14 @@ public class S3Service {
 
     public void delete(String imageUrl) {
         try {
+            String key = extractKeyFromUrl(imageUrl);
+
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(bucket)
-                    .key(imageUrl)
+                    .key(key)
                     .build();
             s3Client.deleteObject(deleteObjectRequest);
-            log.info("파일 삭제 성공: bucket={}, key={}", bucket, imageUrl);
+            log.info("파일 삭제 성공: bucket={}, key={}", bucket, key);
         } catch (SdkServiceException e) {
             log.error("파일 삭제 실패: bucket={}, key={}, cause={}", bucket, imageUrl, e.getMessage(), e);
             throw new CustomException(INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다: " + e.getMessage());
@@ -107,4 +109,13 @@ public class S3Service {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
     }
 
+    private String extractKeyFromUrl(String imageUrl) {
+        // URL에서 key 부분만 추출
+        String prefix = String.format("https://%s.s3.%s.amazonaws.com/", bucket, region);
+        if (imageUrl.startsWith(prefix)) {
+            return imageUrl.substring(prefix.length());
+        }
+        // 예상치 못한 URL 형식일 경우 예외 처리
+        throw new CustomException(BAD_REQUEST, "잘못된 이미지 URL 형식입니다: " + imageUrl);
+    }
 }
