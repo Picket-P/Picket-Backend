@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @ExtendWith(MockitoExtension.class)
 class S3ServiceTest {
@@ -163,12 +164,16 @@ class S3ServiceTest {
         @Test
         void 이미지_삭제_시_파일_삭제_중_SdkServiceException_발생할_경우_실패() {
             // given
-            String imageUrl = "images/test-image.jpg";
+            String validImageUrl = "https://test-bucket.s3.ap-northeast-2.amazonaws.com/images/image.jpg";
+            String bucket = "test-bucket";
+            String region = "ap-northeast-2";
+            setField(s3Service, "bucket", bucket);
+            setField(s3Service, "region", region);
             doThrow(SdkServiceException.builder().message("S3 delete failed").build())
                     .when(s3Client).deleteObject(any(DeleteObjectRequest.class));
 
             // when & then
-            assertThatThrownBy(() -> s3Service.delete(imageUrl))
+            assertThatThrownBy(() -> s3Service.delete(validImageUrl))
                     .isInstanceOf(CustomException.class)
                     .hasMessageContaining("파일 삭제 중 오류가 발생했습니다");
             verify(s3Client, times(1)).deleteObject(any(DeleteObjectRequest.class));
@@ -177,14 +182,31 @@ class S3ServiceTest {
         @Test
         void 이미지_삭제_성공() {
             // given
-            String imageUrl = "images/test-image.jpg";
-            when(s3Client.deleteObject(any(DeleteObjectRequest.class))).thenReturn(any(DeleteObjectResponse.class));
+            String validImageUrl = "https://test-bucket.s3.ap-northeast-2.amazonaws.com/images/image.jpg";
+            String bucket = "test-bucket";
+            String region = "ap-northeast-2";
+            setField(s3Service, "bucket", bucket);
+            setField(s3Service, "region", region);
+            DeleteObjectResponse response = DeleteObjectResponse.builder().build();
+            when(s3Client.deleteObject(any(DeleteObjectRequest.class))).thenReturn(response);
 
             // when
-            s3Service.delete(imageUrl);
+            s3Service.delete(validImageUrl);
 
             // then
             verify(s3Client, times(1)).deleteObject(any(DeleteObjectRequest.class));
+        }
+
+        @Test
+        void 잘못된_URL_형식으로_이미지_삭제_실패() {
+            // given
+            String invalidImageUrl = "https://wrong-bucket.s3.ap-northeast-2.amazonaws.com/images/image.jpg";
+
+            // when & then
+            assertThatThrownBy(() -> s3Service.delete(invalidImageUrl))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining("잘못된 이미지 URL 형식입니다:");
+            verify(s3Client, never()).deleteObject(any(DeleteObjectRequest.class));
         }
 
     }
