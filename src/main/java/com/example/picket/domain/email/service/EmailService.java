@@ -96,7 +96,7 @@ public class EmailService {
 
     // 실제 이메일 발송 처리
     private void sendEmail(String recipientEmail, String subject, String content) {
-        EmailInfo emailInfo = new EmailInfo(
+        EmailInfo emailInfo = EmailInfo.create(
                 sender,
                 Collections.singletonList(recipientEmail),
                 subject,

@@ -16,11 +16,15 @@ public class EmailInfo {
     private String subject;
     private String content;
 
-    public EmailInfo(String from, List<String> to, String subject, String content) {
+    private EmailInfo(String from, List<String> to, String subject, String content) {
         this.from = from;
         this.to = to;
         this.subject = subject;
         this.content = content;
+    }
+
+    public static EmailInfo create(String from, List<String> to, String subject, String content) {
+        return new EmailInfo(from, to, subject, content);
     }
 
     public SendEmailRequest toSendEmailRequest() {
