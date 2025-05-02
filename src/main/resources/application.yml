@@ -3,9 +3,9 @@ spring:
     name: Picket
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/picket-mysql?rewriteBatchedStatements=true
+    username: test
+    password: test
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -34,18 +34,6 @@ spring:
       namespace: spring:session
     timeout: 60m
 
-#Google OAuth
-oauth:
-  google:
-    client-id: ${CLIENT_ID}
-    client-secret: ${CLIENT_SECRET_KEY}
-    redirect-uris:
-      director: http://localhost:8080/api/v2/auth/callback/director
-      user: http://localhost:8080/api/v2/auth/callback/user
-      admin: http://localhost:8080/api/v2/auth/callback/admin
-    token-uri: https://oauth2.googleapis.com/token
-    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
-
 # monitoring
 management:
   endpoints:
@@ -57,23 +45,35 @@ server:
     mbeanregistry:
       enabled: true
 
+#Google OAuth
+oauth:
+  google:
+    client-id: dummy-client-id
+    client-secret: dummy-client-secret
+    redirect-uris:
+      director: http://localhost:8080/api/v2/auth/callback/director
+      user: http://localhost:8080/api/v2/auth/callback/user
+      admin: http://localhost:8080/api/v2/auth/callback/admin
+    token-uri: https://oauth2.googleapis.com/token
+    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+
 # AWS S3
 cloud:
   aws:
     credentials:
-      access-key: ${AWS_S3_ACCESS_KEY}
-      secret-key: ${AWS_S3_SECRET_KEY}
+      access-key: dummy-access-key
+      secret-key: dummy-secret-key
     s3:
-      bucket: ${AWS_S3_IMAGE_BUCKET}
+      bucket: dummy-s3-bucket
     region:
-      static: ${AWS_REGION}
+      static: ap-northeast-2
     stack:
       auto: false
 
 # AWS SES
 aws:
-  region: ${AWS_REGION}
+  region: ap-northeast-2
   ses:
-    access-key: ${AWS_SES_ACCESS_KEY}
-    secret-key: ${AWS_SES_SECRET_KEY}
-    send-mail-from: ${AWS_SES_ADMIN_EMAIL}
+    access-key: dummy-ses-access-key
+    secret-key: dummy-ses-secret-key
+    send-mail-from: dummy@example.com

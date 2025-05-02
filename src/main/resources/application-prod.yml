@@ -40,6 +40,17 @@ spring:
       namespace: spring:session
     timeout: 60m
 
+# monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
 #Google OAuth
 oauth:
   google:
