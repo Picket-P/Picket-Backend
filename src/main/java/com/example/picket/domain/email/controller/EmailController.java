@@ -25,11 +25,11 @@ public class EmailController {
 
     @Operation(summary = "인증 이메일 재전송", description = "인증 코드를 이메일로 다시 전송합니다.")
     @PostMapping("/resend")
-    public ResponseEntity<?> resendVerificationEmail(@Valid @RequestBody EmailResendRequest request) {
+    public ResponseEntity<Map<String, String>> resendVerificationEmail(@Valid @RequestBody EmailResendRequest request) {
         return Optional.ofNullable(request.getEmail())
                 .map(email -> {
                     emailService.sendVerificationEmail(email);
-                    return new ResponseEntity<>(HttpStatus.OK);
+                    return ResponseEntity.ok(Map.of("message", "인증 이메일이 성공적으로 재전송되었습니다."));
                 })
                 .orElseGet(() -> ResponseEntity.badRequest()
                         .body(Map.of("message", "이메일 정보가 필요합니다.")));
