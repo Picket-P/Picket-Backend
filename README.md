@@ -128,7 +128,7 @@
 
 ## 🧭 기술적 의사 결정 및 성능 개선
 
-### [@Scheduler를 활용하여 일정 주기마다 데이터 갱신하기 (랭킹, 공연 티켓 상태)](https://github.com/Picket-P/Picket-Backend/wiki/%5B기술적-의사-결정%5D-@Scheduler%EB%A5%BC-%ED%99%9C%EC%9A%A9%ED%95%98%EC%97%AC%C2%A0%EC%9D%BC%EC%A0%95-%EC%A3%BC%EA%B8%B0%EB%A7%88%EB%8B%A4-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EA%B0%B1%EC%8B%A0%ED%95%98%EA%B8%B0-(%EB%9E%AD%ED%82%B9,-%EA%B3%B5%EC%97%B0-%ED%8B%B0%EC%BC%93-%EC%83%81%ED%83%9C))
+### [@Scheduled를 활용하여 일정 주기마다 데이터 갱신하기 (랭킹, 공연 티켓 상태)](https://github.com/Picket-P/Picket-Backend/wiki/%5B%EA%B8%B0%EC%88%A0%EC%A0%81-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95%5D-@Scheduled%EB%A5%BC-%ED%99%9C%EC%9A%A9%ED%95%98%EC%97%AC%C2%A0%EC%9D%BC%EC%A0%95-%EC%A3%BC%EA%B8%B0%EB%A7%88%EB%8B%A4-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EA%B0%B1%EC%8B%A0%ED%95%98%EA%B8%B0-(%EB%9E%AD%ED%82%B9,-%EA%B3%B5%EC%97%B0-%ED%8B%B0%EC%BC%93-%EC%83%81%ED%83%9C))
 
 ### [AWS SES로 회원 가입 시 이메일 인증 기능 구현하기](https://github.com/Picket-P/Picket-Backend/wiki/%5B기술적-의사-결정%5D-AWS-SES%EB%A1%9C-%ED%9A%8C%EC%9B%90-%EA%B0%80%EC%9E%85-%EC%8B%9C-%EC%9D%B4%EB%A9%94%EC%9D%BC-%EC%9D%B8%EC%A6%9D-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
 
